@@ -1,7 +1,7 @@
 ## INSTALASI LARAVEL FROM GITHUB
 
-- <code>git@github.com:solusicodekita/solkit-sistem.git</code>(from url github)
-- <code>cd solkit-sistem</code>(your name project)
+- <code>git@github.com:solusicodekita/nita-jaya-catering.git</code>(from url github)
+- <code>cd nita-jaya-catering</code>(your name project)
 - <code>composer install</code> or <code>composer update</code>
 - <code>cp .env.example .env</code> configuration your file .env in your project Laravel
 - <code>php artisan key:generate</code>
