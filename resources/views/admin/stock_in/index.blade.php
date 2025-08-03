@@ -82,6 +82,9 @@
                                                         @if ($row->stockTransactionDetails->isNotEmpty())
                                                             @foreach ($row->stockTransactionDetails as $item)
                                                                 {{ $item->description ?? '-' }}
+                                                                @if (!$loop->last)
+                                                                    <br>
+                                                                @endif
                                                             @endforeach
                                                         @else
                                                             -
