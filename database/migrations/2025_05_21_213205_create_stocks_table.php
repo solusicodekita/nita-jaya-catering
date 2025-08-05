@@ -21,7 +21,8 @@ class CreateStocksTable extends Migration
             $table->decimal('final_stock', 15, 2)->default(0);
             $table->dateTime('date_opname');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();    
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();   
+            $table->boolean('is_laporan')->nullable();
             $table->timestamps();
         });
     }

@@ -129,6 +129,7 @@ class LaporanTransaksiExport implements FromCollection, WithHeadings, WithMappin
         $modStock->date_opname = date('Y-m-d H:i:s', strtotime($this->tglAkhir));
         $modStock->created_by = auth()->user()->id;
         $modStock->updated_by = auth()->user()->id;
+        $modStock->is_laporan = 1;
         $modStock->save();
 
         $row = [
