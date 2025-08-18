@@ -1,0 +1,63 @@
+name: 🔁 Deploy PHP to cPanel via SSH
+
+on:
+  push:
+    branches: [main, dev]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      # main -> public_html, dev -> public_html/dev
+      TARGET_DIR: ${{ github.ref_name == 'main' && 'public_html' || 'public_html/dev' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # [Opsional] Jika pakai Composer (tanpa Node)
+      - name: Setup PHP (only if composer.json exists)
+        if: hashFiles('composer.json') != ''
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Composer install (only if composer.json exists)
+        if: hashFiles('composer.json') != ''
+        run: |
+          composer install --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy with rsync
+        run: |
+          RSYNC_EXCLUDES="--exclude .git --exclude .github --exclude .env --exclude node_modules --exclude tests --exclude README*"
+          rsync -az --delete $RSYNC_EXCLUDES -e "ssh -p $SSH_PORT" ./ "$SSH_USER@$SSH_HOST:~/$TARGET_DIR/"
+
+      - name: Post-deploy commands on server
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "
+            set -e
+            cd ~/$TARGET_DIR
+            # --- Jika LARAVEL, kamu bisa uncomment baris2 di bawah ---
+            # php artisan optimize || true
+            # php artisan config:cache || true
+            # php artisan route:cache || true
+            # php artisan view:cache || true
+            # find storage -type d -exec chmod 775 {} \; || true
+            # find storage -type f -exec chmod 664 {} \; || true
+            # find bootstrap/cache -type f -exec chmod 664 {} \; || true
+            echo 'Deployed to ~/$TARGET_DIR'
+          "
