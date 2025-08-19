@@ -215,7 +215,34 @@
         }
 
         function getHargaSatuan(obj) {
-            var item_id = $(obj).val();
+            let item_id = $(obj).val();
+            
+            let isItemSelected = false;
+            $('.item_id').not(obj).each(function() {
+                if ($(this).val() == item_id) {
+                    isItemSelected = true;
+                    return false;
+                }
+            });
+
+            if (isItemSelected) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Perhatian!', 
+                    text: 'Item ini sudah dipilih pada baris lain!'
+                });
+                $(obj).val('').trigger('change');
+                let $row = $(obj).parents('tr');
+                $row.find('.harga_satuan').val('0');
+                $row.find('.warehouse_id').empty().trigger('change');
+                $row.find('.unit').val('');
+                $row.find('.total_harga_item').val('0');
+                $row.find('.live_stok').val('0');
+                $row.find('.description').val('');
+                $row.find('.quantity').val('');
+                return false;
+            }
+
             $.ajax({
                 url: "{{ route('admin.in_stock.getHargaSatuan') }}",
                 type: "GET",
@@ -262,6 +289,14 @@
 
         function addItem(obj) {
             let no = $('#trTransaksi > tr').length + 1;
+            if (no > 10) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Perhatian!',
+                    text: 'Maksimal 10 baris per transaksi!',
+                });
+                return false;
+            }
             let tr = `@include('admin.stock_in.trCreate', ['no' => '${no}', 'item' => $item])`;
             $(obj).parents('table').find('#trTransaksi').append(tr);
 

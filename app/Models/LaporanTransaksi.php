@@ -39,8 +39,7 @@ class LaporanTransaksi extends Model
             ->whereDate('stock_transactions.date', '<=', $tgl_akhir)
             ->where(function ($query) {
                 $query->where(function ($q) {
-                    $q->where('stock_transactions.is_adjustment', 0)
-                      ->orWhere('stock_transactions.is_adjustment', null);
+                    $q->where('stock_transactions.is_adjustment', 0)->orWhere('stock_transactions.is_adjustment', null);
                     })
                       ->orWhere(function ($query) {
                           $query->where('stock_transactions.is_adjustment', 1)
