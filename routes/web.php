@@ -215,6 +215,7 @@ Route::middleware(['xss'])->group(function () {
             Route::get('index', [LaporanTransaksiController::class, 'index'])->name('index');
             Route::get('create', [LaporanTransaksiController::class, 'create'])->name('create');
             Route::get('download/{id}', [LaporanTransaksiController::class, 'download'])->name('download');
+            Route::post('preview', [LaporanTransaksiController::class, 'preview'])->name('preview');
         });
 
         Route::group(['prefix' => 'pengaturan/', 'as' => 'pengaturan.'], function () {

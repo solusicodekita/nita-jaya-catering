@@ -32,8 +32,9 @@ class LaporanTransaksiExport implements FromCollection, WithHeadings, WithMappin
     protected $totalStokAkhir = 0;
     protected $totalHargaStokAkhir = 0;
     protected $jumlahData;
+    protected $preview;
 
-    public function __construct($bulan, $tahun, $tglAwal, $tglAkhir)
+    public function __construct($bulan, $tahun, $tglAwal, $tglAkhir, $preview = null)
     {   
         $this->bulan = $bulan;
         $this->tahun = $tahun;
@@ -41,9 +42,10 @@ class LaporanTransaksiExport implements FromCollection, WithHeadings, WithMappin
         $this->tglAkhir = $tglAkhir;
         $this->stock = Stock::select('item_id', 'warehouse_id')
             ->join('items', 'stocks.item_id', '=', 'items.id')
-            ->orderBy('items.name')
+            ->orderBy('warehouse_id')
             ->groupBy('item_id', 'warehouse_id')->get();
         $this->jumlahData = $this->stock->count();
+        $this->preview = $preview;
     }
 
     public function collection()
@@ -92,12 +94,16 @@ class LaporanTransaksiExport implements FromCollection, WithHeadings, WithMappin
             ];
             return $row;
         }
-        $stokAwal = Stock::where('item_id', $stock->item_id)
+        $modelStokAwal = Stock::where('item_id', $stock->item_id)
             ->where('warehouse_id', $stock->warehouse_id)
-            ->whereMonth('date_opname', $this->bulan)
-            ->whereYear('date_opname', $this->tahun)
             ->latest('date_opname')
-            ->first()->final_stock;
+            ->first();
+
+        if ($modelStokAwal) {
+            $stokAwal = $modelStokAwal->final_stock;
+        } else {
+            $stokAwal = 0;
+        }
         
         $hargaTertinggi = LaporanTransaksi::hargaTertinggi($stock->item_id, $stock->warehouse_id, $this->tglAwal, $this->tglAkhir);
         
@@ -120,17 +126,19 @@ class LaporanTransaksiExport implements FromCollection, WithHeadings, WithMappin
         $this->totalStokAkhir += $stokAkhir;
         $this->totalHargaStokAkhir += $totalHargaStokAkhir;
 
-        # update harga stok
-        $modStock = new Stock();
-        $modStock->item_id = $stock->item_id;
-        $modStock->warehouse_id = $stock->warehouse_id;
-        $modStock->initial_stock = $stokAwal;
-        $modStock->final_stock = $stokAkhir;
-        $modStock->date_opname = date('Y-m-d H:i:s', strtotime($this->tglAkhir));
-        $modStock->created_by = auth()->user()->id;
-        $modStock->updated_by = auth()->user()->id;
-        $modStock->is_laporan = 1;
-        $modStock->save();
+        if (empty($this->preview)) {
+            # update harga stok
+            $modStock = new Stock();
+            $modStock->item_id = $stock->item_id;
+            $modStock->warehouse_id = $stock->warehouse_id;
+            $modStock->initial_stock = $stokAwal;
+            $modStock->final_stock = $stokAkhir;
+            $modStock->date_opname = date('Y-m-d 23:59:59', strtotime($this->tglAkhir));
+            $modStock->created_by = auth()->user()->id;
+            $modStock->updated_by = auth()->user()->id;
+            $modStock->is_laporan = 1;
+            $modStock->save();
+        }
 
         $row = [
             $this->no++,

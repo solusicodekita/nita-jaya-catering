@@ -46,7 +46,6 @@ class LaporanTransaksiController extends Controller
 
             return redirect()->route('admin.laporan_transaksi.index')->with('success', 'Laporan transaksi berhasil dibuat');
         } catch (\Exception $e) {
-            dd($e);
             return redirect()->route('admin.laporan_transaksi.index')->with('error', 'Laporan transaksi gagal dibuat');
         }
     }
@@ -75,5 +74,26 @@ class LaporanTransaksiController extends Controller
         ];
 
         return $namaBulan[$bulan];
+    }
+
+    public function preview(Request $request) {
+        try {
+            $tgl_awal = date('Y-m-d', strtotime('first day of this month'));
+            $tgl_akhir = $request->tgl_akhir;
+            $bulan = date('m', strtotime('-1 month'));
+            $tahun = date('Y', strtotime('-1 month'));
+
+            $filename = 'preview_laporan_transaksi_' . date('d_m_Y_His') . '.xlsx';
+            
+            return Excel::download(
+                new LaporanTransaksiExport($bulan, $tahun, $tgl_awal, $tgl_akhir, 1),
+                $filename
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat preview laporan: ' . $e->getMessage()
+            ]);
+        }
     }
 }
