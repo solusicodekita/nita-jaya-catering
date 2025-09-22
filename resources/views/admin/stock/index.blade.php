@@ -12,7 +12,7 @@
                                     <h3 class="card-title">Riwayat Stok Opname</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.stock.create') }}" class="btn btn-primary"><i
+                                    <a href="{{ route('stock.create') }}" class="btn btn-primary"><i
                                             class="fas fa-plus"></i> Tambah Stok Opname Awal</a>
                                 </div>
                             </div>

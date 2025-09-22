@@ -108,7 +108,7 @@
                 </div>
             </div>
             <div class="card-desc"> 
-                <a style="text-decoration: none;" href="{{ route('admin.category.index') }}" class="card-desc"> Tampilkan Data <i class="fa fa-arrow-right"></i></a>
+                <a style="text-decoration: none;" href="{{ route('category.index') }}" class="card-desc"> Tampilkan Data <i class="fa fa-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -123,7 +123,7 @@
                 </div>
             </div>
             <div class="card-desc">
-                 <a style="text-decoration: none;" href="{{ route('admin.warehouse.index') }}" class="card-desc"> Tampilkan Data <i class="fa fa-arrow-right"></i></a>
+                 <a style="text-decoration: none;" href="{{ route('warehouse.index') }}" class="card-desc"> Tampilkan Data <i class="fa fa-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -138,7 +138,7 @@
                 </div>
             </div>
             <div class="card-desc">
-                 <a style="text-decoration: none;" href="{{ route('admin.items.index') }}" class="card-desc"> Tampilkan Data <i class="fa fa-arrow-right"></i></a>
+                 <a style="text-decoration: none;" href="{{ route('items.index') }}" class="card-desc"> Tampilkan Data <i class="fa fa-arrow-right"></i></a>
             </div>
         </div>
     </div>

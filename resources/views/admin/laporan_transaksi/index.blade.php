@@ -38,7 +38,7 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>Laporan Transaksi Bulan {{ $row::convertBulan($row->bulan) }} - {{ $row->tahun }}</td>
                                             <td>
-                                                <a href="{{ route('admin.laporan_transaksi.download', $row->id) }}" class="btn btn-sm btn-primary">
+                                                <a href="{{ route('laporan_transaksi.download', $row->id) }}" class="btn btn-sm btn-primary">
                                                     <i class="fas fa-download"></i> Download
                                                 </a>
                                             </td>
@@ -86,7 +86,7 @@
             console.log('masuk sini');
             
             $(obj).html('<i class="fas fa-spinner fa-spin"></i> Membuat Laporan...');
-            location.href = "{{ route('admin.laporan_transaksi.create') }}";
+            location.href = "{{ route('laporan_transaksi.create') }}";
         }
 
         function buatPreviewLaporan(obj) {
@@ -95,7 +95,7 @@
             $(obj).html('<i class="fas fa-spinner fa-spin"></i> Membuat Laporan...');
 
             $.ajax({
-                url: "{{ route('admin.laporan_transaksi.preview') }}",
+                url: "{{ route('laporan_transaksi.preview') }}",
                 type: "POST",
                 data: {
                     tgl_akhir: tgl_akhir,

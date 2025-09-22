@@ -14,7 +14,7 @@
             },
         })
         $.ajax({
-            url: "{{ route('admin.category.store') }}",
+            url: "{{ route('category.store') }}",
             type: 'POST',
             data: formData,
             contentType: false,
@@ -30,7 +30,7 @@
                             confirmButton: "btn btn-success"
                         }
                     }).then(function(result) {
-                        location.href = "{{ route('admin.category.index') }}";
+                        location.href = "{{ route('category.index') }}";
                     });
                 } else if (data.status == 400) {
                     Swal.fire({
@@ -94,7 +94,7 @@
             },
         })
         $.ajax({
-            url: "{{ route('admin.category.update', ':id') }}".replace(':id', id),
+            url: "{{ route('category.update', ':id') }}".replace(':id', id),
             type: 'POST',
             data: formData,
             contentType: false,
@@ -110,7 +110,7 @@
                             confirmButton: "btn btn-success"
                         }
                     }).then(function(result) {
-                        location.href = "{{ route('admin.category.index') }}";
+                        location.href = "{{ route('category.index') }}";
                     });
                 } else if (data.status == 400) {
                     Swal.fire({
@@ -173,7 +173,7 @@
         }).then(function(result) {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('admin.category.destroy', ':id') }}".replace(':id', id),
+                    url: "{{ route('category.destroy', ':id') }}".replace(':id', id),
                     type: 'DELETE', 
                     data: {
                         "_token": "{{ csrf_token() }}"
@@ -188,7 +188,7 @@
                                 confirmButton: 'btn btn-success'
                             }
                         }).then(function(result) {
-                            location.href = "{{ route('admin.category.index') }}";
+                            location.href = "{{ route('category.index') }}";
                         });
                     },
                     error: function(xhr, status, error) {

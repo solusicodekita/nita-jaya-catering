@@ -12,13 +12,13 @@
                                     <h3 class="card-title">Form Tambah Adjustment Stock</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.stock.index') }}" class="btn btn-primary"><i
+                                    <a href="{{ route('stock.index') }}" class="btn btn-primary"><i
                                             class="fas fa-arrow-left"></i> Kembali</a>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body p-3">
-                            <form id="formSave" method="POST" action="{{ route('admin.adjustment_stock.store') }}"
+                            <form id="formSave" method="POST" action="{{ route('adjustment_stock.store') }}"
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group" style="margin-bottom: 10px;">
@@ -96,7 +96,7 @@
 
             if (item_id != '' && warehouse_id != '') {
                 $.ajax({
-                    url: "{{ route('admin.adjustment_stock.cekJumlahTerakhir') }}",
+                    url: "{{ route('adjustment_stock.cekJumlahTerakhir') }}",
                     type: 'GET',
                     data: {
                         item_id: item_id,
@@ -122,7 +122,7 @@
         function getWarehouse(obj) {
             var item_id = $(obj).val();
             $.ajax({
-                url: "{{ route('admin.adjustment_stock.getWarehouse') }}",
+                url: "{{ route('adjustment_stock.getWarehouse') }}",
                 type: "GET",
                 data: {
                     item_id: item_id

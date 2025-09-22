@@ -12,8 +12,8 @@
                                     <h3 class="card-title">Tabel Bahan</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{  route('admin.items.import')  }}" class="btn btn-outline-success"><i class="fas fa-file-import"></i> Import</a>
-                                    <a href="{{  route('admin.items.create')  }}" class="btn btn-outline-primary"><i class="fas fa-plus"></i> Tambah</a>
+                                    <a href="{{  route('items.import')  }}" class="btn btn-outline-success"><i class="fas fa-file-import"></i> Import</a>
+                                    <a href="{{  route('items.create')  }}" class="btn btn-outline-primary"><i class="fas fa-plus"></i> Tambah</a>
                                 </div>
                             </div>
                         </div>
@@ -48,7 +48,7 @@
                                             <td>{{ $item->updatedBy ? $item->updatedBy->firstname . ' ' . $item->updatedBy->lastname : ' ' }}</td>
                                             <td>{{ !empty($item->updated_at) ? \Carbon\Carbon::parse($item->updated_at)->translatedFormat('d F Y H:i:s') : ' ' }}</td>
                                             <td class="text-center">
-                                                <a href="{{ route('admin.items.edit', $item->id) }}" class="btn btn-outline-warning"><i class="fas fa-edit"></i></a>
+                                                <a href="{{ route('items.edit', $item->id) }}" class="btn btn-outline-warning"><i class="fas fa-edit"></i></a>
                                                 <button onclick="hapus('{{ $item->id }}')" class="btn btn-outline-danger"><i
                                                         class="fas fa-trash"></i></button>
                                             </td>

@@ -57,13 +57,13 @@
                                     <h3 class="card-title">Form Tambah Stok Out</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.out_stock.index') }}" class="btn btn-primary"><i
+                                    <a href="{{ route('out_stock.index') }}" class="btn btn-primary"><i
                                             class="fas fa-arrow-left"></i> Kembali</a>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body p-3 table-responsive">
-                            <form id="formStockIn" action="{{ route('admin.out_stock.store') }}" method="post">
+                            <form id="formStockIn" action="{{ route('out_stock.store') }}" method="post">
                                 @csrf
                                 <table id="tabelStock" class="table table-bordered table-striped text-center">
                                     <thead>
@@ -237,7 +237,7 @@
             }
 
             $.ajax({
-                url: "{{ route('admin.out_stock.getHargaSatuan') }}",
+                url: "{{ route('out_stock.getHargaSatuan') }}",
                 type: "GET", 
                 data: { item_id: item_id },
                 success: function(response) {
@@ -371,7 +371,7 @@
         function getWarehouse(obj) {
             var item_id = $(obj).val();
             $.ajax({
-                url: "{{ route('admin.out_stock.getWarehouse') }}",
+                url: "{{ route('out_stock.getWarehouse') }}",
                 type: "GET",
                 data: { item_id: item_id },
                 dataType: "json",
@@ -385,7 +385,7 @@
             let item_id = $(obj).parents('tr').find('.item_id').val();
             let warehouse_id = $(obj).parents('tr').find('.warehouse_id').val();
             $.ajax({
-                url: "{{ route('admin.out_stock.cekLiveStok') }}",
+                url: "{{ route('out_stock.cekLiveStok') }}",
                 type: "GET",
                 data: { item_id: item_id, warehouse_id: warehouse_id },
                 success: function(response) {

@@ -12,7 +12,7 @@
                                     <h3 class="card-title">Form Tambah Lokasi</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.warehouse.index') }}" class="btn btn-outline-primary"><i
+                                    <a href="{{ route('warehouse.index') }}" class="btn btn-outline-primary"><i
                                             class="fas fa-arrow-left"></i> Kembali</a>
                                 </div>
                             </div>

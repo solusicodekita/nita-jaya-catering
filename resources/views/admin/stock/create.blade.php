@@ -12,13 +12,13 @@
                                     <h3 class="card-title">Form Tambah Stok Opname Awal</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.stock.index') }}" class="btn btn-primary"><i
+                                    <a href="{{ route('stock.index') }}" class="btn btn-primary"><i
                                             class="fas fa-arrow-left"></i> Kembali</a>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body p-3">
-                            <form id="formStock" method="POST" action="{{ route('admin.stock.store') }}"
+                            <form id="formStock" method="POST" action="{{ route('stock.store') }}"
                                 enctype="multipart/form-data">
                                 @csrf
                                 <table class="table table-bordered" id="tableStock">
@@ -198,7 +198,7 @@
 
             if (item_id != '' && warehouse_id != '') {
                 $.ajax({
-                    url: "{{ route('admin.stock.cekStokAkhir') }}",
+                    url: "{{ route('stock.cekStokAkhir') }}",
                     type: 'GET',
                     data: {
                         item_id: item_id,

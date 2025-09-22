@@ -14,7 +14,7 @@
             },
         })
         $.ajax({
-            url: "{{ route('admin.warehouse.store') }}",
+            url: "{{ route('warehouse.store') }}",
             type: 'POST',
             data: formData,
             contentType: false,
@@ -30,7 +30,7 @@
                             confirmButton: "btn btn-success"
                         }
                     }).then(function(result) {
-                        location.href = "{{ route('admin.warehouse.index') }}";
+                        location.href = "{{ route('warehouse.index') }}";
                     });
                 } else if (data.status == 400) {
                     Swal.fire({
@@ -94,7 +94,7 @@
             },
         })
         $.ajax({
-            url: "{{ route('admin.warehouse.update', ':id') }}".replace(':id', id),
+            url: "{{ route('warehouse.update', ':id') }}".replace(':id', id),
             type: 'POST',
             data: formData,
             contentType: false,
@@ -110,7 +110,7 @@
                             confirmButton: "btn btn-success"
                         }
                     }).then(function(result) {
-                        location.href = "{{ route('admin.warehouse.index') }}";
+                        location.href = "{{ route('warehouse.index') }}";
                     });
                 } else if (data.status == 400) {
                     Swal.fire({
@@ -173,7 +173,7 @@
         }).then(function(result) {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('admin.warehouse.destroy', ':id') }}".replace(':id', id),
+                    url: "{{ route('warehouse.destroy', ':id') }}".replace(':id', id),
                     type: 'DELETE', 
                     data: {
                         "_token": "{{ csrf_token() }}"
@@ -188,7 +188,7 @@
                                 confirmButton: 'btn btn-success'
                             }
                         }).then(function(result) {
-                            location.href = "{{ route('admin.warehouse.index') }}";
+                            location.href = "{{ route('warehouse.index') }}";
                         });
                     },
                     error: function(xhr, status, error) {

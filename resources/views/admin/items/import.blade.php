@@ -12,7 +12,7 @@
                                     <h3 class="card-title">Form Import Bahan</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.items.index') }}" class="btn btn-outline-primary"><i
+                                    <a href="{{ route('items.index') }}" class="btn btn-outline-primary"><i
                                             class="fas fa-arrow-left"></i> Kembali</a>
                                     <a href="{{ asset('template/Template Barang.xlsx') }}" class="btn btn-outline-success"
                                         download><i class="fas fa-download"></i> Template Import</a>
@@ -85,7 +85,7 @@
         })
 
         $.ajax({
-            url: "{{ route('admin.items.importData') }}",
+            url: "{{ route('items.importData') }}",
             type: 'POST',
             data: formData,
             contentType: false,
@@ -101,7 +101,7 @@
                             confirmButton: "btn btn-success"
                         }
                     }).then(function(result) {
-                        location.href = "{{ route('admin.items.index') }}";
+                        location.href = "{{ route('items.index') }}";
                     });
                 } else if (data.status == 400) {
                     Swal.fire({

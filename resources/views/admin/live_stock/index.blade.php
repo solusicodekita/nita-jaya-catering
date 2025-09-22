@@ -12,10 +12,10 @@
                                     <h3 class="card-title">Live Stock</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.live_stock.export_excel') }}" class="btn btn-sm btn-success" target="_blank">
+                                    <a href="{{ route('live_stock.export_excel') }}" class="btn btn-sm btn-success" target="_blank">
                                         <i class="fas fa-file-excel"></i> Export Excel
                                     </a>
-                                    <a href="{{ route('admin.live_stock.export_pdf') }}" class="btn btn-sm btn-danger" target="_blank">
+                                    <a href="{{ route('live_stock.export_pdf') }}" class="btn btn-sm btn-danger" target="_blank">
                                         <i class="fas fa-file-pdf"></i> Export PDF
                                     </a>
                                 </div>

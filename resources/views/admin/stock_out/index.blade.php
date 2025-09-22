@@ -12,7 +12,7 @@
                                     <h3 class="card-title">Riwayat Stok Keluar</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.out_stock.create') }}" class="btn btn-primary"><i
+                                    <a href="{{ route('out_stock.create') }}" class="btn btn-primary"><i
                                             class="fas fa-plus"></i> Tambah</a>
                                 </div>
                             </div>
@@ -20,7 +20,7 @@
                         <div class="card-body p-3">
                             <div class="row mb-3">
                                 <div class="col-md-12">
-                                    <form action="{{ route('admin.out_stock.index') }}" method="GET" class="form-inline">
+                                    <form action="{{ route('out_stock.index') }}" method="GET" class="form-inline">
                                         <div class="row g-3 align-items-center">
                                             <div class="col-auto">
                                                 <label class="form-label">Tanggal Awal</label>
@@ -38,7 +38,7 @@
                                             </div>
                                             <div class="col-auto" style="margin-top: 32px;">
                                                 <button type="submit" class="btn btn-primary">Filter</button>
-                                                <a href="{{ route('admin.out_stock.index') }}"
+                                                <a href="{{ route('out_stock.index') }}"
                                                     class="btn btn-secondary">Reset</a>
                                             </div>
                                         </div>

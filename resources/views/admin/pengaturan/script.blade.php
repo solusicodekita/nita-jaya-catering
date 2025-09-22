@@ -44,7 +44,7 @@
             },
         })
         $.ajax({
-            url: "{{ route('admin.pengaturan.updatePassword') }}",
+            url: "{{ route('pengaturan.updatePassword') }}",
             type: 'POST',
             data: formData,
             contentType: false,

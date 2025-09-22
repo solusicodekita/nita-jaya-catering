@@ -353,7 +353,7 @@
             <div class="logo-circle">
                 <img src="{{ asset('images/nitajaya.png') }}" alt="Logo Nita Jaya Catering">
             </div>
-            <div class="brand">NITA JAYA CATERING</div>
+            <div class="brand">NITA JAYA CATERING - DEV</div>
             <div class="sidebar-user-info" style="margin-top:1.2rem;text-align:center;">
                 <span style="display:block;font-weight:700;font-size:1.08rem;color:#fff;">{{ Auth::user()->fullname }}</span>
                 <span style="display:block;font-size:0.97rem;color:#ffc107;margin-top:2px;">
@@ -365,65 +365,79 @@
             <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </a>
+
+            @if(Auth::user()->role != 'owner')
             <div class="nav-item">
-                <a href="#" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}" onclick="toggleMenu('masterMenu', event)">
+                <a href="#" class="nav-link {{ Request::is('category*') ? 'active' : '' }}" onclick="toggleMenu('masterMenu', event)">
                     <i class="fa-solid fa-database"></i>
                     <span>Master</span>
                     <i class="fa-solid fa-angle-down float-right mt-1"></i>
                 </a>
-                <div id="masterMenu" class="collapse {{ Request::is('admin/category*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'show' : '' }}">
-                    <a href="{{ route('admin.category.index') }}" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}">
+                <div id="masterMenu" class="collapse {{ Request::is('category*') || Request::is('items*') || Request::is('warehouse*') ? 'show' : '' }}">
+                    <a href="{{ route('category.index') }}" class="nav-link {{ Request::is('category*') ? 'active' : '' }}">
                         <i class="fa-solid fa-tags"></i> <span>Kategori</span>
                     </a>
-                    <a href="{{ route('admin.warehouse.index') }}" class="nav-link {{ Request::is('admin/warehouse*') ? 'active' : '' }}">
+                    <a href="{{ route('warehouse.index') }}" class="nav-link {{ Request::is('warehouse*') ? 'active' : '' }}">
                         <i class="fa-solid fa-location-dot"></i> <span>Lokasi</span>
                     </a>
-                    <a href="{{ route('admin.items.index') }}" class="nav-link {{ Request::is('admin/items*') ? 'active' : '' }}">
+                    <a href="{{ route('items.index') }}" class="nav-link {{ Request::is('items*') ? 'active' : '' }}">
                         <i class="fa-solid fa-box"></i> <span>Bahan</span>
                     </a>
                 </div>
             </div>
+
             <div class="nav-item">
-                <a href="#" class="nav-link {{ Request::is('admin/transactions*') ? 'active' : '' }}" onclick="toggleMenu('transaksiMenu', event)">
+                <a href="#" class="nav-link {{ Request::is('transactions*') ? 'active' : '' }}" onclick="toggleMenu('transaksiMenu', event)">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span>Transaksi</span>
                     <i class="fa-solid fa-angle-down float-right mt-1"></i>
                 </a>
-                <div id="transaksiMenu" class="collapse {{ Request::is('admin/stock*') || Request::is('admin/in_stock*') || Request::is('admin/live_stock*') || Request::is('admin/out_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/laporan_transaksi*') ? 'show' : '' }}">
-                    <a href="{{ route('admin.stock.index') }}" class="nav-link {{ Request::is('admin/stock*') ? 'active' : '' }}">
+                <div id="transaksiMenu" class="collapse {{ Request::is('stock*') || Request::is('in_stock*') || Request::is('live_stock*') || Request::is('out_stock*') || Request::is('adjustment_stock*') || Request::is('laporan_transaksi*') ? 'show' : '' }}">
+                    @if(in_array(Auth::user()->role, ['superadmin', 'admin', 'petugas_gudang']))
+                    <a href="{{ route('stock.index') }}" class="nav-link {{ Request::is('stock*') ? 'active' : '' }}">
                         <i class="fa-solid fa-clipboard-list"></i> <span>Stok Opname</span>
                     </a>
-                    <a href="{{ route('admin.live_stock.index') }}" class="nav-link {{ Request::is('admin/live_stock*') ? 'active' : '' }}">
+                    @endif
+                    
+                    <a href="{{ route('live_stock.index') }}" class="nav-link {{ Request::is('live_stock*') ? 'active' : '' }}">
                         <i class="fa-solid fa-chart-line"></i> <span>Live Stock</span>
                     </a>
-                    <a href="{{ route('admin.in_stock.index') }}" class="nav-link {{ Request::is('admin/in_stock*') ? 'active' : '' }}">
+
+                    @if(in_array(Auth::user()->role, ['superadmin', 'admin', 'petugas_gudang']))
+                    <a href="{{ route('in_stock.index') }}" class="nav-link {{ Request::is('in_stock*') ? 'active' : '' }}">
                         <i class="fa-solid fa-arrow-right-to-bracket"></i> <span>Stok Masuk</span>
                     </a>
-                    <a href="{{ route('admin.out_stock.index') }}" class="nav-link {{ Request::is('admin/out_stock*') ? 'active' : '' }}">
+                    <a href="{{ route('out_stock.index') }}" class="nav-link {{ Request::is('out_stock*') ? 'active' : '' }}">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Stok Keluar</span>
                     </a>
-                    <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
+                    <a href="{{ route('adjustment_stock.index') }}" class="nav-link {{ Request::is('adjustment_stock*') ? 'active' : '' }}">
                         <i class="fa-solid fa-sliders"></i> <span>Adjustment Stock</span>
                     </a>
-                    <a href="{{ route('admin.laporan_transaksi.index') }}" class="nav-link {{ Request::is('admin/laporan_transaksi*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-file-lines"></i> <span>Laporan Transaksi</span>
-                    </a>
+                    @endif
                 </div>
             </div>
+            @endif
+
+            {{-- Laporan Transaksi (Semua role bisa akses) --}}
+            <a href="{{ route('laporan_transaksi.index') }}" class="nav-link {{ Request::is('laporan_transaksi*') ? 'active' : '' }}">
+                <i class="fa-solid fa-file-lines"></i> <span>Laporan Transaksi</span>
+            </a>
+
             <div class="nav-item">
-                <a href="#" class="nav-link {{ Request::is('admin/pengaturan') ? 'active' : '' }}" onclick="toggleMenu('pengaturanMenu', event)">
+                <a href="#" class="nav-link {{ Request::is('pengaturan') ? 'active' : '' }}" onclick="toggleMenu('pengaturanMenu', event)">
                     <i class="fa-solid fa-gear"></i>
                     <span>Pengaturan</span>
                     <i class="fa-solid fa-angle-down float-right mt-1"></i>
                 </a>
-                <div id="pengaturanMenu" class="collapse {{ Request::is('admin/pengaturan') || Request::is('admin/pengaturan/index') ? 'show' : '' }}">
-                    <a href="{{ route('admin.pengaturan.index') }}" class="nav-link {{ Request::is('admin/pengaturan/index') ? 'active' : '' }}">
+                <div id="pengaturanMenu" class="collapse {{ Request::is('pengaturan') || Request::is('pengaturan/index') ? 'show' : '' }}">
+                    <a href="{{ route('pengaturan.index') }}" class="nav-link {{ Request::is('pengaturan/index') ? 'active' : '' }}">
                         <i class="fa-solid fa-user"></i> <span>Profil</span>
                     </a>
                 </div>
             </div>
-            @if (Auth::user()->username == 'sidqi' || Auth::user()->username == 'superadmin')                
-                <a href="{{ route('admin.users.index') }}" class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}">
+
+            @if(Auth::user()->role == 'superadmin')
+                <a href="{{ route('users.index') }}" class="nav-link {{ Request::is('users*') ? 'active' : '' }}">
                     <i class="fa-solid fa-users"></i> <span>Users</span>
                 </a>
             @endif

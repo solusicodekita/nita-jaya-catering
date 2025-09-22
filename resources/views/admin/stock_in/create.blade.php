@@ -59,13 +59,13 @@
                                     <h3 class="card-title">Form Tambah Stok In</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.in_stock.index') }}" class="btn btn-primary"><i
+                                    <a href="{{ route('in_stock.index') }}" class="btn btn-primary"><i
                                             class="fas fa-arrow-left"></i> Kembali</a>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body p-3 table-responsive">
-                            <form id="formStockIn" action="{{ route('admin.in_stock.store') }}" method="post">
+                            <form id="formStockIn" action="{{ route('in_stock.store') }}" method="post">
                                 @csrf
                                 <table id="tabelStock" class="table table-bordered table-striped text-center">
                                     <thead>
@@ -244,7 +244,7 @@
             }
 
             $.ajax({
-                url: "{{ route('admin.in_stock.getHargaSatuan') }}",
+                url: "{{ route('in_stock.getHargaSatuan') }}",
                 type: "GET",
                 data: {
                     item_id: item_id
@@ -377,7 +377,7 @@
         function getWarehouse(obj) {
             var item_id = $(obj).val();
             $.ajax({
-                url: "{{ route('admin.in_stock.getWarehouse') }}",
+                url: "{{ route('in_stock.getWarehouse') }}",
                 type: "GET",
                 data: {
                     item_id: item_id

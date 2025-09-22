@@ -40,7 +40,7 @@
             },
         })
         $.ajax({
-            url: "{{ route('admin.items.store') }}",
+            url: "{{ route('items.store') }}",
             type: 'POST',
             data: formData,
             contentType: false,
@@ -56,7 +56,7 @@
                             confirmButton: "btn btn-success"
                         }
                     }).then(function(result) {
-                        location.href = "{{ route('admin.items.index') }}";
+                        location.href = "{{ route('items.index') }}";
                     });
                 } else if (data.status == 400) {
                     Swal.fire({
@@ -110,7 +110,7 @@
             },
         })
         $.ajax({
-            url: "{{ route('admin.items.update', ':id') }}".replace(':id', id),
+            url: "{{ route('items.update', ':id') }}".replace(':id', id),
             type: 'POST',
             data: formData,
             contentType: false,
@@ -126,7 +126,7 @@
                             confirmButton: "btn btn-success"
                         }
                     }).then(function(result) {
-                        location.href = "{{ route('admin.items.index') }}";
+                        location.href = "{{ route('items.index') }}";
                     });
                 } else if (data.status == 400) {
                     Swal.fire({
@@ -179,7 +179,7 @@
         }).then(function(result) {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('admin.items.destroy', ':id') }}".replace(':id', id),
+                    url: "{{ route('items.destroy', ':id') }}".replace(':id', id),
                     type: 'DELETE', 
                     data: {
                         "_token": "{{ csrf_token() }}"
@@ -194,7 +194,7 @@
                                 confirmButton: 'btn btn-success'
                             }
                         }).then(function(result) {
-                            location.href = "{{ route('admin.items.index') }}";
+                            location.href = "{{ route('items.index') }}";
                         });
                     },
                     error: function(xhr, status, error) {

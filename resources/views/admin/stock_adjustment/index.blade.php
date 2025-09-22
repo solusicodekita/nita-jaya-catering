@@ -12,7 +12,7 @@
                                     <h3 class="card-title">Adjustment Stock</h3>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="{{ route('admin.adjustment_stock.create') }}" class="btn btn-primary"><i
+                                    <a href="{{ route('adjustment_stock.create') }}" class="btn btn-primary"><i
                                             class="fas fa-plus"></i> Tambah</a>
                                 </div>
                             </div>
@@ -120,7 +120,7 @@
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
-                            url: '{{ route('admin.adjustment_stock.verifikasi') }}',
+                            url: '{{ route('adjustment_stock.verifikasi') }}',
                             type: 'POST',
                             data: {
                                 id: id

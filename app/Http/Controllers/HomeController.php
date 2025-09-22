@@ -44,24 +44,7 @@ class HomeController extends Controller
             $total = 0;
             $products = Product::with('order_product')->orderBy('id')->get()->groupBy(function($data) { return $data->qty; });;
             $data = OrderProduct::with('product')->orderBy('product_id')->get()->groupBy(function($data) { return $data->product->id; });
-            // dd($data);
-            // foreach($data as $qty => $product) {
-            //     foreach($product as $item) {
-            //         if ($item->product_id == $item->product->id) {
-            //             $total += $item->qty;
-            //         }
-            //     }
-            // }
-
-            // DONUT CHART
-            // $chart1 = Transaction::where('status', 'SUCCESS')->sum('total_harga');
-            // $success = number_format($chart1, 0, '', '.');
-            // $chart2 = Transaction::where('status', 'PENDING')->sum('total_harga');
-            // $pending = number_format($chart2, 0, '', '.');
-            // $chart3 = Transaction::where('status', 'PROSES')->sum('total_harga');
-            // $proses = number_format($chart3, 0, '', '.');
-            // $chart4 = Transaction::whereNotIn('status', ['SUCCESS','PENDING','PROSES'])->sum('total_harga');
-            // $fail = number_format($chart4, 0, '', '.');
+          
 
             // PIE CHART
             $success = Transaction::where('status', 'SUCCESS')->sum('total_harga');
