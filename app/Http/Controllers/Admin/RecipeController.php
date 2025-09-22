@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
+
 class RecipeController extends Controller
 {
     public function index()
@@ -22,6 +23,8 @@ class RecipeController extends Controller
         $data = MasterRecipe::with(['category', 'details'])->orderBy('id', 'desc')->get();
         return view('admin.recipes.index', compact('data'));
     }
+
+    
 
     public function create()
     {
