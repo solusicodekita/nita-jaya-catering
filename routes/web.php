@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Admin\WareHousesController;
 use App\Http\Controllers\LaporanTransaksiController;
 use App\Http\Controllers\PengaturanController;
+use App\Http\Controllers\Admin\RecipeController;
+use App\Http\Controllers\RecipeCategoryController;
 use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockOutController;
@@ -27,7 +29,6 @@ Route::get('/clear-cache', function () {
  });
 
 Route::middleware(['xss'])->group(function () {
-
 
     Route::post('payments/midtrans-notification', [App\Http\Controllers\PaymentCallbackController::class, 'receive']);
     Route::get('payments-finish', [App\Http\Controllers\FrontendController::class, 'payments_finish'])->name('payments_finish');
@@ -64,7 +65,6 @@ Route::middleware(['xss'])->group(function () {
             Route::put('website/{admin_website}', 'update')->name('update');
         });
 
-
         Route::group(['prefix' => 'category', 'as' => 'category.'], function () {
             Route::get('index', [CategoryController::class, 'index'])->name('index');
             Route::get('create', [CategoryController::class, 'create'])->name('create');
@@ -73,6 +73,14 @@ Route::middleware(['xss'])->group(function () {
             Route::post('update/{id}', [CategoryController::class, 'update'])->name('update');
             Route::delete('destroy/{id}', [CategoryController::class, 'destroy'])->name('destroy');
         });
+
+        Route::group(['prefix' => 'recipe_category', 'as' => 'recipe_category.'], function () {
+            Route::get('index', [RecipeCategoryController::class, 'index'])->name('index');
+            Route::post('store', [RecipeCategoryController::class, 'store'])->name('store');
+            Route::post('update/{id}', [RecipeCategoryController::class, 'update'])->name('update');
+            Route::delete('destroy/{id}', [RecipeCategoryController::class, 'destroy'])->name('destroy');
+        });
+
         Route::group(['prefix' => 'items', 'as' => 'items.'], function () {
             Route::get('index', [ItemController::class, 'index'])->name('index');
             Route::get('create', [ItemController::class, 'create'])->name('create');
@@ -83,6 +91,7 @@ Route::middleware(['xss'])->group(function () {
             Route::get('import', [ItemController::class, 'import'])->name('import');
             Route::post('importData', [ItemController::class, 'importData'])->name('importData');
         });
+
         Route::group(['prefix' => 'warehouse', 'as' => 'warehouse.'], function () {
             Route::get('index', [WareHousesController::class, 'index'])->name('index');
             Route::get('create', [WareHousesController::class, 'create'])->name('create');
@@ -132,21 +141,32 @@ Route::middleware(['xss'])->group(function () {
             Route::post('verifikasi', [StockAdjustmentController::class, 'verifikasi'])->name('verifikasi');
         });
 
-        // Routes untuk owner dan roles lainnya (laporan)
-        // Route::middleware(['role:superadmin,admin,supervisor,owner'])->group(function () {
-            Route::group(['prefix' => 'laporan_transaksi', 'as' => 'laporan_transaksi.'], function () {
+        Route::group(['prefix' => 'laporan_transaksi', 'as' => 'laporan_transaksi.'], function () {
             Route::get('index', [LaporanTransaksiController::class, 'index'])->name('index');
             Route::get('create', [LaporanTransaksiController::class, 'create'])->name('create');
             Route::get('download/{id}', [LaporanTransaksiController::class, 'download'])->name('download');
             Route::post('preview', [LaporanTransaksiController::class, 'preview'])->name('preview');
         });
 
-        // }); // End of laporan routes
-
         Route::group(['prefix' => 'pengaturan', 'as' => 'pengaturan.'], function () {
             Route::get('index', [PengaturanController::class, 'index'])->name('index');
             Route::post('update_password', [PengaturanController::class, 'updatePassword'])->name('updatePassword');
         });
-    });
 
+        // Recipe Routes
+        Route::group(['prefix' => 'recipes', 'as' => 'recipes.'], function () {
+            Route::get('/', [RecipeController::class, 'index'])->name('index');
+            Route::get('/datatable', [RecipeController::class, 'getDatatable'])->name('datatable');
+            Route::get('/create', [RecipeController::class, 'create'])->name('create');
+            Route::post('/', [RecipeController::class, 'store'])->name('store');
+            Route::get('/{id}', [RecipeController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [RecipeController::class, 'edit'])->name('edit');
+            Route::post('/update/{id}', [RecipeController::class, 'update'])->name('update');
+            Route::delete('/destroy/{id}', [RecipeController::class, 'destroy'])->name('destroy');
+            
+            // Stock Out Processing
+            Route::get('/{id}/stock-out', [RecipeController::class, 'createStockOut'])->name('stock-out.create');
+            Route::post('/{id}/stock-out', [RecipeController::class, 'processStockOut'])->name('stock-out.process');
+        });
+    });
 });

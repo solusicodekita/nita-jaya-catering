@@ -383,6 +383,9 @@
                     <a href="{{ route('items.index') }}" class="nav-link {{ Request::is('items*') ? 'active' : '' }}">
                         <i class="fa-solid fa-box"></i> <span>Bahan</span>
                     </a>
+                    <a href="{{ route('recipe_category.index') }}" class="nav-link {{ Request::is('recipe_category*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-list"></i> <span>Kategori Resep</span>
+                    </a>
                 </div>
             </div>
 
@@ -392,10 +395,14 @@
                     <span>Transaksi</span>
                     <i class="fa-solid fa-angle-down float-right mt-1"></i>
                 </a>
-                <div id="transaksiMenu" class="collapse {{ Request::is('stock*') || Request::is('in_stock*') || Request::is('live_stock*') || Request::is('out_stock*') || Request::is('adjustment_stock*') || Request::is('laporan_transaksi*') ? 'show' : '' }}">
+                <div id="transaksiMenu" class="collapse {{ Request::is('stock*') || Request::is('in_stock*') || Request::is('live_stock*') || Request::is('out_stock*') || Request::is('adjustment_stock*') || Request::is('laporan_transaksi*') || Request::is('recipes*') ? 'show' : '' }}">
                     @if(in_array(Auth::user()->role, ['superadmin', 'admin', 'petugas_gudang']))
                     <a href="{{ route('stock.index') }}" class="nav-link {{ Request::is('stock*') ? 'active' : '' }}">
                         <i class="fa-solid fa-clipboard-list"></i> <span>Stok Opname</span>
+                    </a>
+                    
+                    <a href="{{ route('recipes.index') }}" class="nav-link {{ Request::is('recipes*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-book"></i> <span>Resep</span>
                     </a>
                     @endif
                     
