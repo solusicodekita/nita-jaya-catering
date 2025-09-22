@@ -1,0 +1,11 @@
+{
+    "name": "serve main nitajayacatering.com",
+    "host": "ftp.nitajayacatering.com",
+    "protocol": "ftp",
+    "port": 21,
+    "username": "hasan@nitajayacatering.com",
+    "remotePath": "/public_html/",
+    "uploadOnSave": false,
+    "useTempFile": false,
+    "openSsh": false
+}
