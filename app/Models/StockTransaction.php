@@ -31,4 +31,9 @@ class StockTransaction extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+    public function transaksiMenu()
+    {
+        return $this->hasMany(TransaksiMenu::class);
+    }
+
 }
