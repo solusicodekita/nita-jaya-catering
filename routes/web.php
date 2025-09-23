@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Admin\WareHousesController;
 use App\Http\Controllers\LaporanTransaksiController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\StockController;
@@ -170,6 +171,14 @@ Route::middleware(['xss'])->group(function () {
             Route::post('update/{id}', [WareHousesController::class, 'update'])->name('update');
             Route::delete('destroy/{id}', [WareHousesController::class, 'destroy'])->name('destroy');
             Route::post('check-name', [WareHousesController::class, 'checkName'])->name('checkName');
+        });
+        Route::group(['prefix' => 'menu/', 'as' => 'menu.'], function () {
+            Route::get('index', [MenuController::class, 'index'])->name('index');
+            Route::get('create', [MenuController::class, 'create'])->name('create');
+            Route::post('store', [MenuController::class, 'store'])->name('store');
+            Route::get('edit/{id}', [MenuController::class, 'edit'])->name('edit');
+            Route::post('update/{id}', [MenuController::class, 'update'])->name('update');
+            Route::delete('destroy/{id}', [MenuController::class, 'destroy'])->name('destroy');
         });
 
         Route::group(['prefix' => 'stock/', 'as' => 'stock.'], function () {

@@ -371,7 +371,7 @@
                     <span>Master</span>
                     <i class="fa-solid fa-angle-down float-right mt-1"></i>
                 </a>
-                <div id="masterMenu" class="collapse {{ Request::is('admin/category*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'show' : '' }}">
+                <div id="masterMenu" class="collapse {{ Request::is('admin/category*') || Request::is('admin/items*') || Request::is('admin/warehouse*') || Request::is('admin/menu*') ? 'show' : '' }}">
                     <a href="{{ route('admin.category.index') }}" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}">
                         <i class="fa-solid fa-tags"></i> <span>Kategori</span>
                     </a>
@@ -380,6 +380,9 @@
                     </a>
                     <a href="{{ route('admin.items.index') }}" class="nav-link {{ Request::is('admin/items*') ? 'active' : '' }}">
                         <i class="fa-solid fa-box"></i> <span>Bahan</span>
+                    </a>
+                    <a href="{{ route('admin.menu.index') }}" class="nav-link {{ Request::is('admin/menu*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-utensils"></i> <span>Menu</span>
                     </a>
                 </div>
             </div>
