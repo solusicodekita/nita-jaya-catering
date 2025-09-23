@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\Menu;
 use App\Models\Stock;
 use App\Models\StockTransaction;
 use App\Models\StockTransactionDetail;
+use App\Models\TransaksiMenu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -92,6 +94,18 @@ class StockOutController extends Controller
                 ]);
             }
 
+            foreach ($request->menu as $value) {
+                TransaksiMenu::create([
+                    'menu_id' => $value['menu_id'],
+                    'stock_transaction_id' => $stock->id,
+                    'qty' => $value['qty'],
+                    'created_by' => Auth::user()->id,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_by' => Auth::user()->id,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+
             DB::commit();
             return redirect()->route('admin.out_stock.index')->with('success', 'Data berhasil disimpan');
         } catch (\Throwable $th) {
@@ -121,5 +135,21 @@ class StockOutController extends Controller
     public function cekLiveStok(Request $request) {
         $jumlah = Stock::liveStock($request->item_id, $request->warehouse_id);
         return response()->json($jumlah);
+    }
+
+    public function getMenu(Request $request)
+    {
+        $query = Menu::select('name', 'id')
+            ->where('is_active', true);
+
+        if (!empty($request->term)) {
+            $cari = $request->term;
+            $data = $query->where('name', 'LIKE', '%' . $cari . '%')
+                ->limit(10)
+                ->get();
+        } else {
+            $data = $query->limit(10)->get();
+        }
+        return response()->json($data);
     }
 }
