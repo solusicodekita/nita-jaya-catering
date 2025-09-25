@@ -37,8 +37,8 @@ class Stock extends Model
             ->where('stock_transaction_details.item_id', $model->item_id)
             ->where('stock_transaction_details.warehouse_id', $model->warehouse_id)
             ->where('stock_transactions.type', 'in')
-            ->whereDate('stock_transactions.date', '>=', $model->date_opname)
-            ->whereDate('stock_transactions.date', '<=', date('Y-m-d H:i:s'));
+            ->where('stock_transactions.date', '>=', $model->date_opname)
+            ->where('stock_transactions.date', '<=', date('Y-m-d H:i:s'));
             
         $barangMasuk = $barangMasuk->where(function ($query) {
             $query->where('stock_transactions.is_adjustment', 0)->orWhere('stock_transactions.is_adjustment', null)
@@ -52,8 +52,8 @@ class Stock extends Model
             ->where('stock_transaction_details.item_id', $model->item_id)
             ->where('stock_transaction_details.warehouse_id', $model->warehouse_id)
             ->where('stock_transactions.type', 'out')
-            ->whereDate('stock_transactions.date', '>=', $model->date_opname)
-            ->whereDate('stock_transactions.date', '<=', date('Y-m-d H:i:s'));
+            ->where('stock_transactions.date', '>=', $model->date_opname)
+            ->where('stock_transactions.date', '<=', date('Y-m-d H:i:s'));
 
         $barangKeluar = $barangKeluar->where(function ($query) {
             $query->where('stock_transactions.is_adjustment', 0)->orWhere('stock_transactions.is_adjustment', null)
