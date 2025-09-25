@@ -152,4 +152,29 @@ class StockOutController extends Controller
         }
         return response()->json($data);
     }
+
+    public function updateMenu(Request $request)
+    {
+        try {
+            $menu = TransaksiMenu::find($request->id);
+            $menu->menu_id = $request->menu_id;
+            $menu->qty = $request->qty;
+            $menu->save();
+            
+            // Mengambil parameter dari request untuk dikirim kembali ke index
+            $start_date = $request->start_date;
+            $end_date = $request->end_date;
+            $item_name = $request->item_name;
+            
+            // Membuat query string untuk parameter URL
+            $params = [];
+            if ($start_date) $params['start_date'] = $start_date;
+            if ($end_date) $params['end_date'] = $end_date;
+            if ($item_name) $params['item_name'] = $item_name;
+            
+            return redirect()->route('admin.out_stock.index', $params)->with('success', 'Data berhasil disimpan');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
 }

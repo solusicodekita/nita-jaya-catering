@@ -79,7 +79,44 @@
                                                     <td style="text-align: left;">
                                                         <ul>
                                                             @foreach ($row->transaksiMenu as $item)
-                                                                <li>{{ $item->menu->name }} - {{ $item->qty }}</li>
+                                                                <li>
+                                                                    {{ $item->menu->name }} - {{ $item->qty }}
+                                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $item->id }}">
+                                                                        <i class="fas fa-pencil-alt"></i>
+                                                                    </a>
+                                                                </li>
+                                                                <!-- Modal -->
+                                                                <div class="modal fade select2modal" id="editModal{{ $item->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $item->id }}" aria-hidden="true">
+                                                                    <div class="modal-dialog">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title" id="editModalLabel{{ $item->id }}">Edit Menu</h5>
+                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <!-- Form untuk mengedit menu -->
+                                                                                <form action="{{ route('admin.out_stock.updateMenu') }}" method="POST">
+                                                                                    @csrf
+                                                                                    <div class="mb-3">
+                                                                                        <label for="menuName" class="form-label">Nama Menu</label>
+                                                                                        <select id="menu_id" class="form-select select2" name="menu_id">
+                                                                                            <option value="{{ $item->menu->id }}">{{ $item->menu->name }}</option>
+                                                                                        </select>
+                                                                                    </div>
+                                                                                    <div class="mb-3">
+                                                                                        <label for="menuQty" class="form-label">Jumlah</label>
+                                                                                        <input type="text" name="qty" class="form-control hanyaAngka" id="qty" value="{{ $item->qty }}">
+                                                                                        <input type="hidden" name="id" class="form-control" id="id" value="{{ $item->id }}">
+                                                                                        <input type="hidden" name="start_date" class="form-control" id="start_date" value="{{ request('start_date') }}">
+                                                                                        <input type="hidden" name="end_date" class="form-control" id="end_date" value="{{ request('end_date') }}">
+                                                                                        <input type="hidden" name="item_name" class="form-control" id="item_name" value="{{ request('item_name') }}">
+                                                                                    </div>
+                                                                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                                                                </form>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             @endforeach
                                                         </ul>
                                                     </td>
@@ -127,6 +164,40 @@
                     searching: false,
                 });
             @endif
+        });
+
+        $(document).on('shown.bs.modal', '.select2modal', function() {
+            $(".hanyaAngka").on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            var $modal = $(this);
+            var $menu = $modal.find('.select2'); // select2 di dalam modal itu saja
+
+            $menu.select2({
+                dropdownParent: $modal,
+                ajax: {
+                    url: "{{ route('admin.out_stock.getMenu') }}",
+                    dataType: 'json',
+                    delay: 250,
+                    type: "GET",
+                    data: function(params) {
+                        return {
+                            term: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: $.map(data, function(item) {
+                                return {
+                                    id: item.id,
+                                    text: item.name
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
         });
     </script>
 @endpush
