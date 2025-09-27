@@ -282,6 +282,18 @@
                 dropdownParent: $('body')
             });
 
+            // Fungsi untuk mendapatkan menu yang sudah dipilih
+            function getSelectedMenuIds() {
+                var selectedIds = [];
+                $('.select2-menu').each(function() {
+                    var value = $(this).val();
+                    if (value && value !== '') {
+                        selectedIds.push(value);
+                    }
+                });
+                return selectedIds;
+            }
+
             $('.select2-menu').select2({
                 ajax: {
                     url: "{{ route('admin.out_stock.getMenu') }}",
@@ -289,8 +301,10 @@
                     delay: 250,
                     type: "GET",
                     data: function(params) {
+                        var selectedIds = getSelectedMenuIds();
                         return {
-                            term: params.term
+                            term: params.term,
+                            exclude_ids: selectedIds
                         };
                     },
                     processResults: function(data) {

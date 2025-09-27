@@ -142,6 +142,11 @@ class StockOutController extends Controller
         $query = Menu::select('name', 'id')
             ->where('is_active', true);
 
+        // Exclude menu yang sudah dipilih
+        if (!empty($request->exclude_ids) && is_array($request->exclude_ids)) {
+            $query->whereNotIn('id', $request->exclude_ids);
+        }
+
         if (!empty($request->term)) {
             $cari = $request->term;
             $data = $query->where('name', 'LIKE', '%' . $cari . '%')
@@ -176,5 +181,25 @@ class StockOutController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
+    }
+
+    public function getMenuInformasi(Request $request)
+    {
+        $stock_transaction_id = $request->stock_transaction_id;
+        $transaksi_menu = TransaksiMenu::where('stock_transaction_id', $stock_transaction_id)->get();
+        
+        $query = Menu::select('name', 'id')
+            ->where('is_active', true)
+            ->whereNotIn('id', $transaksi_menu->pluck('menu_id'));
+
+        if (!empty($request->term)) {
+            $cari = $request->term;
+            $data = $query->where('name', 'LIKE', '%' . $cari . '%')
+                ->limit(10)
+                ->get();
+        } else {
+            $data = $query->limit(10)->get();
+        }
+        return response()->json($data);
     }
 }

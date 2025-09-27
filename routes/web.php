@@ -210,6 +210,7 @@ Route::middleware(['xss'])->group(function () {
             Route::get('get_warehouse', [StokInController::class, 'getWarehouse'])->name('getWarehouse');
             Route::get('cek_live_stok', [StockOutController::class, 'cekLiveStok'])->name('cekLiveStok');
             Route::get('get_menu', [StockOutController::class, 'getMenu'])->name('getMenu');
+            Route::get('get_menu_informasi', [StockOutController::class, 'getMenuInformasi'])->name('getMenuInformasi');
             Route::post('update_menu', [StockOutController::class, 'updateMenu'])->name('updateMenu');
         });
 
