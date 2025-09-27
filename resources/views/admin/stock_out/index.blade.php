@@ -102,6 +102,7 @@
                                                                                         <select id="menu_id" class="form-select select2" name="menu_id">
                                                                                             <option value="{{ $item->menu->id }}">{{ $item->menu->name }}</option>
                                                                                         </select>
+                                                                                        <input type="hidden" name="stock_transaction_id" class="form-control" id="stock_transaction_id" value="{{ $item->stock_transaction_id }}">
                                                                                     </div>
                                                                                     <div class="mb-3">
                                                                                         <label for="menuQty" class="form-label">Jumlah</label>
@@ -172,17 +173,19 @@
             });
             var $modal = $(this);
             var $menu = $modal.find('.select2'); // select2 di dalam modal itu saja
+            var $stock_transaction_id = $modal.find('input[name="stock_transaction_id"]').val();
 
             $menu.select2({
                 dropdownParent: $modal,
                 ajax: {
-                    url: "{{ route('admin.out_stock.getMenu') }}",
+                    url: "{{ route('admin.out_stock.getMenuInformasi') }}",
                     dataType: 'json',
                     delay: 250,
                     type: "GET",
                     data: function(params) {
                         return {
-                            term: params.term
+                            term: params.term,
+                            stock_transaction_id: $stock_transaction_id
                         };
                     },
                     processResults: function(data) {
