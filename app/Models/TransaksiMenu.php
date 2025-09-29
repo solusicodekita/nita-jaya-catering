@@ -16,4 +16,27 @@ class TransaksiMenu extends Model
     {
         return $this->belongsTo(Menu::class);
     }
+
+    public function item()
+    {
+        return $this->belongsTo(Item::class);
+    }
+    
+    // Relasi untuk mendapatkan item melalui stock transaction details
+    public function items()
+    {
+        return $this->hasManyThrough(
+            Item::class,
+            StockTransactionDetail::class,
+            'stock_transaction_id',
+            'id',
+            'stock_transaction_id',
+            'item_id'
+        );
+    }
+
+    public function stockTransaction()
+    {
+        return $this->belongsTo(StockTransaction::class);
+    }
 }

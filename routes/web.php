@@ -13,6 +13,7 @@ use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockOutController;
 use App\Http\Controllers\StokInController;
+use App\Http\Controllers\ResepController;
 
 Route::get('/', function () {
     return Auth::check() ? redirect('/home') : redirect('/login');
@@ -234,6 +235,10 @@ Route::middleware(['xss'])->group(function () {
             Route::get('index', [PengaturanController::class, 'index'])->name('index');
             Route::post('update_password', [PengaturanController::class, 'updatePassword'])->name('updatePassword');
         });
+
+        // Dashboard Resep Routes
+        Route::get('resep', [ResepController::class, 'index'])->name('resep');
+        Route::get('resep/{id}', [ResepController::class, 'show'])->name('resep.show');
     });
 
 });

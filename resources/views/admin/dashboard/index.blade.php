@@ -146,7 +146,7 @@
 
 <div class="row mb-4">
     @foreach($warehouse_stocks as $ws)
-    <div class="col-12 col-md-3 mb-3">
+    <div class="col-12 col-md-4 mb-4">
         <div class="card shadow-sm h-100" style="border-radius:16px;">
             <div class="card-body text-center">
                 <div class="fw-bold" style="font-size:1.1rem;">{{ $ws['name'] }}</div>
@@ -162,22 +162,28 @@
     <div class="card-header bg-light fw-bold" style="font-size:1.1rem;">Item Habis</div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped mb-0">
+            <table id="itemHabisTable" class="table table-striped mb-0">
                 <thead>
                     <tr>
-                        <th>Item</th>
-                        <th>Lokasi</th>
+                        <th class="text-center">No</th>
+                        <th class="text-center">Item</th>
+                        <th class="text-center">Lokasi</th>
+                        <th class="text-center">Stok Terakhir</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($empty_items as $stock)
+                    @forelse($empty_items as $index => $stock)
                     <tr>
+                        <td class="text-center">{{ $index + 1 }}</td>
                         <td>{{ $stock->item->name ?? '-' }}</td>
                         <td>{{ $stock->warehouse->name ?? '-' }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-danger">{{ $stock->final_stock ?? 0 }}</span>
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="2" class="text-center text-muted">Tidak ada item habis</td>
+                        <td colspan="4" class="text-center text-muted">Tidak ada item habis</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -349,5 +355,39 @@
         link.download = 'grafik-perubahan-harga.png';
         link.click();
     }
+
 </script>
+
+@push('scripts')
+<script>
+    // Initialize DataTables for Item Habis
+    $(document).ready(function() {
+        $('#itemHabisTable').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+            "pageLength": 10,
+            "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Semua"]],
+            "language": {
+                "lengthMenu": "Tampilkan _MENU_ data per halaman",
+                "zeroRecords": "Tidak ada data yang ditemukan",
+                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
+                "infoFiltered": "(disaring dari _MAX_ total data)",
+                "search": "Cari:",
+                "paginate": {
+                    "first": "Pertama",
+                    "last": "Terakhir",
+                    "next": "Selanjutnya",
+                    "previous": "Sebelumnya"
+                }
+            }
+        });
+    });
+</script>
+@endpush
 @endsection

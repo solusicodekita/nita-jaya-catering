@@ -44,9 +44,54 @@ class StockOutController extends Controller
         return view('admin.stock_out.index', compact('model'));
     }
 
-    public function create() {
+    public function create(Request $request) {
         $item = Item::whereHas('stocks')->get();
-        return view('admin.stock_out.create', compact('item'));
+        
+        // Jika ada menu_id, load data menu dan item yang terkait
+        $selectedMenu = null;
+        $menuItems = collect();
+        
+        if ($request->menu_id) {
+            $selectedMenu = Menu::find($request->menu_id);
+            
+            if ($selectedMenu) {
+                // Ambil item dari transaksi menu yang terkait
+                $transaksiMenus = TransaksiMenu::with([
+                    'stockTransaction.stockTransactionDetails.item'
+                ])->where('menu_id', $request->menu_id)->get();
+                
+                $itemsGrouped = [];
+                
+                foreach ($transaksiMenus as $transaksi) {
+                    if ($transaksi->stockTransaction && $transaksi->stockTransaction->stockTransactionDetails) {
+                        foreach ($transaksi->stockTransaction->stockTransactionDetails as $detail) {
+                            if ($detail->item) {
+                                $itemId = $detail->item->id;
+                                
+                                if (isset($itemsGrouped[$itemId])) {
+                                    // Jika item sudah ada, tambahkan quantity
+                                    $itemsGrouped[$itemId]['quantity'] += $detail->quantity;
+                                } else {
+                                    // Jika item belum ada, buat entry baru
+                                    $itemsGrouped[$itemId] = [
+                                        'id' => $detail->item->id,
+                                        'name' => $detail->item->name,
+                                        'unit' => $detail->item->unit,
+                                        'price' => $detail->item->price,
+                                        'quantity' => $detail->quantity
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Convert grouped array to collection
+                $menuItems = collect($itemsGrouped);
+            }
+        }
+        
+        return view('admin.stock_out.create', compact('item', 'selectedMenu', 'menuItems'));
     }
 
     public function getHargaSatuan(Request $request)

@@ -14,7 +14,7 @@ if [ "$BRANCH" = "main" ]; then
     # Copy main configuration
     cp "$CONFIG_DIR/sftp.main.json" "$TARGET_FILE"
     echo "Updated SFTP config for main branch"
-elif [ "$BRANCH" = "dev" ]; then
+elif [ "$BRANCH" = "dev_sukri" ]; then
     # Copy dev configuration
     cp "$CONFIG_DIR/sftp.dev.json" "$TARGET_FILE"
     echo "Updated SFTP config for dev branch"

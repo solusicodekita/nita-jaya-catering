@@ -365,6 +365,10 @@
             <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </a>
+
+            <a href="{{ route('admin.resep') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
+                <i class="fa-solid fa-utensils"></i> <span>Dashboard Resep</span>
+            </a>
             <div class="nav-item">
                 <a href="#" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}" onclick="toggleMenu('masterMenu', event)">
                     <i class="fa-solid fa-database"></i>
@@ -452,15 +456,18 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#example1').DataTable({
-                "paging": true,
-                "lengthChange": true,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "responsive": true
-            });
+            // Initialize DataTables only if the table exists
+            if ($('#example1').length) {
+                $('#example1').DataTable({
+                    "paging": true,
+                    "lengthChange": true,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true
+                });
+            }
         });
 
         @if(session('success'))

@@ -94,7 +94,9 @@
                                             </td>
                                             <td>
                                                 <select class="form-control warehouse_id select2-warehouse"
-                                                    name="item[1][warehouse_id]" onchange="cekLiveStok(this)"></select>
+                                                    name="item[1][warehouse_id]" onchange="cekLiveStok(this)">
+                                                    <option value="">-- Pilih Lokasi --</option>
+                                                </select>
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control harga_satuan ribuan"
@@ -108,7 +110,7 @@
                                             <td>
                                                 <input type="text" class="form-control quantity" name="item[1][quantity]"
                                                     id="quantity" onblur="totalHargaItem(this)"
-                                                    placeholder="Ketikkan Jumlah Satuan" autocomplete="off">
+                                                    placeholder="Ketikkan Jumlah" autocomplete="off">
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control unit" name="item[1][unit]"
@@ -126,6 +128,49 @@
                                             <td>
                                                 <button type="button" class="btn btn-primary btn-sm"
                                                     onclick="addItem(this)"><i class="fas fa-plus"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>
+                                                <select class="form-control item_id select2-item" name="item[2][item_id]"
+                                                    onchange="getHargaSatuan(this)">
+                                                    <option value="" disabled selected>-- Pilih Item --</option>
+                                                    @foreach ($item as $row)
+                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select class="form-control warehouse_id select2-warehouse"
+                                                    name="item[2][warehouse_id]" onchange="cekLiveStok(this)">
+                                                    <option value="">-- Pilih Lokasi --</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control harga_satuan ribuan"
+                                                    name="item[2][harga_satuan]" onblur="totalHargaItem(this)" value="0" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control live_stok" name="item[2][live_stok]" value="0" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control quantity" name="item[2][quantity]"
+                                                    onblur="totalHargaItem(this)" placeholder="Ketikkan Jumlah" autocomplete="off">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control unit" name="item[2][unit]" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="item[2][total_harga_item]" value="0" class="form-control total_harga_item" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="item[2][description]"
+                                                    placeholder="Ketikkan Keterangan" autocomplete="off">
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                    onclick="deleteItem(this)"><i class="fas fa-trash"></i></button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -206,6 +251,22 @@
             $(".hanyaAngka").on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
+            
+            // Load selected menu and items if menu_id is provided
+            @if(isset($selectedMenu) && $selectedMenu)
+                // Set selected menu in form
+                $('#menu_id').append(new Option('{{ $selectedMenu->name }}', '{{ $selectedMenu->id }}', true, true));
+                
+                // Set default quantity = 1 untuk Form Menu
+                $('#qty').val('1');
+                
+                // Load items from selected menu
+                @if($menuItems->count() > 0)
+                    @foreach($menuItems as $index => $menuItem)
+                        addItemFromMenu({{ $menuItem['id'] }}, '{{ $menuItem['name'] }}', {{ $menuItem['quantity'] }}, '{{ $menuItem['unit'] }}', {{ $menuItem['price'] }});
+                    @endforeach
+                @endif
+            @endif
             initializeSelect2();
             $(".desimal").keypress(function(e) {
                 var charCode = (e.which) ? e.which : event.keyCode;
@@ -421,30 +482,119 @@
         }
 
         function addItem(obj) {
-            let no = $('#trTransaksi > tr').length + 1;
-            if (no > 10) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Perhatian!',
-                    text: 'Maksimal 10 baris per transaksi!',
-                });
-                return false;
+            // Cari baris kosong pertama yang tersedia
+            var emptyRow = null;
+            $('#trTransaksi > tr').each(function(index) {
+                var itemSelect = $(this).find('select[name*="[item_id]"]');
+                if (itemSelect.val() === '' || itemSelect.val() === null) {
+                    emptyRow = $(this);
+                    return false; // break loop
+                }
+            });
+            
+            if (emptyRow) {
+                // Focus pada baris kosong yang ditemukan
+                emptyRow.find('select[name*="[item_id]"]').focus();
+            } else {
+                // Jika tidak ada baris kosong, tambahkan baris baru
+                let no = $('#trTransaksi > tr').length + 1;
+                if (no > 10) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Perhatian!',
+                        text: 'Maksimal 10 baris per transaksi!',
+                    });
+                    return false;
+                }
+                
+                let tr = `
+                    <tr>
+                        <td>${no}</td>
+                        <td>
+                            <select class="form-control item_id select2-item" name="item[${no}][item_id]"
+                                onchange="getHargaSatuan(this)">
+                                <option value="" disabled selected>-- Pilih Item --</option>
+                                @foreach ($item as $row)
+                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-control warehouse_id select2-warehouse"
+                                name="item[${no}][warehouse_id]" onchange="cekLiveStok(this)">
+                                <option value="">-- Pilih Lokasi --</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control harga_satuan ribuan"
+                                name="item[${no}][harga_satuan]" onblur="totalHargaItem(this)" value="0" readonly>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control live_stok" name="item[${no}][live_stok]" value="0" readonly>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control quantity" name="item[${no}][quantity]"
+                                onblur="totalHargaItem(this)" placeholder="Ketikkan Jumlah" autocomplete="off">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control unit" name="item[${no}][unit]" readonly>
+                        </td>
+                        <td>
+                            <input type="text" name="item[${no}][total_harga_item]" value="0" class="form-control total_harga_item" readonly>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="item[${no}][description]"
+                                placeholder="Ketikkan Keterangan" autocomplete="off">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm"
+                                onclick="deleteItem(this)"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                $('#trTransaksi').append(tr);
+                
+                setTimeout(function() {
+                    initializeSelect2();
+                }, 100);
             }
-            let tr = `@include('admin.stock_out.trCreate', ['no' => '${no}', 'item' => $item])`;
-            $(obj).parents('table').find('#trTransaksi').append(tr);
-
-            setTimeout(function() {
-                initializeSelect2();
-            }, 100);
         }
 
         function deleteItem(obj) {
-            $(obj).parents('tr').remove();
+            let $row = $(obj).parents('tr');
+            let rowCount = $('#trTransaksi > tr').length;
+            
+            // Jika hanya ada 2 baris atau kurang, reset field saja
+            if (rowCount <= 2) {
+                // Reset semua field di baris
+                $row.find('select[name*="[item_id]"]').val('').trigger('change');
+                $row.find('select[name*="[warehouse_id]"]').empty().trigger('change');
+                $row.find('input[name*="[harga_satuan]"]').val('0');
+                $row.find('input[name*="[live_stok]"]').val('0');
+                $row.find('input[name*="[quantity]"]').val('');
+                $row.find('input[name*="[unit]"]').val('');
+                $row.find('input[name*="[total_harga_item]"]').val('0');
+                $row.find('input[name*="[description]"]').val('');
+            } else {
+                // Jika lebih dari 2 baris, hapus baris
+                $row.remove();
+                
+                // Renumber rows
+                $('#trTransaksi > tr').each(function(index) {
+                    $(this).find('td:first').text(index + 1);
+                    $(this).find('select[name*="[item_id]"]').attr('name', `item[${index + 1}][item_id]`);
+                    $(this).find('select[name*="[warehouse_id]"]').attr('name', `item[${index + 1}][warehouse_id]`);
+                    $(this).find('input[name*="[harga_satuan]"]').attr('name', `item[${index + 1}][harga_satuan]`);
+                    $(this).find('input[name*="[live_stok]"]').attr('name', `item[${index + 1}][live_stok]`);
+                    $(this).find('input[name*="[quantity]"]').attr('name', `item[${index + 1}][quantity]`);
+                    $(this).find('input[name*="[unit]"]').attr('name', `item[${index + 1}][unit]`);
+                    $(this).find('input[name*="[total_harga_item]"]').attr('name', `item[${index + 1}][total_harga_item]`);
+                    $(this).find('input[name*="[description]"]').attr('name', `item[${index + 1}][description]`);
+                });
+            }
+            
+            // Update total
             totalKeseluruhan();
-
-            setTimeout(function() {
-                initializeSelect2();
-            }, 100);
         }
 
         function totalKeseluruhan() {
@@ -545,6 +695,8 @@
 
         function getWarehouse(obj) {
             var item_id = $(obj).val();
+            if (!item_id) return;
+            
             $.ajax({
                 url: "{{ route('admin.out_stock.getWarehouse') }}",
                 type: "GET",
@@ -553,7 +705,22 @@
                 },
                 dataType: "json",
                 success: function(response) {
-                    $(obj).parents('tr').find('.warehouse_id').html(response);
+                    var warehouseSelect = $(obj).parents('tr').find('.warehouse_id');
+                    warehouseSelect.html(response);
+                    
+                    // Jika ada warehouse, pilih yang pertama dan trigger change
+                    if (response && response.indexOf('<option value=') > -1 && response.indexOf('-- Lokasi Item tidak ditemukan --') === -1) {
+                        setTimeout(function() {
+                            // Pilih option pertama yang bukan placeholder
+                            var firstOption = warehouseSelect.find('option:not([value=""])').first();
+                            if (firstOption.length > 0) {
+                                warehouseSelect.val(firstOption.val()).trigger('change');
+                            }
+                        }, 100);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error loading warehouse:', error);
                 }
             });
         }
@@ -625,6 +792,61 @@
             setTimeout(function() {
                 initializeSelect2();
             }, 100);
+        }
+        
+        function addItemFromMenu(itemId, itemName, quantity, unit, price) {
+            // Cari baris kosong pertama yang tersedia
+            var emptyRow = null;
+            $('#trTransaksi > tr').each(function(index) {
+                var itemSelect = $(this).find('select[name*="[item_id]"]');
+                if (itemSelect.val() === '' || itemSelect.val() === null || itemSelect.val() === undefined) {
+                    emptyRow = $(this);
+                    return false; // break loop
+                }
+            });
+            
+            if (emptyRow) {
+                var rowIndex = emptyRow.find('td:first').text();
+                
+                // Set item dengan cara yang benar
+                var itemSelect = emptyRow.find('select[name*="[item_id]"]');
+                itemSelect.val(itemId).trigger('change');
+                
+                // Set quantity dengan format yang benar
+                emptyRow.find('input[name*="[quantity]"]').val(quantity);
+                
+                // Trigger totalHargaItem untuk update total
+                setTimeout(function() {
+                    totalHargaItem(emptyRow.find('input[name*="[quantity]"]')[0]);
+                }, 150);
+                
+                // Set unit
+                emptyRow.find('input[name*="[unit]"]').val(unit);
+                
+                // Set price dengan format yang benar
+                var formattedPrice = parseFloat(price).toLocaleString('id-ID');
+                emptyRow.find('input[name*="[harga_satuan]"]').val(formattedPrice);
+                
+                // Calculate total dengan format yang benar
+                var total = price * quantity;
+                var formattedTotal = parseFloat(total).toLocaleString('id-ID');
+                emptyRow.find('input[name*="[total_harga_item]"]').val(formattedTotal);
+                
+                // Trigger harga satuan dan warehouse loading
+                setTimeout(function() {
+                    getHargaSatuan(itemSelect[0]);
+                }, 100);
+                
+                // Trigger warehouse loading dengan delay yang lebih lama
+                setTimeout(function() {
+                    getWarehouse(itemSelect[0]);
+                }, 300);
+                
+                // Update total keseluruhan
+                setTimeout(function() {
+                    totalKeseluruhan();
+                }, 800);
+            }
         }
     </script>
 @endpush

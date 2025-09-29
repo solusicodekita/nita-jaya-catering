@@ -21,4 +21,9 @@ class Menu extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function transaksiMenus()
+    {
+        return $this->hasMany(TransaksiMenu::class);
+    }
 }
