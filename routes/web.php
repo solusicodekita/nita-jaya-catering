@@ -212,6 +212,7 @@ Route::middleware(['xss'])->group(function () {
             Route::get('get_menu', [StockOutController::class, 'getMenu'])->name('getMenu');
             Route::get('get_menu_informasi', [StockOutController::class, 'getMenuInformasi'])->name('getMenuInformasi');
             Route::post('update_menu', [StockOutController::class, 'updateMenu'])->name('updateMenu');
+            Route::post('update_menu_bulk', [StockOutController::class, 'updateMenuBulk'])->name('updateMenuBulk');
         });
 
         Route::group(['prefix' => 'adjustment_stock/', 'as' => 'adjustment_stock.'], function () {

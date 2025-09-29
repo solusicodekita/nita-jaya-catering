@@ -76,50 +76,17 @@
                                                             @endforeach
                                                         </ul>
                                                     </td>
-                                                    <td style="text-align: left;">
-                                                        <ul>
+                                                    <td style="text-align: center;">
+                                                        <ul style="text-align: left;">
                                                             @foreach ($row->transaksiMenu as $item)
-                                                                <li>
-                                                                    {{ $item->menu->name }} - {{ $item->qty }}
-                                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $item->id }}">
-                                                                        <i class="fas fa-pencil-alt"></i>
-                                                                    </a>
-                                                                </li>
-                                                                <!-- Modal -->
-                                                                <div class="modal fade select2modal" id="editModal{{ $item->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $item->id }}" aria-hidden="true">
-                                                                    <div class="modal-dialog">
-                                                                        <div class="modal-content">
-                                                                            <div class="modal-header">
-                                                                                <h5 class="modal-title" id="editModalLabel{{ $item->id }}">Edit Menu</h5>
-                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                            </div>
-                                                                            <div class="modal-body">
-                                                                                <!-- Form untuk mengedit menu -->
-                                                                                <form action="{{ route('admin.out_stock.updateMenu') }}" method="POST">
-                                                                                    @csrf
-                                                                                    <div class="mb-3">
-                                                                                        <label for="menuName" class="form-label">Nama Menu</label>
-                                                                                        <select id="menu_id" class="form-select select2" name="menu_id">
-                                                                                            <option value="{{ $item->menu->id }}">{{ $item->menu->name }}</option>
-                                                                                        </select>
-                                                                                        <input type="hidden" name="stock_transaction_id" class="form-control" id="stock_transaction_id" value="{{ $item->stock_transaction_id }}">
-                                                                                    </div>
-                                                                                    <div class="mb-3">
-                                                                                        <label for="menuQty" class="form-label">Jumlah</label>
-                                                                                        <input type="text" name="qty" class="form-control hanyaAngka" id="qty" value="{{ $item->qty }}">
-                                                                                        <input type="hidden" name="id" class="form-control" id="id" value="{{ $item->id }}">
-                                                                                        <input type="hidden" name="start_date" class="form-control" id="start_date" value="{{ request('start_date') }}">
-                                                                                        <input type="hidden" name="end_date" class="form-control" id="end_date" value="{{ request('end_date') }}">
-                                                                                        <input type="hidden" name="item_name" class="form-control" id="item_name" value="{{ request('item_name') }}">
-                                                                                    </div>
-                                                                                    <button type="submit" class="btn btn-primary">Simpan</button>
-                                                                                </form>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
+                                                                <li>{{ $item->menu->name }} - {{ $item->qty }}</li>
                                                             @endforeach
                                                         </ul>
+                                                        @if($row->transaksiMenu->count() > 0)
+                                                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editMenuModal{{ $row->id }}">
+                                                                <i class="fas fa-edit"></i>Edit Menu
+                                                            </button>
+                                                        @endif
                                                     </td>
                                                     <td>Rp {{ number_format($row->total_harga_keseluruhan, 2, ',', '.') }}
                                                     </td>
@@ -155,6 +122,76 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Edit Menu untuk setiap transaksi -->
+    @foreach ($model as $row)
+        @if($row->transaksiMenu->count() > 0)
+            <div class="modal fade select2modal" id="editMenuModal{{ $row->id }}" tabindex="-1" aria-labelledby="editMenuModalLabel{{ $row->id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editMenuModalLabel{{ $row->id }}">Edit Menu - Transaksi #{{ $row->id }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editMenuForm{{ $row->id }}" action="{{ route('admin.out_stock.updateMenuBulk') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="stock_transaction_id" value="{{ $row->id }}">
+                                <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+                                <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+                                <input type="hidden" name="item_name" value="{{ request('item_name') }}">
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">No</th>
+                                                <th class="text-center">Nama Menu</th>
+                                                <th class="text-center">Jumlah</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="trTransaksiMenu{{ $row->id }}">
+                                            @foreach ($row->transaksiMenu as $index => $item)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>
+                                                        <select class="form-control select2-menu" name="menu[{{ $index + 1 }}][menu_id]" required>
+                                                            <option value="{{ $item->menu->id }}">{{ $item->menu->name }}</option>
+                                                        </select>
+                                                        <input type="hidden" name="menu[{{ $index + 1 }}][id]" value="{{ $item->id }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control qty hanyaAngka" name="menu[{{ $index + 1 }}][qty]" value="{{ $item->qty }}" required>
+                                                    </td>
+                                                    <td>
+                                                        @if($index == 0)
+                                                            <button type="button" class="btn btn-primary btn-sm" onclick="addItemMenu(this, {{ $row->id }})">
+                                                                <i class="fas fa-plus"></i>
+                                                            </button>
+                                                        @else
+                                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteItemMenu(this, {{ $row->id }})">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endforeach
 @endsection
 @push('scripts')
     <script>
@@ -172,20 +209,33 @@
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
             var $modal = $(this);
-            var $menu = $modal.find('.select2'); // select2 di dalam modal itu saja
             var $stock_transaction_id = $modal.find('input[name="stock_transaction_id"]').val();
 
-            $menu.select2({
+            // Fungsi untuk mendapatkan menu yang sudah dipilih
+            function getSelectedMenuIds() {
+                var selectedIds = [];
+                $modal.find('.select2-menu').each(function() {
+                    var value = $(this).val();
+                    if (value && value !== '') {
+                        selectedIds.push(value);
+                    }
+                });
+                return selectedIds;
+            }
+
+            // Initialize select2 for menu dropdowns
+            $modal.find('.select2-menu').select2({
                 dropdownParent: $modal,
                 ajax: {
-                    url: "{{ route('admin.out_stock.getMenuInformasi') }}",
+                    url: "{{ route('admin.out_stock.getMenu') }}",
                     dataType: 'json',
                     delay: 250,
                     type: "GET",
                     data: function(params) {
+                        var selectedIds = getSelectedMenuIds();
                         return {
                             term: params.term,
-                            stock_transaction_id: $stock_transaction_id
+                            exclude_ids: selectedIds
                         };
                     },
                     processResults: function(data) {
@@ -199,8 +249,115 @@
                         };
                     },
                     cache: true
-                }
+                },
+                placeholder: "-- Pilih Menu --",
+                allowClear: false,
+                width: '100%'
             });
         });
+
+        function addItemMenu(obj, stockTransactionId) {
+            let no = $('#trTransaksiMenu' + stockTransactionId + ' > tr').length + 1;
+            if (no > 10) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Perhatian!',
+                    text: 'Maksimal 10 menu per transaksi!',
+                });
+                return false;
+            }
+            
+            let tr = `
+                <tr>
+                    <td>${no}</td>
+                    <td>
+                        <select class="form-control select2-menu" name="menu[${no}][menu_id]" required>
+                        </select>
+                        <input type="hidden" name="menu[${no}][id]" value="">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control qty hanyaAngka" name="menu[${no}][qty]" required>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteItemMenu(this, ${stockTransactionId})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            $('#trTransaksiMenu' + stockTransactionId).append(tr);
+
+            // Re-initialize select2 for the new row
+            setTimeout(function() {
+                var $modal = $('#editMenuModal' + stockTransactionId);
+                
+                // Fungsi untuk mendapatkan menu yang sudah dipilih
+                function getSelectedMenuIds() {
+                    var selectedIds = [];
+                    $modal.find('.select2-menu').each(function() {
+                        var value = $(this).val();
+                        if (value && value !== '') {
+                            selectedIds.push(value);
+                        }
+                    });
+                    return selectedIds;
+                }
+                
+                $modal.find('.select2-menu').select2({
+                    dropdownParent: $modal,
+                    ajax: {
+                        url: "{{ route('admin.out_stock.getMenu') }}",
+                        dataType: 'json',
+                        delay: 250,
+                        type: "GET",
+                        data: function(params) {
+                            var selectedIds = getSelectedMenuIds();
+                            return {
+                                term: params.term,
+                                exclude_ids: selectedIds
+                            };
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: $.map(data, function(item) {
+                                    return {
+                                        id: item.id,
+                                        text: item.name
+                                    };
+                                })
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: "-- Pilih Menu --",
+                    allowClear: false,
+                    width: '100%'
+                });
+                
+                // Re-bind hanyaAngka event
+                $(".hanyaAngka").on('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }, 100);
+        }
+
+        function deleteItemMenu(obj, stockTransactionId) {
+            $(obj).parents('tr').remove();
+            
+            // Renumber rows
+            $('#trTransaksiMenu' + stockTransactionId + ' > tr').each(function(index) {
+                $(this).find('td:first').text(index + 1); // Update nomor urut (kolom pertama)
+                $(this).find('select').attr('name', `menu[${index + 1}][menu_id]`);
+                $(this).find('.qty').attr('name', `menu[${index + 1}][qty]`);
+                $(this).find('input[type="hidden"]').attr('name', `menu[${index + 1}][id]`);
+                
+                // Update button pada baris pertama menjadi plus (kolom terakhir)
+                if (index === 0) {
+                    $(this).find('td:last button').removeClass('btn-danger').addClass('btn-primary')
+                        .html('<i class="fas fa-plus"></i>')
+                        .attr('onclick', `addItemMenu(this, ${stockTransactionId})`);
+                }
+            });
+        }
     </script>
 @endpush

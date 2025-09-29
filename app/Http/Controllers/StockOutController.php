@@ -202,4 +202,94 @@ class StockOutController extends Controller
         }
         return response()->json($data);
     }
+
+    public function updateMenuBulk(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $request->validate([
+                'stock_transaction_id' => 'required|exists:stock_transactions,id',
+                'menu' => 'required|array',
+                'menu.*.menu_id' => 'required|exists:menus,id',
+                'menu.*.qty' => 'required|integer|min:1',
+            ]);
+
+            $stock_transaction_id = $request->stock_transaction_id;
+            
+            // Ambil data menu yang sudah ada di database
+            $existingMenus = TransaksiMenu::where('stock_transaction_id', $stock_transaction_id)->get();
+            $existingMenuIds = $existingMenus->pluck('id')->toArray();
+            
+            // Ambil ID menu yang dikirim dari form
+            $submittedMenuIds = [];
+            $menusToUpdate = [];
+            $menusToCreate = [];
+            
+            foreach ($request->menu as $menuData) {
+                if (!empty($menuData['menu_id']) && !empty($menuData['qty'])) {
+                    if (!empty($menuData['id'])) {
+                        // Menu yang sudah ada - untuk update
+                        $submittedMenuIds[] = $menuData['id'];
+                        $menusToUpdate[] = [
+                            'id' => $menuData['id'],
+                            'menu_id' => $menuData['menu_id'],
+                            'qty' => $menuData['qty']
+                        ];
+                    } else {
+                        // Menu baru - untuk create
+                        $menusToCreate[] = [
+                            'menu_id' => $menuData['menu_id'],
+                            'qty' => $menuData['qty']
+                        ];
+                    }
+                }
+            }
+            
+            // Update menu yang sudah ada
+            foreach ($menusToUpdate as $menuUpdate) {
+                TransaksiMenu::where('id', $menuUpdate['id'])
+                    ->update([
+                        'menu_id' => $menuUpdate['menu_id'],
+                        'qty' => $menuUpdate['qty'],
+                        'updated_by' => Auth::user()->id,
+                        'updated_at' => now()
+                    ]);
+            }
+            
+            // Hapus menu yang tidak ada lagi di form (tidak dikirim)
+            $menusToDelete = array_diff($existingMenuIds, $submittedMenuIds);
+            if (!empty($menusToDelete)) {
+                TransaksiMenu::whereIn('id', $menusToDelete)->delete();
+            }
+            
+            // Insert menu baru
+            foreach ($menusToCreate as $menuCreate) {
+                TransaksiMenu::create([
+                    'menu_id' => $menuCreate['menu_id'],
+                    'stock_transaction_id' => $stock_transaction_id,
+                    'qty' => $menuCreate['qty'],
+                    'created_by' => Auth::user()->id,
+                    'created_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+            
+            // Mengambil parameter dari request untuk dikirim kembali ke index
+            $start_date = $request->start_date;
+            $end_date = $request->end_date;
+            $item_name = $request->item_name;
+            
+            // Membuat query string untuk parameter URL
+            $params = [];
+            if ($start_date) $params['start_date'] = $start_date;
+            if ($end_date) $params['end_date'] = $end_date;
+            if ($item_name) $params['item_name'] = $item_name;
+            
+            return redirect()->route('admin.out_stock.index', $params)->with('success', 'Menu berhasil diperbarui');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
 }
