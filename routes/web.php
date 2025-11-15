@@ -222,6 +222,8 @@ Route::middleware(['xss'])->group(function () {
             Route::get('index', [PengaturanController::class, 'index'])->name('index');
             Route::post('update_password', [PengaturanController::class, 'updatePassword'])->name('updatePassword');
         });
+
     });
+    Route::get('cobaPreviewKhusus', [LaporanTransaksiController::class, 'coba'])->name('coba');
 
 });
