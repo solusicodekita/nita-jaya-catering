@@ -101,12 +101,12 @@ class LaporanTransaksiController extends Controller
         try {
             // $tgl_awal = date('Y-m-d', strtotime('first day of this month'));
             // $tgl_akhir = $request->tgl_akhir;
-            $tgl_awal = '2025-09-01';
-            $tgl_akhir = '2025-09-30';
-            $bulan = '09';
+            $tgl_awal = '2025-10-01';
+            $tgl_akhir = '2025-10-31';
+            $bulan = '10';
             $tahun = '2025';
 
-            $filename = 'preview_laporan_transaksi_' . date('2025-09-01 His') . '.xlsx';
+            $filename = 'preview_laporan_transaksi_' . date('2025-10-01 His') . '.xlsx';
             
             return Excel::download(
                 new LaporanTransaksiExport($bulan, $tahun, $tgl_awal, $tgl_akhir, 1),

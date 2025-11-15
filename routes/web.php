@@ -224,6 +224,6 @@ Route::middleware(['xss'])->group(function () {
         });
 
     });
-    Route::get('cobaPreviewKhusus', [LaporanTransaksiController::class, 'coba'])->name('coba');
+    Route::get('cobaPreviewKhusus', [LaporanTransaksiController::class, 'coba'])->name('coba'); // Untuk coba preview laporan pada bulan tertentu
 
 });

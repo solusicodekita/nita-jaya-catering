@@ -74,9 +74,31 @@ class LaporanTransaksi extends Model
     public static function hargaTertinggi($item_id, $warehouse_id, $tgl_awal, $tgl_akhir) {
         $hargaTertinggi = HistoryHarga::where('item_id', $item_id)
             ->where('warehouse_id', $warehouse_id)
-            // ->whereDate('created_at', '>=', $tgl_awal)
+            ->whereDate('created_at', '>=', $tgl_awal)
             ->whereDate('created_at', '<=', $tgl_akhir)
             ->max('harga_baru');
+
+        // Jika $hargaTertinggi kosong, lakukan pencarian ke bulan sebelumnya berturut-turut sampai dapat datanya
+        $tgl_awal_loop = $tgl_awal;
+        $tgl_akhir_loop = $tgl_akhir;
+
+        while (!$hargaTertinggi) {
+            // Kurangi satu bulan
+            $tgl_awal_loop = date('Y-m-01', strtotime($tgl_awal_loop . ' -1 month'));
+            $tgl_akhir_loop = date('Y-m-t', strtotime($tgl_awal_loop));
+
+            $hargaTertinggi = HistoryHarga::where('item_id', $item_id)
+                ->where('warehouse_id', $warehouse_id)
+                ->whereDate('created_at', '>=', $tgl_awal_loop)
+                ->whereDate('created_at', '<=', $tgl_akhir_loop)
+                ->max('harga_baru');
+
+            // Safety net: jika sudah terlalu mundur (>36 bulan = 3 tahun), break perulangan
+            $limitDate = date('Y-m-01', strtotime('-36 months', strtotime($tgl_awal)));
+            if ($tgl_awal_loop < $limitDate) {
+                break;
+            }
+        }
         return $hargaTertinggi;
     }
 }
