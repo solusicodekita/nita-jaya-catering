@@ -96,8 +96,8 @@ class LaporanTransaksiExport implements FromCollection, WithHeadings, WithMappin
         }
         $modelStokAwal = Stock::where('item_id', $stock->item_id)
             ->where('warehouse_id', $stock->warehouse_id)
-            ->whereMonth('date_opname', '08')
-            // ->latest('date_opname')
+            // ->whereMonth('date_opname', '09') // Jika ingin filter bulan tertentu
+            ->latest('date_opname')
             ->first();
 
         if ($modelStokAwal) {
