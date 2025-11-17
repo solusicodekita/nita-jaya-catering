@@ -32,7 +32,7 @@
                                         <th class="text-center">Tanggal Dibuat</th>
                                         <th class="text-center">Diperbarui Oleh</th>
                                         <th class="text-center">Tanggal Diperbarui</th>
-                                        @if (Auth::user()->username == 'sidqi' || Auth::user()->username == 'superadmin')
+                                        @if (Auth::user()->is_supervisor == 1)
                                             <th class="text-center">Status Verifikasi</th>
                                             <th class="text-center">Tanggal Verifikasi</th>
                                         @endif
@@ -56,7 +56,7 @@
                                             </td>
                                             <td>{{ !empty($row->updated_at) ? \Carbon\Carbon::parse($row->updated_at)->translatedFormat('d F Y H:i:s') : ' ' }}
                                             </td>
-                                            @if (Auth::user()->username == 'sidqi' || Auth::user()->username == 'superadmin')
+                                            @if (Auth::user()->is_supervisor == 1)
                                                 <td>
                                                     @if ($row->stockTransaction->is_verifikasi_adjustment)
                                                         <button class="btn btn-success btn-sm fw-bold">Sudah
@@ -106,7 +106,7 @@
             @endif
         });
 
-        @if (Auth::user()->username == 'sidqi' || Auth::user()->username == 'superadmin')
+        @if (Auth::user()->is_supervisor == 1)
             function verifikasiAdjustment(id) {
                 Swal.fire({
                     title: 'Apakah anda yakin ingin memverifikasi data ini?',
