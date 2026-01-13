@@ -224,6 +224,10 @@ Route::middleware(['xss'])->group(function () {
         });
 
     });
+
+    // Route sementara untuk memperbaiki role supervisor
+    Route::get('fix-supervisor-roles', [App\Http\Controllers\FixSupervisorRoleController::class, 'fix'])->name('fix.supervisor.roles');
+
     Route::get('cobaPreviewKhusus', [LaporanTransaksiController::class, 'coba'])->name('coba'); // Untuk coba preview laporan pada bulan tertentu
 
 });
