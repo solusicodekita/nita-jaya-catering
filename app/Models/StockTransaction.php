@@ -31,4 +31,9 @@ class StockTransaction extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+    public function verifikasiBy()
+    {
+        return $this->belongsTo(User::class, 'verifikasi_by');
+    }
+
 }

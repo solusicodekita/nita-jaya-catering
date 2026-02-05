@@ -26,6 +26,8 @@
                                         <th class="text-center">Lokasi Item</th>
                                         <th class="text-center">Jumlah</th>
                                         <th class="text-center">Satuan / Unit</th>
+                                        <th class="text-center">Jenis</th>
+                                        <th class="text-center">Kategori</th>
                                         <th class="text-center">Alasan Adjust</th>
                                         <th class="text-center">Tanggal</th>
                                         <th class="text-center">Dibuat Oleh</th>
@@ -36,6 +38,7 @@
                                             <th class="text-center">Status Verifikasi</th>
                                             <th class="text-center">Tanggal Verifikasi</th>
                                         @endif
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -46,6 +49,30 @@
                                             <td>{{ $row->warehouse->name }}</td>
                                             <td>{{ floatval($row->quantity) }}</td>
                                             <td>{{ $row->item->unit }}</td>
+                                            <td>
+                                                @if($row->stockTransaction->type == 'in')
+                                                    <span class="badge badge-success" style="background-color: #28a745; color: #fff;">Penambahan</span>
+                                                @elseif($row->stockTransaction->type == 'out')
+                                                    <span class="badge badge-danger" style="background-color: #dc3545; color: #fff;">Pengurangan</span>
+                                                @else
+                                                    <span class="badge badge-secondary">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($row->stockTransaction->kategori_adjustment)
+                                                    @if($row->stockTransaction->kategori_adjustment == 'stok')
+                                                        <span class="badge badge-success" style="background-color: #28a745; color: #fff;">Stok</span>
+                                                    @elseif($row->stockTransaction->kategori_adjustment == 'qty')
+                                                        <span class="badge badge-info" style="background-color: #17a2b8; color: #fff;">Qty</span>
+                                                    @elseif($row->stockTransaction->kategori_adjustment == 'pengembalian')
+                                                        <span class="badge badge-warning" style="background-color: #ffc107; color: #000;">Pengembalian</span>
+                                                    @else
+                                                        <span class="badge badge-secondary">-</span>
+                                                    @endif
+                                                @else
+                                                    <span class="badge badge-secondary">-</span>
+                                                @endif
+                                            </td>
                                             <td>{{ $row->description }}</td>
                                             <td>{{ date('d-m-Y H:i', strtotime($row->stockTransaction->date)) }}</td>
                                             <td>{{ $row->createdBy ? $row->createdBy->firstname . ' ' . $row->createdBy->lastname : ' ' }}
@@ -69,16 +96,37 @@
                                                 </td>
                                                 <td>
                                                     @if ($row->stockTransaction->is_verifikasi_adjustment)
-                                                        {{ !empty($row->stockTransaction->tanggal_verifikasi_adjusment) ? date('d-m-Y H:i', strtotime($row->stockTransaction->tanggal_verifikasi_adjusment)) : ' ' }}
+                                                        @if (!empty($row->stockTransaction->tanggal_verifikasi_adjusment))
+                                                            <div>{{ date('d-m-Y H:i', strtotime($row->stockTransaction->tanggal_verifikasi_adjusment)) }}</div>
+                                                            @if ($row->stockTransaction->verifikasiBy)
+                                                                <small class="text-muted">
+                                                                    <i class="fas fa-user"></i> 
+                                                                    {{ $row->stockTransaction->verifikasiBy->firstname }} {{ $row->stockTransaction->verifikasiBy->lastname }}
+                                                                </small>
+                                                            @endif
+                                                        @else
+                                                            -
+                                                        @endif
                                                     @else
                                                         -
                                                     @endif
                                                 </td>
                                             @endif
+                                            <td>
+                                                @if (!$row->stockTransaction->is_verifikasi_adjustment)
+                                                    <a href="{{ route('admin.adjustment_stock.edit', $row->id) }}" 
+                                                       class="btn btn-warning btn-sm" 
+                                                       title="Edit">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="11" class="text-center">Tidak ada data</td>
+                                            <td colspan="{{ Auth::user()->is_supervisor == 1 ? '15' : '14' }}" class="text-center">Tidak ada data</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -143,6 +191,17 @@
                                         icon: 'error'
                                     });
                                 }
+                            },
+                            error: function(xhr) {
+                                let message = 'Terjadi kesalahan saat memverifikasi data';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    message = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    title: 'Gagal',
+                                    text: message,
+                                    icon: 'error'
+                                });
                             }
                         })
                     }

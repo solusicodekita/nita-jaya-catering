@@ -144,6 +144,8 @@
 @endsection
 @push('scripts')
     <script>
+        let rowCounter = 1;
+
         $(document).ready(function() {
             initializeSelect2();
             $(".desimal").keypress(function(e) {
@@ -282,8 +284,8 @@
         }
 
         function addItem(obj) {
-            let no = $('#trTransaksi > tr').length + 1;
-            if (no > 10) {
+            let trCount = $('#trTransaksi > tr').length;
+            if (trCount >= 10) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Perhatian!',
@@ -291,8 +293,11 @@
                 });
                 return false;
             }
-            let tr = `@include('admin.stock_out.trCreate', ['no' => '${no}', 'item' => $item])`;
+            rowCounter++;
+            let tr = `@include('admin.stock_out.trCreate', ['no' => '${rowCounter}', 'item' => $item])`;
             $(obj).parents('table').find('#trTransaksi').append(tr);
+
+            updateSequence();
 
             setTimeout(function() {
                 initializeSelect2();
@@ -301,11 +306,18 @@
 
         function deleteItem(obj) {
             $(obj).parents('tr').remove();
+            updateSequence();
             totalKeseluruhan();
 
             setTimeout(function() {
                 initializeSelect2();
             }, 100);
+        }
+
+        function updateSequence() {
+            $('#trTransaksi tr').each(function(index) {
+                $(this).find('td:first').text(index + 1);
+            });
         }
 
         function totalKeseluruhan() {

@@ -78,6 +78,8 @@
 @endsection
 @push('scripts')
     <script>
+        let rowCounter = 1;
+
         $(document).ready(function() {
             $('.ubahSelect').select2({
                 placeholder: '-- Pilih Item --',
@@ -257,9 +259,11 @@
         }
 
         function addItem(obj) {
-            let no = $('#trTransaksi > tr').length + 1;
-            let tr = `@include('admin.stock.trCreate', ['no' => '${no}', 'item' => $item, 'warehouse' => $warehouse])`;
+            rowCounter++;
+            let tr = `@include('admin.stock.trCreate', ['no' => '${rowCounter}', 'item' => $item, 'warehouse' => $warehouse])`;
             $(obj).parents('table').find('#trTransaksi').append(tr);
+
+            updateSequence();
 
             setTimeout(function() {
                 initializeSelect2();
@@ -268,10 +272,17 @@
 
         function deleteItem(obj) {
             $(obj).parents('tr').remove();
+            updateSequence();
 
             setTimeout(function() {
                 initializeSelect2();
             }, 100);
+        }
+
+        function updateSequence() {
+            $('#trTransaksi tr').each(function(index) {
+                $(this).find('td:first').text(index + 1);
+            });
         }
     </script>
 @endpush

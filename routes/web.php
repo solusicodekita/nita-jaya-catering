@@ -206,6 +206,8 @@ Route::middleware(['xss'])->group(function () {
             Route::get('index', [StockAdjustmentController::class, 'index'])->name('index');
             Route::get('create', [StockAdjustmentController::class, 'create'])->name('create');
             Route::post('store', [StockAdjustmentController::class, 'store'])->name('store');
+            Route::get('edit/{id}', [StockAdjustmentController::class, 'edit'])->name('edit');
+            Route::post('update/{id}', [StockAdjustmentController::class, 'update'])->name('update');
             Route::get('cek_jumlah_terakhir', [StockAdjustmentController::class, 'cekJumlahTerakhir'])->name('cekJumlahTerakhir');
             Route::get('get_warehouse', [StockAdjustmentController::class, 'getWarehouse'])->name('getWarehouse');
             Route::post('verifikasi', [StockAdjustmentController::class, 'verifikasi'])->name('verifikasi');

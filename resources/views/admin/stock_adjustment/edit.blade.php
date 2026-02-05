@@ -1,5 +1,5 @@
 @extends('layouts.adm.base')
-@section('title', 'Create Adjustment Stock')
+@section('title', 'Edit Adjustment Stock')
 @section('content')
     <div class="app-content">
         <div class="container-fluid">
@@ -9,7 +9,7 @@
                         <div class="card-header">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <h3 class="card-title">Form Tambah Adjustment Stock</h3>
+                                    <h3 class="card-title">Form Edit Adjustment Stock</h3>
                                 </div>
                                 <div class="col-auto">
                                     <a href="{{ route('admin.adjustment_stock.index') }}" class="btn btn-primary"><i
@@ -18,7 +18,7 @@
                             </div>
                         </div>
                         <div class="card-body p-3">
-                            <form id="formSave" method="POST" action="{{ route('admin.adjustment_stock.store') }}"
+                            <form id="formSave" method="POST" action="{{ route('admin.adjustment_stock.update', $stockTransactionDetail->id) }}"
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group" style="margin-bottom: 10px;">
@@ -27,7 +27,7 @@
                                         onchange="getWarehouse(this)">
                                         <option value="">-- Pilih Item --</option>
                                         @foreach ($item as $row)
-                                            <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                            <option value="{{ $row->id }}" {{ $stockTransactionDetail->item_id == $row->id ? 'selected' : '' }}>{{ $row->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -35,39 +35,43 @@
                                     <label for="warehouse_id">Lokasi Item <span class="text-danger">*</span></label>
                                     <select class="form-control" name="warehouse_id" id="warehouse_id"
                                         onchange="cekJumlahTerakir()">
+                                        <option value="">-- Pilih Lokasi --</option>
+                                        @if($stockTransactionDetail->warehouse)
+                                            <option value="{{ $stockTransactionDetail->warehouse_id }}" selected>{{ $stockTransactionDetail->warehouse->name }}</option>
+                                        @endif
                                     </select>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 10px;">
                                     <label for="jumlah_adjustment">Jumlah Adjustment <span
                                             class="text-danger">*</span></label>
                                     <input type="text" class="form-control desimal" name="jumlah_adjustment"
-                                        id="jumlah_adjustment" autocomplete="off" placeholder="...">
+                                        id="jumlah_adjustment" autocomplete="off" placeholder="..." value="{{ $stockTransactionDetail->quantity }}">
                                 </div>
                                 <div class="form-group" style="margin-bottom: 10px;">
                                     <label for="tipe_adjustment">Tipe Adjustment <span class="text-danger">*</span></label>
                                     <select class="form-control ubahSelect" name="tipe_adjustment" id="tipe_adjustment">
-                                        <option value="out">Berkurang</option>
-                                        <option value="in">Bertambah</option>
+                                        <option value="out" {{ $stockTransactionDetail->stockTransaction->type == 'out' ? 'selected' : '' }}>Berkurang</option>
+                                        <option value="in" {{ $stockTransactionDetail->stockTransaction->type == 'in' ? 'selected' : '' }}>Bertambah</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 10px;">
                                     <label for="kategori_adjustment">Kategori Adjustment <span class="text-danger">*</span></label>
                                     <select class="form-control ubahSelect" name="kategori_adjustment" id="kategori_adjustment">
                                         <option value="">-- Pilih Kategori --</option>
-                                        <option value="stok">Stok</option>
-                                        <option value="qty">Qty</option>
-                                        <option value="pengembalian">Pengembalian</option>
+                                        <option value="stok" {{ $stockTransactionDetail->stockTransaction->kategori_adjustment == 'stok' ? 'selected' : '' }}>Stok</option>
+                                        <option value="qty" {{ $stockTransactionDetail->stockTransaction->kategori_adjustment == 'qty' ? 'selected' : '' }}>Qty</option>
+                                        <option value="pengembalian" {{ $stockTransactionDetail->stockTransaction->kategori_adjustment == 'pengembalian' ? 'selected' : '' }}>Pengembalian</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 10px;">
                                     <label for="alasan_adjustment">Alasan Adjustment <span
                                             class="text-danger">*</span></label>
                                     <textarea type="text" class="form-control" name="alasan_adjustment"
-                                        id="alasan_adjustment" autocomplete="off" placeholder="..."></textarea>
+                                        id="alasan_adjustment" autocomplete="off" placeholder="...">{{ $stockTransactionDetail->stockTransaction->alasan_adjustment }}</textarea>
                                 </div>
                                 <hr>
                                 <button type="button" class="btn btn-success" onclick="validasi(this)">
-                                    <i class="fa fa-save"></i> Simpan
+                                    <i class="fa fa-save"></i> Update
                                 </button>
                             </form>
                         </div>
@@ -102,6 +106,12 @@
                 placeholder: "-- Pilih Kategori --",
                 allowClear: false
             });
+
+            // Load warehouse saat pertama kali
+            var item_id = $('#item_id').val();
+            if (item_id != '') {
+                getWarehouse(document.getElementById('item_id'));
+            }
         });
 
         function cekJumlahTerakir() {
@@ -144,6 +154,7 @@
                 dataType: "json",
                 success: function(response) {
                     var $warehouseSelect = $(obj).parents('form').find('#warehouse_id');
+                    var currentWarehouseId = '{{ $stockTransactionDetail->warehouse_id }}';
                     
                     // Destroy existing Select2 instance
                     try {
@@ -154,6 +165,11 @@
                     
                     // Update HTML content
                     $warehouseSelect.html(response);
+                    
+                    // Set selected warehouse jika masih sama
+                    if (currentWarehouseId) {
+                        $warehouseSelect.val(currentWarehouseId);
+                    }
                     
                     // Re-initialize Select2 for the updated warehouse dropdown
                     $warehouseSelect.select2({
@@ -183,6 +199,7 @@
                     title: 'Oops...',
                     text: 'Item wajib diisi!',
                 });
+                $(obj).prop('disabled', false);
                 return false;
             }
 
@@ -192,6 +209,7 @@
                     title: 'Oops...',
                     text: 'Lokasi wajib diisi!',
                 });
+                $(obj).prop('disabled', false);
                 return false;
             }
 
@@ -201,6 +219,7 @@
                     title: 'Oops...',
                     text: 'Jumlah Adjustment wajib diisi!',
                 });
+                $(obj).prop('disabled', false);
                 return false;
             }
 
@@ -210,6 +229,7 @@
                     title: 'Oops...',
                     text: 'Kategori Adjustment wajib diisi!',
                 });
+                $(obj).prop('disabled', false);
                 return false;
             }
 
@@ -219,6 +239,7 @@
                     title: 'Oops...',
                     text: 'Alasan Adjustment wajib diisi!',
                 });
+                $(obj).prop('disabled', false);
                 return false;
             }
 
@@ -226,3 +247,4 @@
         }
     </script>
 @endpush
+
