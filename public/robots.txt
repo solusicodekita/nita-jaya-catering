@@ -1,2 +1,6 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /portal
+Disallow: /pos
+
+Sitemap: https://nitajayacatering.com/sitemap.xml
