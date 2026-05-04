@@ -26,19 +26,28 @@ class Stock extends Model
         return $this->hasMany(StockTransaction::class);
     }
 
-    public static function liveStock($item_id, $warehouse_id) {
+    public static function liveStock($item_id, $warehouse_id, $until_date = null) {
 
-        $model = Stock::where('item_id', $item_id)->where('warehouse_id', $warehouse_id)->latest('date_opname')->first();
+        $model = Stock::where('item_id', $item_id)->where('warehouse_id', $warehouse_id);
+        
+        if ($until_date) {
+            $model = $model->where('date_opname', '<=', $until_date);
+        }
+        
+        $model = $model->latest('date_opname')->first();
+        
         if (!$model) {
             return 0;
         }
+        
+        $until_date = $until_date ?: now()->toDateTimeString();
         
         $barangMasuk = StockTransactionDetail::leftJoin('stock_transactions', 'stock_transaction_details.stock_transaction_id', '=', 'stock_transactions.id')
             ->where('stock_transaction_details.item_id', $model->item_id)
             ->where('stock_transaction_details.warehouse_id', $model->warehouse_id)
             ->where('stock_transactions.type', 'in')
             ->where('stock_transactions.date', '>=', $model->date_opname)
-            ->where('stock_transactions.date', '<=', date('Y-m-d H:i:s'));
+            ->where('stock_transactions.date', '<=', $until_date);
             
         $barangMasuk = $barangMasuk->where(function ($query) {
             $query->where('stock_transactions.is_adjustment', 0)->orWhere('stock_transactions.is_adjustment', null)
@@ -53,7 +62,7 @@ class Stock extends Model
             ->where('stock_transaction_details.warehouse_id', $model->warehouse_id)
             ->where('stock_transactions.type', 'out')
             ->where('stock_transactions.date', '>=', $model->date_opname)
-            ->where('stock_transactions.date', '<=', date('Y-m-d H:i:s'));
+            ->where('stock_transactions.date', '<=', $until_date);
 
         $barangKeluar = $barangKeluar->where(function ($query) {
             $query->where('stock_transactions.is_adjustment', 0)->orWhere('stock_transactions.is_adjustment', null)

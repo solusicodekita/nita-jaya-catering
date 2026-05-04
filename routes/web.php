@@ -235,6 +235,14 @@ Route::middleware(['xss'])->group(function () {
             Route::post('update-items/{id}', [ResepController::class, 'updateItems'])->name('updateItems');
             Route::post('use/{id}', [ResepController::class, 'useRecipe'])->name('use');
         });
+
+        Route::group(['prefix' => 'fixing-mutasi/', 'as' => 'fixing-mutasi.'], function () {
+            Route::get('index', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'index'])->name('index');
+            Route::post('recalculate', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'recalculate'])->name('recalculate');
+            Route::post('fix-opname', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'fixOpname'])->name('fix-opname');
+            Route::post('get-latest-opname', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'getLatestOpname'])->name('get-latest-opname');
+            Route::post('ledger', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'ledger'])->name('ledger');
+        });
     });
 
     // Route sementara untuk memperbaiki role supervisor

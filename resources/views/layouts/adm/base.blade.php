@@ -411,6 +411,9 @@
                     <a href="{{ route('admin.laporan_transaksi.index') }}" class="nav-link {{ Request::is('admin/laporan_transaksi*') ? 'active' : '' }}">
                         <i class="fa-solid fa-file-lines"></i> <span>Laporan Transaksi</span>
                     </a>
+                    <!-- <a href="{{ route('admin.fixing-mutasi.index') }}" class="nav-link {{ Request::is('admin/fixing-mutasi*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-screwdriver-wrench"></i> <span>Fixing Mutasi</span>
+                    </a> -->
                 </div>
             </div>
             <div class="nav-item">
