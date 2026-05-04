@@ -55,12 +55,12 @@ class User extends Authenticatable
 
     public function getCreatedAtAttribute($date)
     {
-        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->translatedFormat('l, d/m/Y H:i');
+        return $date ? \Carbon\Carbon::parse($date)->translatedFormat('l, d/m/Y H:i') : null;
     }
 
     public function getUpdatedAtAttribute($date)
     {
-        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->translatedFormat('l, d/m/Y H:i');
+        return $date ? \Carbon\Carbon::parse($date)->translatedFormat('l, d/m/Y H:i') : null;
     }
 
     public function address()

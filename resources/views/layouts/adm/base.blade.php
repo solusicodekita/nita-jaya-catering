@@ -365,6 +365,9 @@
             <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </a>
+            <a href="{{ route('admin.resep.index') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
+                <i class="fa-solid fa-utensils"></i> <span>Dashboard Resep</span>
+            </a>
             <div class="nav-item">
                 <a href="#" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}" onclick="toggleMenu('masterMenu', event)">
                     <i class="fa-solid fa-database"></i>

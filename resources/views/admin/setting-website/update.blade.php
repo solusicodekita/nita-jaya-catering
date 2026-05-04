@@ -20,19 +20,13 @@
                     <i class="fas fa-search fa-fw"></i>
                     LIHAT WEBSITE
                 </a>
-                {{-- <div class="card-tools">
-                    <a href="{{ route('admin.clear') }}" class="btn btn-outline-success btn-sm">
-                        <i class="fas fa-search fa-fw"></i>
-                        BERSIHKAN CACHE
-                    </a>
-                </div> --}}
             </div>
             <div class="card-body">
                 <form method="POST" action="{{ route('admin.setting.update', 1) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="row">
-                        <div class="col-lg-6">
+                        <!-- <div class="col-lg-6">
                             <div class="form-group row">
                                 <label class="col-12">Favicon:</label>
                                 <input type="file" name="favicon" class="dropify form-control col-9" data-height="190" data-allowed-file-extensions="png jpg gif jpeg svg webp jfif ico" value="{{ old('favicon') }}" data-default-file="{{ asset('/images/website/'.$setting->favicon) }}">
@@ -63,9 +57,9 @@
                                 <label for="working_hours">Jam Operasional :</label>
                                 <input type="text" required="" name="working_hours" id="working_hours" class="form-control" value="{{ $setting->working_hours }}">
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
+                        </div> -->
+                        <div class="col-lg-12">
+                            <!-- <div class="form-group">
                                 <label for="footer_web">Copyright Website :</label>
                                 <input type="text" required="" name="footer_web" id="footer_web" class="form-control" value="{{ $setting->footer_web }}">
                             </div>
@@ -82,13 +76,25 @@
                                 <label for="desc_footer">Deskripsi Singkat :</label>
                                 <textarea class="form-control"  name="desc_footer" id="desc_footer" rows="6">{{ $setting->desc_footer }}</textarea>
                                 {{-- <input type="text" required="" name="desc_footer" id="desc_footer" class="form-control" value="{{ $setting->desc_footer }}"> --}}
+                            </div> -->
+
+                            <div class="form-group border p-3 rounded" style="background: #f8f9fa;">
+                                <label class="text-primary fw-bold"><i class="fas fa-utensils me-2"></i> Pengaturan Resep</label>
+                                <div class="custom-control custom-switch mt-2">
+                                    <input type="checkbox" name="default_reduce_stock" class="custom-control-input" id="default_reduce_stock" {{ $setting->default_reduce_stock ? 'checked' : '' }}>
+                                    <label class="custom-control-label" for="default_reduce_stock">Kurangi Stok Resep Secara Global</label>
+                                </div>
+                                <small class="text-muted d-block mt-1">Jika diaktifkan, semua penggunaan resep akan memotong stok bahan baku secara otomatis kecuali diatur manual pada tiap resep.</small>
                             </div>
 
-                            <div class="form-group mt-5">
+                            <!-- <div class="form-group mt-5">
                                 <button type="submit" class="btn btn-primary"><i class="fas fa-save fa-fw"></i> Simpan</button>
-                            </div>
+                            </div> -->
 
                         </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save fa-fw"></i> Simpan</button>
                     </div>
                 </form>
             </div>

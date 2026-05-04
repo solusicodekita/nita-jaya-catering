@@ -11,6 +11,7 @@ use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockOutController;
+use App\Http\Controllers\Admin\ResepController;
 use App\Http\Controllers\StokInController;
 
 Route::get('/', function () {
@@ -220,11 +221,20 @@ Route::middleware(['xss'])->group(function () {
             Route::post('preview', [LaporanTransaksiController::class, 'preview'])->name('preview');
         });
 
+
         Route::group(['prefix' => 'pengaturan/', 'as' => 'pengaturan.'], function () {
             Route::get('index', [PengaturanController::class, 'index'])->name('index');
             Route::post('update_password', [PengaturanController::class, 'updatePassword'])->name('updatePassword');
         });
 
+        Route::prefix('resep')->name('resep.')->group(function () {
+            Route::get('/', [ResepController::class, 'index'])->name('index');
+            Route::post('store', [ResepController::class, 'store'])->name('store');
+            Route::post('update/{id}', [ResepController::class, 'update'])->name('update');
+            Route::delete('destroy/{id}', [ResepController::class, 'destroy'])->name('destroy');
+            Route::post('update-items/{id}', [ResepController::class, 'updateItems'])->name('updateItems');
+            Route::post('use/{id}', [ResepController::class, 'useRecipe'])->name('use');
+        });
     });
 
     // Route sementara untuk memperbaiki role supervisor

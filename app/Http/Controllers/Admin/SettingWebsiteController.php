@@ -33,7 +33,8 @@ class SettingWebsiteController extends Controller
             'desc_footer' => 'nullable|string',
         ]);
 
-        $data = $request->only(['title_web', 'footer_web', 'version_web', 'wa', 'phone', 'mail', 'address', 'working_hours', 'desc_footer']);
+        $data = $request->only(['title_web', 'footer_web', 'version_web', 'wa', 'phone', 'mail', 'address', 'working_hours', 'desc_footer', 'default_reduce_stock']);
+        $data['default_reduce_stock'] = $request->has('default_reduce_stock') ? 1 : 0;
 
         if($request->hasFile('logo')){
             $logo = $this->uploadGambar($request->logo);
@@ -59,8 +60,7 @@ class SettingWebsiteController extends Controller
         $setting = SettingWebsite::get()->first();
         $setting->update($data);
 
-        Alert::success('Data Berhasil di Ubah!');
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Data Berhasil di Ubah!');
     }
 
     public function uploadGambar($gambar)
