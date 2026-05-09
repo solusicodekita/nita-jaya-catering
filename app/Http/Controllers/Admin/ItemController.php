@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\ItemImport;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ActivityLog;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ItemController extends Controller
@@ -77,10 +78,19 @@ class ItemController extends Controller
             $bahan->code = $this->generateKode($category->code);
             $bahan->name = $request->input('name');
             $bahan->unit = $request->input('unit');
+            $bahan->retail_unit = $request->input('retail_unit');
+            $bahan->retail_conversion = $request->input('retail_conversion') ?: 1;
             $bahan->price = (int) str_replace(['Rp', '.', ' '], '', $request->input('price'));
             $bahan->created_by = Auth::user()->id;
             $bahan->created_at = Carbon::now();
             $bahan->save();
+
+            ActivityLog::record('CREATE', $bahan, "Menambahkan bahan baku baru: {$bahan->name} ({$bahan->code})", [
+                'name' => $bahan->name,
+                'unit' => $bahan->unit,
+                'price' => $bahan->price
+            ]);
+
             DB::commit();
             return response()->json([
                 'status' => 200,
@@ -169,10 +179,17 @@ class ItemController extends Controller
             $bahan->category_id = $request->input('category_id');
             $bahan->name = $request->input('name');
             $bahan->unit = $request->input('unit');
+            $bahan->retail_unit = $request->input('retail_unit');
+            $bahan->retail_conversion = $request->input('retail_conversion') ?: 1;
             $bahan->price = (int) str_replace(['Rp', '.', ' '], '', $request->input('price'));
             $bahan->updated_by = Auth::user()->id;
             $bahan->updated_at = Carbon::now();
             $bahan->save();
+
+            ActivityLog::record('UPDATE', $bahan, "Memperbarui data bahan baku: {$bahan->name}", [
+                'new_data' => $request->only(['name', 'unit', 'price', 'category_id'])
+            ]);
+
             DB::commit();
             return response()->json([
                 'status' => 200,
@@ -196,6 +213,9 @@ class ItemController extends Controller
     public function destroy($id)
     {
         $bahan = Item::find($id);
+        
+        ActivityLog::record('DELETE', $bahan, "Menghapus bahan baku: {$bahan->name} ({$bahan->code})");
+        
         $bahan->delete();
         return response()->json([
             'status' => 200,

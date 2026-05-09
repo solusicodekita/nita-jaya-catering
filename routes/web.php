@@ -243,6 +243,11 @@ Route::middleware(['xss'])->group(function () {
             Route::post('get-latest-opname', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'getLatestOpname'])->name('get-latest-opname');
             Route::post('ledger', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'ledger'])->name('ledger');
         });
+
+        Route::prefix('activity-logs')->name('activity-logs.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('index');
+            Route::get('/{id}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'show'])->name('show');
+        });
     });
 
     // Route sementara untuk memperbaiki role supervisor

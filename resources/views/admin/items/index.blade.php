@@ -25,12 +25,10 @@
                                         <th class="text-center">Kategori</th>
                                         <th class="text-center">Kode Bahan</th>
                                         <th class="text-center">Nama Bahan</th>
-                                        <th class="text-center">Unit</th>
+                                        <th class="text-center">Unit Utama</th>
+                                        <th class="text-center">Konversi Retail</th>
                                         <th class="text-center">Harga</th>
                                         <th class="text-center">Dibuat Oleh</th>
-                                        <th class="text-center">Tanggal Dibuat</th>
-                                        <th class="text-center">Diperbarui Oleh</th>
-                                        <th class="text-center">Tanggal Diperbarui</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -42,15 +40,19 @@
                                             <td class="text-center">{{ $item->code }}</td>
                                             <td>{{ $item->name }}</td>
                                             <td class="text-center">{{ $item->unit }}</td>
+                                            <td class="text-center">
+                                                @if($item->retail_unit)
+                                                    1 {{ $item->unit }} = {{ rtrim(rtrim(number_format($item->retail_conversion, 4, '.', ''), '0'), '.') }} {{ $item->retail_unit }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
                                             <td class="text-center">Rp. {{ number_format($item->price, 0, ',', '.') }}</td>
                                             <td>{{ $item->createdBy ? $item->createdBy->firstname . ' ' . $item->createdBy->lastname : ' ' }}</td>
-                                            <td>{{ !empty($item->created_at) ? \Carbon\Carbon::parse($item->created_at)->translatedFormat('d F Y H:i:s') : ' ' }}</td>
-                                            <td>{{ $item->updatedBy ? $item->updatedBy->firstname . ' ' . $item->updatedBy->lastname : ' ' }}</td>
-                                            <td>{{ !empty($item->updated_at) ? \Carbon\Carbon::parse($item->updated_at)->translatedFormat('d F Y H:i:s') : ' ' }}</td>
                                             <td class="text-center">
                                                 <a href="{{ route('admin.items.edit', $item->id) }}" class="btn btn-outline-warning"><i class="fas fa-edit"></i></a>
                                                 <button onclick="hapus('{{ $item->id }}')" class="btn btn-outline-danger"><i
-                                                        class="fas fa-trash"></i></button>
+                                                         class="fas fa-trash"></i></button>
                                             </td>
                                         </tr>
                                     @endforeach

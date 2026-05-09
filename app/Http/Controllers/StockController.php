@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Mpdf\Mpdf;
+use App\Models\ActivityLog;
 
 class StockController extends Controller
 {
@@ -56,6 +57,11 @@ class StockController extends Controller
                     'harga_baru' => $stock->item->price,
                     'created_by' => Auth::user()->id,
                     'updated_by' => Auth::user()->id,
+                ]);
+                
+                ActivityLog::record('STOCK_OPNAME', $stock, "Melakukan Stok Opname untuk item: {$stock->item->name} di {$stock->warehouse->name}", [
+                    'initial' => $stock->initial_stock,
+                    'final' => $stock->final_stock
                 ]);
             }
     

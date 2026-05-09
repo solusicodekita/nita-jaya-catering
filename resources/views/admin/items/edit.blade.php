@@ -13,7 +13,7 @@
                                 </div>
                                 <div class="col-auto">
                                     <a href="{{ route('admin.items.index') }}" class="btn btn-outline-primary"><i
-                                            class="fas fa-arrow-left"></i> Kembali</a>
+                                             class="fas fa-arrow-left"></i> Kembali</a>
                                 </div>
                             </div>
                         </div>
@@ -37,9 +37,25 @@
                                         placeholder="Ketikkan Nama Bahan" autocomplete="off" value="{{ $data->id }}">
                                 </div>
                                 <div class="form-group" style="margin-bottom: 10px;">
-                                    <label for="unit">Unit</label>
+                                    <label for="unit">Satuan Besar (Unit)</label>
                                     <input type="text" class="form-control" name="unit" id="unit"
-                                        placeholder="Ketikkan Unit" autocomplete="off" value="{{ $data->unit }}">
+                                        placeholder="Contoh: Ball, Box, Kg" autocomplete="off" value="{{ $data->unit }}">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group" style="margin-bottom: 10px;">
+                                            <label for="retail_unit">Satuan Kecil (Retail)</label>
+                                            <input type="text" class="form-control" name="retail_unit" id="retail_unit"
+                                                placeholder="Contoh: Gr, Pcs" autocomplete="off" value="{{ $data->retail_unit }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group" style="margin-bottom: 10px;">
+                                            <label for="retail_conversion">Isi per Satuan Besar</label>
+                                            <input type="number" step="0.0001" class="form-control" name="retail_conversion" id="retail_conversion"
+                                                placeholder="Contoh: 1000" autocomplete="off" value="{{ $data->retail_conversion }}">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 10px;">
                                     <label for="price">Harga</label>
