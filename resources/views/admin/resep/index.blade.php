@@ -13,6 +13,9 @@
     .mini-input { font-size: 0.75rem !important; padding: 0.2rem 0.5rem !important; height: auto !important; border-radius: 8px !important; }
     .preview-box { font-size: 0.7rem; color: #0d6efd; font-weight: 600; margin-top: 2px; min-height: 15px; }
     .highlight-select { border-color: #0d6efd !important; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important; }
+    .calc-row { border-top: 1px dashed #dee2e6; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; }
+    .calc-label { font-size: 0.8rem; color: #6c757d; font-weight: 500; }
+    .calc-value { font-size: 0.85rem; font-weight: 700; color: #212529; }
 </style>
 @endpush
 
@@ -24,7 +27,7 @@
                 <h2 class="fw-bold mb-1">Daftar Resep Masakan</h2>
                 <p class="text-muted">Kelola resep dan takaran bahan baku untuk operasional katering.</p>
             </div>
-            <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalResep">
+            <button class="btn btn-primary rounded-pill px-4 shadow-sm" onclick="addResep()">
                 <i class="fa-solid fa-plus me-2"></i>Tambah Resep Baru
             </button>
         </div>
@@ -37,13 +40,22 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-primary rounded-pill px-2" style="font-size: 0.6rem;">{{ $menu->recipe_number ?? 'No #' }}</span>
+                                <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2" style="font-size: 0.6rem;">{{ $menu->category->name ?? 'Uncategorized' }}</span>
+                            </div>
                             <h4 class="fw-bold text-dark mb-1">{{ $menu->name }}</h4>
-                            <span class="badge {{ $menu->is_active ? 'bg-success' : 'bg-secondary' }} rounded-pill px-3" style="font-size: 0.7rem;">
-                                {{ $menu->is_active ? 'Aktif' : 'Non-Aktif' }}
-                            </span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge {{ $menu->is_active ? 'bg-success' : 'bg-secondary' }} rounded-pill px-3" style="font-size: 0.7rem;">
+                                    {{ $menu->is_active ? 'Aktif' : 'Non-Aktif' }}
+                                </span>
+                                @if($menu->yield)
+                                <span class="text-muted small"><i class="fa-solid fa-utensils me-1"></i>{{ $menu->yield }}</span>
+                                @endif
+                            </div>
                         </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-outline-primary btn-action" onclick="editResep('{{ $menu->id }}', '{{ $menu->name }}', '{{ $menu->description }}', '{{ $menu->is_active }}', '{{ $menu->reduce_stock }}')" title="Edit Deskripsi">
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-outline-primary btn-action" onclick="editResep('{{ $menu->id }}', '{{ $menu->name }}', '{{ $menu->description }}', '{{ $menu->is_active }}', '{{ $menu->reduce_stock }}', '{{ $menu->recipe_number }}', '{{ $menu->category_id }}', '{{ $menu->yield }}', '{{ $menu->cost_factor }}', '{{ $menu->profit_margin }}')" title="Edit Deskripsi">
                                 <i class="fa-solid fa-edit fs-6"></i>
                             </button>
                             <button class="btn btn-outline-info btn-action" onclick="manageIngredients('{{ $menu->id }}', '{{ $menu->name }}')" title="Kelola Bahan">
@@ -95,6 +107,22 @@
                         </div>
                     </div>
 
+                    @php
+                        $totalCost1 = 0;
+                        foreach($menu->menuDetails as $detail) {
+                            $totalCost1 += $detail->quantity * $detail->item->price;
+                        }
+                        $costFactorVal = $totalCost1 * ($menu->cost_factor / 100);
+                        $totalCost2 = $totalCost1 + $costFactorVal;
+                        $profitMarginVal = $totalCost2 * ($menu->profit_margin / 100);
+                        $sellingPrice = $totalCost2 + $profitMarginVal;
+                    @endphp
+
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 mb-3 d-flex justify-content-between align-items-center">
+                        <span class="small fw-bold text-primary">ESTIMASI JUAL:</span>
+                        <span class="fw-bold text-primary">Rp {{ number_format($sellingPrice, 0, ',', '.') }}</span>
+                    </div>
+
                     <button class="btn btn-primary w-100 fw-bold py-2 rounded-pill shadow-sm" onclick="useRecipe('{{ $menu->id }}', '{{ $menu->name }}')">
                         <i class="fa-solid fa-play me-2"></i>GUNAKAN RESEP
                     </button>
@@ -126,6 +154,36 @@
                             <input type="text" name="name" class="form-control rounded-pill px-3" placeholder="Contoh: Ayam Bakar Madu" required>
                         </div>
                         <div class="col-12">
+                            <label class="form-label fw-bold">No. Resep</label>
+                            <div class="input-group shadow-sm" style="border-radius: 50px; overflow: hidden;">
+                                <input type="text" name="recipe_number" id="recipe_number_input" class="form-control border-0 px-3" placeholder="001/..." style="font-size: 0.9rem;">
+                                <button type="button" class="btn btn-secondary border-0 px-3" onclick="autoGenerateNumber()" title="Generate Otomatis">
+                                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Auto Generate
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Kategori</label>
+                            <select name="category_id" class="form-select rounded-pill px-3">
+                                <option value="">Pilih Kategori</option>
+                                @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Yield (Hasil)</label>
+                            <input type="text" name="yield" class="form-control rounded-pill px-3" placeholder="Contoh: 10 Porsi">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Cost Factor (%) <i class="fa-solid fa-circle-info text-muted ms-1" title="Persentase biaya tambahan (waste/overhead)"></i></label>
+                            <input type="number" name="cost_factor" class="form-control rounded-pill px-3" value="20" step="0.1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Profit Margin (%) <i class="fa-solid fa-circle-info text-muted ms-1" title="Persentase keuntungan dari total biaya"></i></label>
+                            <input type="number" name="profit_margin" class="form-control rounded-pill px-3" value="30" step="0.1">
+                        </div>
+                        <div class="col-12">
                             <label class="form-label fw-bold">Deskripsi / Cara Masak</label>
                             <textarea name="description" class="form-control rounded-4 p-3" rows="3" placeholder="Jelaskan singkat tentang masakan ini..."></textarea>
                         </div>
@@ -136,13 +194,13 @@
                                 <option value="0">Non-Aktif</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
+                        <!-- <div class="col-md-6">
                             <label class="form-label fw-bold">Potong Stok Otomatis</label>
                             <select name="reduce_stock" class="form-select rounded-pill px-3">
                                 <option value="1">Ya</option>
                                 <option value="0">Tidak</option>
                             </select>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
@@ -169,14 +227,16 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="30%">Nama Bahan Baku</th>
-                                    <th width="20%">Takaran (Input)</th>
-                                    <th width="15%">Satuan Input</th>
-                                    <th width="30%">Set Konversi Master (Update Item)</th>
-                                    <th width="5%"></th>
+                                    <th width="25%">Nama Bahan Baku</th>
+                                    <th width="15%">Takaran (Input)</th>
+                                    <th width="12%">Satuan Input</th>
+                                    <th width="12%" class="text-end">Harga Satuan</th>
+                                    <th width="12%" class="text-end">Subtotal</th>
+                                    <th width="20%">Set Konversi Master</th>
+                                    <th width="4%"></th>
                                 </tr>
                             </thead>
                             <tbody id="ingredientList">
@@ -184,9 +244,38 @@
                             </tbody>
                         </table>
                     </div>
-                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-2" onclick="addIngredientRow()">
-                        <i class="fa-solid fa-plus me-1"></i>Tambah Baris Bahan
-                    </button>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-7">
+                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="addIngredientRow()">
+                                <i class="fa-solid fa-plus me-1"></i>Tambah Baris Bahan
+                            </button>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="bg-light p-3 rounded-4 shadow-sm">
+                                <div class="calc-row">
+                                    <span class="calc-label">Total Cost 1 (Bahan Baku)</span>
+                                    <span class="calc-value" id="total_cost_1">Rp 0</span>
+                                </div>
+                                <div class="calc-row">
+                                    <span class="calc-label text-muted">Cost Factor (<span id="cost_factor_label">20</span>%)</span>
+                                    <span class="calc-value text-muted" id="cost_factor_val">Rp 0</span>
+                                </div>
+                                <div class="calc-row border-top-0 pt-0">
+                                    <span class="calc-label fw-bold">Total Cost 2 (Nett)</span>
+                                    <span class="calc-value text-primary fs-6" id="total_cost_2">Rp 0</span>
+                                </div>
+                                <div class="calc-row">
+                                    <span class="calc-label text-muted">Profit Margin (<span id="profit_margin_label">30</span>%)</span>
+                                    <span class="calc-value text-muted" id="profit_margin_val">Rp 0</span>
+                                </div>
+                                <div class="calc-row bg-primary bg-opacity-10 p-2 rounded-3 mt-2">
+                                    <span class="calc-label fw-bold text-primary">ESTIMASI HARGA JUAL</span>
+                                    <span class="calc-value text-primary fs-5" id="price_selling">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
@@ -228,20 +317,66 @@
 @push('scripts')
 <script>
     const availableItems = @json($items);
+    let currentCostFactor = 20;
+    let currentProfitMargin = 30;
     
+    function formatIDR(val) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+    }
+
     function cleanDecimal(val) {
         if (!val || val === '') return '';
         return parseFloat(parseFloat(val).toFixed(6)).toString();
     }
 
-    function editResep(id, name, description, isActive, reduceStock) {
+    function addResep() {
+        $('#modalResepTitle').text('Tambah Resep Baru');
+        $('#formResep').attr('action', "{{ route('admin.resep.store') }}");
+        $('#formResep')[0].reset();
+        $('#recipe_number_input').val('');
+        $('#modalResep').modal('show');
+    }
+
+    function editResep(id, name, description, isActive, reduceStock, recipeNumber, categoryId, yield, costFactor, profitMargin) {
         $('#modalResepTitle').text('Edit Resep');
         $('#formResep').attr('action', `/admin/resep/update/${id}`);
         $('#formResep input[name="name"]').val(name);
+        $('#formResep input[name="recipe_number"]').val(recipeNumber !== 'null' ? recipeNumber : '');
+        $('#formResep select[name="category_id"]').val(categoryId !== 'null' ? categoryId : '');
+        $('#formResep input[name="yield"]').val(yield !== 'null' ? yield : '');
+        $('#formResep input[name="cost_factor"]').val(costFactor);
+        $('#formResep input[name="profit_margin"]').val(profitMargin);
         $('#formResep textarea[name="description"]').val(description);
         $('#formResep select[name="is_active"]').val(isActive);
         $('#formResep select[name="reduce_stock"]').val(reduceStock);
         $('#modalResep').modal('show');
+    }
+
+    function autoGenerateNumber() {
+        const categoryId = $('#formResep select[name="category_id"]').val();
+        const btn = event.currentTarget;
+        const originalHtml = $(btn).html();
+        
+        $(btn).html('<i class="fa-solid fa-spinner fa-spin"></i>').prop('disabled', true);
+
+        $.ajax({
+            url: "{{ route('admin.resep.generateNumber') }}",
+            type: 'GET',
+            data: { category_id: categoryId },
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#recipe_number_input').val(response.number);
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function(xhr) {
+                Swal.fire('Error', 'Gagal generate nomor resep', 'error');
+            },
+            complete: function() {
+                $(btn).html(originalHtml).prop('disabled', false);
+            }
+        });
     }
 
     function deleteResep(id) {
@@ -267,12 +402,18 @@
     }
 
     function manageIngredients(id, name) {
+        const menus = @json($menus);
+        const menu = menus.find(m => m.id == id);
+        
+        currentCostFactor = menu ? menu.cost_factor : 20;
+        currentProfitMargin = menu ? menu.profit_margin : 30;
+        
+        $('#cost_factor_label').text(currentCostFactor);
+        $('#profit_margin_label').text(currentProfitMargin);
+        
         $('#resepNameDisplay').text(name);
         $('#formManageIngredients').attr('action', `/admin/resep/update-items/${id}`);
         $('#ingredientList').empty();
-        
-        const menus = @json($menus);
-        const menu = menus.find(m => m.id == id);
         
         if (menu && menu.menu_details.length > 0) {
             menu.menu_details.forEach((detail, index) => {
@@ -282,6 +423,7 @@
             addIngredientRow();
         }
         
+        calculateTotals();
         $('#modalManageIngredients').modal('show');
     }
 
@@ -293,7 +435,8 @@
             options += `<option value="${item.id}" ${itemId == item.id ? 'selected' : ''} 
                         data-unit="${item.unit}" 
                         data-retail="${item.retail_unit || ''}" 
-                        data-conv="${item.retail_conversion || 1}">
+                        data-conv="${item.retail_conversion || 1}"
+                        data-price="${item.price}">
                         ${item.name} (${item.unit})
                     </option>`;
         });
@@ -301,40 +444,46 @@
         const displayQty = isLoad ? cleanDecimal(quantity) : quantity;
 
         const row = `
-            <tr>
+            <tr class="ingredient-row">
                 <td>
                     <select name="items[${index}][item_id]" class="form-select select2-modal rounded-pill px-3 ingredient-select" required onchange="updateUnitOptions(this)">
                         ${options}
                     </select>
                 </td>
                 <td>
-                    <div class="input-group">
-                        <input type="number" name="items[${index}][quantity]" class="form-control rounded-start-pill px-3 ingredient-qty" step="any" value="${displayQty}" placeholder="Takaran" required oninput="updateConversionPreview(this)">
-                        <span class="input-group-text bg-light border-start-0 rounded-end-pill small dynamic-unit-label" style="font-size: 0.7rem;">-</span>
+                    <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                        <input type="number" name="items[${index}][quantity]" class="form-control border-0 px-3 ingredient-qty" step="any" value="${displayQty}" placeholder="0" required oninput="updateConversionPreview(this)">
+                        <span class="input-group-text bg-white border-0 small dynamic-unit-label text-muted" style="font-size: 0.7rem;">-</span>
                     </div>
                     <div class="preview-box px-2" id="preview_${index}"></div>
                 </td>
                 <td>
-                    <select name="items[${index}][unit_type]" class="form-select rounded-pill px-3 unit-select" onchange="updateConversionPreview(this)">
+                    <select name="items[${index}][unit_type]" class="form-select rounded-pill px-2 unit-select" style="font-size: 0.75rem;" onchange="updateConversionPreview(this)">
                         <!-- Dinamis -->
                     </select>
+                </td>
+                <td class="text-end">
+                    <span class="small text-muted display-unit-price">-</span>
+                </td>
+                <td class="text-end fw-bold">
+                    <span class="display-subtotal">-</span>
                 </td>
                 <td class="bg-light rounded-4">
                     <div class="row g-2 align-items-center">
                         <div class="col-md-5">
-                            <input type="text" name="items[${index}][retail_unit]" class="form-control mini-input retail-unit-input" placeholder="Satuan Ecer" oninput="updateAllLabels(this)">
+                            <input type="text" name="items[${index}][retail_unit]" class="form-control mini-input retail-unit-input" placeholder="Ecer" oninput="updateAllLabels(this)">
                         </div>
-                        <div class="col-md-2 text-center small text-muted" style="font-size: 0.6rem;">Isi:</div>
+                        <div class="col-md-2 text-center small text-muted" style="font-size: 0.5rem;">=</div>
                         <div class="col-md-5">
                             <input type="number" name="items[${index}][retail_conversion]" class="form-control mini-input retail-conv-input" placeholder="Isi" oninput="updateAllLabels(this)">
                         </div>
                     </div>
                     <div class="mt-1 text-center" style="font-size: 0.55rem; color: #888;">
-                        Master: 1 <span class="main-unit-label">-</span> = <span class="retail-val-label">-</span> <span class="retail-unit-label">-</span>
+                        1 <span class="main-unit-label">-</span> = <span class="retail-val-label">-</span> <span class="retail-unit-label">-</span>
                     </div>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-link text-danger p-0" onclick="$(this).closest('tr').remove()">
+                    <button type="button" class="btn btn-link text-danger p-0" onclick="$(this).closest('tr').remove(); calculateTotals();">
                         <i class="fa-solid fa-circle-xmark fs-5"></i>
                     </button>
                 </td>
@@ -356,6 +505,7 @@
         const unit = option.data('unit');
         const retail = option.data('retail');
         const conv = option.data('conv');
+        const price = option.data('price');
         const row = $(select).closest('tr');
         const qtyInput = row.find('.ingredient-qty');
         const currentVal = parseFloat(qtyInput.val()) || 0;
@@ -412,6 +562,9 @@
     function updateConversionPreview(input) {
         const row = $(input).closest('tr');
         const qty = parseFloat(row.find('.ingredient-qty').val()) || 0;
+        const option = row.find('.ingredient-select :selected');
+        const basePrice = parseFloat(option.data('price')) || 0;
+        
         const unitOption = row.find('.unit-select option:selected');
         const unitType = unitOption.val();
         const unitName = unitOption.data('unit');
@@ -420,17 +573,47 @@
         
         row.find('.dynamic-unit-label').text(unitName || '-');
 
+        let subtotal = 0;
+        let pricePerUnit = basePrice;
         let previewText = '';
+
         if (unitType === 'retail' && qty > 0) {
             const finalVal = qty / conv;
+            pricePerUnit = basePrice / conv;
+            subtotal = finalVal * basePrice;
             previewText = `Simpan sebagai: ${parseFloat(finalVal.toFixed(6))} ${mainUnit}`;
-        } else if (unitType === 'main' && qty > 0 && conv > 1) {
-            const retailVal = qty * conv;
-            const retailUnit = row.find('.retail-unit-input').val() || 'Eceran';
-            previewText = `Setara: ${parseFloat(retailVal.toFixed(2))} ${retailUnit}`;
+        } else if (unitType === 'main' && qty > 0) {
+            subtotal = qty * basePrice;
+            if (conv > 1) {
+                const retailVal = qty * conv;
+                const retailUnit = row.find('.retail-unit-input').val() || 'Eceran';
+                previewText = `Setara: ${parseFloat(retailVal.toFixed(2))} ${retailUnit}`;
+            }
         }
-        
+
+        row.find('.display-unit-price').text(formatIDR(pricePerUnit));
+        row.find('.display-subtotal').text(formatIDR(subtotal)).data('value', subtotal);
         row.find('.preview-box').text(previewText);
+        
+        calculateTotals();
+    }
+
+    function calculateTotals() {
+        let totalCost1 = 0;
+        $('.display-subtotal').each(function() {
+            totalCost1 += parseFloat($(this).data('value')) || 0;
+        });
+
+        const costFactorVal = totalCost1 * (currentCostFactor / 100);
+        const totalCost2 = totalCost1 + costFactorVal;
+        const profitMarginVal = totalCost2 * (currentProfitMargin / 100);
+        const priceSelling = totalCost2 + profitMarginVal;
+
+        $('#total_cost_1').text(formatIDR(totalCost1));
+        $('#cost_factor_val').text(formatIDR(costFactorVal));
+        $('#total_cost_2').text(formatIDR(totalCost2));
+        $('#profit_margin_val').text(formatIDR(profitMarginVal));
+        $('#price_selling').text(formatIDR(priceSelling));
     }
 
     function useRecipe(id, name) {

@@ -11,6 +11,7 @@ use App\Models\Stock;
 use App\Models\StockTransaction;
 use App\Models\StockTransactionDetail;
 use App\Models\TransaksiMenu;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,24 +23,30 @@ class ResepController extends Controller
 {
     public function index()
     {
-        $menus = Menu::with(['menuDetails.item', 'transaksiMenus', 'createdBy', 'updatedBy'])
+        $menus = Menu::with(['menuDetails.item', 'transaksiMenus', 'createdBy', 'updatedBy', 'category'])
             ->withCount('transaksiMenus as total_usage')
             ->orderBy('created_at', 'desc')
             ->get();
 
         $items = Item::where('is_active', true)->orderBy('name', 'asc')->get();
+        $categories = Category::orderBy('name', 'asc')->get();
         $setting = SettingWebsite::first();
 
-        return view('admin.resep.index', compact('menus', 'items', 'setting'));
+        return view('admin.resep.index', compact('menus', 'items', 'categories', 'setting'));
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:191',
+            'recipe_number' => 'nullable|string|max:191',
+            'category_id' => 'nullable|exists:categories,id',
+            'yield' => 'nullable|string|max:191',
+            'cost_factor' => 'nullable|numeric|min:0',
+            'profit_margin' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'is_active' => 'required|boolean',
-            'reduce_stock' => 'nullable|boolean',
+            // 'reduce_stock' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -50,9 +57,14 @@ class ResepController extends Controller
             DB::beginTransaction();
             $menu = Menu::create([
                 'name' => $request->name,
+                'recipe_number' => $request->recipe_number,
+                'category_id' => $request->category_id,
+                'yield' => $request->yield,
+                'cost_factor' => $request->cost_factor ?? 20.00,
+                'profit_margin' => $request->profit_margin ?? 30.00,
                 'description' => $request->description,
                 'is_active' => $request->is_active,
-                'reduce_stock' => $request->reduce_stock ?? 0,
+                // 'reduce_stock' => $request->reduce_stock ?? 0,
                 'created_by' => Auth::id(),
                 'created_at' => now(),
             ]);
@@ -72,18 +84,28 @@ class ResepController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:191',
+            'recipe_number' => 'nullable|string|max:191',
+            'category_id' => 'nullable|exists:categories,id',
+            'yield' => 'nullable|string|max:191',
+            'cost_factor' => 'nullable|numeric|min:0',
+            'profit_margin' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'is_active' => 'required|boolean',
-            'reduce_stock' => 'required|boolean',
+            // 'reduce_stock' => 'required|boolean',
         ]);
 
         try {
             $menu = Menu::findOrFail($id);
             $menu->update([
                 'name' => $request->name,
+                'recipe_number' => $request->recipe_number,
+                'category_id' => $request->category_id,
+                'yield' => $request->yield,
+                'cost_factor' => $request->cost_factor ?? 20.00,
+                'profit_margin' => $request->profit_margin ?? 30.00,
                 'description' => $request->description,
                 'is_active' => $request->is_active,
-                'reduce_stock' => $request->reduce_stock,
+                // 'reduce_stock' => $request->reduce_stock,
                 'updated_by' => Auth::id(),
                 'updated_at' => now(),
             ]);
@@ -245,6 +267,48 @@ class ResepController extends Controller
             DB::rollBack();
             ActivityLog::record('ERROR', null, "Gagal memproses resep ID $id: " . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal memproses resep: ' . $e->getMessage());
+        }
+    }
+
+    public function generateNumber(Request $request)
+    {
+        try {
+            $categoryId = $request->category_id;
+            $year = date('Y');
+            $prefix = "RESEP";
+
+            if ($categoryId) {
+                $category = Category::find($categoryId);
+                if ($category && $category->code) {
+                    $prefix = strtoupper($category->code);
+                }
+            }
+
+            // Get last sequence for this year
+            $lastRecipe = Menu::whereYear('created_at', $year)
+                ->orderBy('id', 'desc')
+                ->first();
+            
+            $nextSeq = 1;
+            if ($lastRecipe && $lastRecipe->recipe_number) {
+                $parts = explode('/', $lastRecipe->recipe_number);
+                if (count($parts) > 0 && is_numeric($parts[0])) {
+                    $nextSeq = (int)$parts[0] + 1;
+                }
+            }
+
+            $sequence = str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+            $newNumber = "{$sequence}/{$prefix}/NT/{$year}";
+
+            return response()->json([
+                'status' => 'success',
+                'number' => $newNumber
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

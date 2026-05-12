@@ -27,6 +27,11 @@ class Menu extends Model
         return $this->hasMany(MenuDetail::class);
     }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
     public function transaksiMenus()
     {
         return $this->hasMany(TransaksiMenu::class);

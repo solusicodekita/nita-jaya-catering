@@ -234,6 +234,7 @@ Route::middleware(['xss'])->group(function () {
             Route::delete('destroy/{id}', [ResepController::class, 'destroy'])->name('destroy');
             Route::post('update-items/{id}', [ResepController::class, 'updateItems'])->name('updateItems');
             Route::post('use/{id}', [ResepController::class, 'useRecipe'])->name('use');
+            Route::get('generate-number', [ResepController::class, 'generateNumber'])->name('generateNumber');
         });
 
         Route::group(['prefix' => 'fixing-mutasi/', 'as' => 'fixing-mutasi.'], function () {
