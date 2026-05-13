@@ -42,7 +42,11 @@
                         <div>
                             <div class="d-flex align-items-center gap-2 mb-1">
                                 <span class="badge bg-primary rounded-pill px-2" style="font-size: 0.6rem;">{{ $menu->recipe_number ?? 'No #' }}</span>
-                                <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2" style="font-size: 0.6rem;">{{ $menu->category->name ?? 'Uncategorized' }}</span>
+                                @forelse($menu->categories as $cat)
+                                <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2" style="font-size: 0.6rem;">{{ $cat->name }}</span>
+                                @empty
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-2" style="font-size: 0.6rem;">Uncategorized</span>
+                                @endforelse
                             </div>
                             <h4 class="fw-bold text-dark mb-1">{{ $menu->name }}</h4>
                             <div class="d-flex align-items-center gap-2">
@@ -55,7 +59,7 @@
                             </div>
                         </div>
                         <div class="d-flex gap-1">
-                            <button class="btn btn-outline-primary btn-action" onclick="editResep('{{ $menu->id }}', '{{ $menu->name }}', '{{ $menu->description }}', '{{ $menu->is_active }}', '{{ $menu->reduce_stock }}', '{{ $menu->recipe_number }}', '{{ $menu->category_id }}', '{{ $menu->yield }}', '{{ $menu->cost_factor }}', '{{ $menu->profit_margin }}')" title="Edit Deskripsi">
+                            <button class="btn btn-outline-primary btn-action" onclick="editResep('{{ $menu->id }}', '{{ $menu->name }}', '{{ addslashes($menu->description) }}', '{{ $menu->is_active }}', '{{ $menu->reduce_stock }}', '{{ $menu->recipe_number }}', '{{ json_encode($menu->categories->pluck('id')) }}', '{{ $menu->yield }}', '{{ $menu->cost_factor }}', '{{ $menu->profit_margin }}')" title="Edit Deskripsi">
                                 <i class="fa-solid fa-edit fs-6"></i>
                             </button>
                             <button class="btn btn-outline-info btn-action" onclick="manageIngredients('{{ $menu->id }}', '{{ $menu->name }}')" title="Kelola Bahan">
@@ -164,8 +168,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Kategori</label>
-                            <select name="category_id" class="form-select rounded-pill px-3">
-                                <option value="">Pilih Kategori</option>
+                            <select name="category_ids[]" id="category_select" class="form-select select2-categories rounded-pill px-3" multiple>
                                 @foreach($categories as $cat)
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
@@ -333,16 +336,24 @@
         $('#modalResepTitle').text('Tambah Resep Baru');
         $('#formResep').attr('action', "{{ route('admin.resep.store') }}");
         $('#formResep')[0].reset();
+        $('#category_select').val([]).trigger('change');
         $('#recipe_number_input').val('');
         $('#modalResep').modal('show');
     }
 
-    function editResep(id, name, description, isActive, reduceStock, recipeNumber, categoryId, yield, costFactor, profitMargin) {
-        $('#modalResepTitle').text('Edit Resep');
+    function editResep(id, name, description, isActive, reduceStock, recipeNumber, categoryIds, yield, costFactor, profitMargin) {
+        $('#modalResepTitle').html(`Edit Resep: <span class="text-primary">${name}</span>`);
         $('#formResep').attr('action', `/admin/resep/update/${id}`);
         $('#formResep input[name="name"]').val(name);
         $('#formResep input[name="recipe_number"]').val(recipeNumber !== 'null' ? recipeNumber : '');
-        $('#formResep select[name="category_id"]').val(categoryId !== 'null' ? categoryId : '');
+        
+        try {
+            const catIds = JSON.parse(categoryIds);
+            $('#category_select').val(catIds).trigger('change');
+        } catch(e) {
+            $('#category_select').val([]).trigger('change');
+        }
+
         $('#formResep input[name="yield"]').val(yield !== 'null' ? yield : '');
         $('#formResep input[name="cost_factor"]').val(costFactor);
         $('#formResep input[name="profit_margin"]').val(profitMargin);
@@ -353,7 +364,7 @@
     }
 
     function autoGenerateNumber() {
-        const categoryId = $('#formResep select[name="category_id"]').val();
+        const categoryId = $('#category_select').val();
         const btn = event.currentTarget;
         const originalHtml = $(btn).html();
         
@@ -411,7 +422,8 @@
         $('#cost_factor_label').text(currentCostFactor);
         $('#profit_margin_label').text(currentProfitMargin);
         
-        $('#resepNameDisplay').text(name);
+        $('#modalManageIngredients .modal-title').html(`Kelola Bahan Resep: <span class="text-primary">${name}</span>`);
+        $('#resepNameDisplay').text('Resep: ' + name);
         $('#formManageIngredients').attr('action', `/admin/resep/update-items/${id}`);
         $('#ingredientList').empty();
         
@@ -634,5 +646,14 @@
             input.val(parseFloat(input.val()) - 1);
         }
     }
+
+    $(document).ready(function() {
+        $('.select2-categories').select2({
+            dropdownParent: $('#modalResep'),
+            placeholder: 'Pilih Kategori (Bisa lebih dari satu)',
+            width: '100%',
+            allowClear: true
+        });
+    });
 </script>
 @endpush

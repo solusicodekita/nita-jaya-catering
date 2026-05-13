@@ -23,7 +23,7 @@ class ResepController extends Controller
 {
     public function index()
     {
-        $menus = Menu::with(['menuDetails.item', 'transaksiMenus', 'createdBy', 'updatedBy', 'category'])
+        $menus = Menu::with(['menuDetails.item', 'transaksiMenus', 'createdBy', 'updatedBy', 'categories'])
             ->withCount('transaksiMenus as total_usage')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -40,7 +40,8 @@ class ResepController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:191',
             'recipe_number' => 'nullable|string|max:191',
-            'category_id' => 'nullable|exists:categories,id',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
             'yield' => 'nullable|string|max:191',
             'cost_factor' => 'nullable|numeric|min:0',
             'profit_margin' => 'nullable|numeric|min:0',
@@ -58,7 +59,7 @@ class ResepController extends Controller
             $menu = Menu::create([
                 'name' => $request->name,
                 'recipe_number' => $request->recipe_number,
-                'category_id' => $request->category_id,
+                // 'category_id' => $request->category_id, // Deprecated, using sync instead
                 'yield' => $request->yield,
                 'cost_factor' => $request->cost_factor ?? 20.00,
                 'profit_margin' => $request->profit_margin ?? 30.00,
@@ -68,6 +69,10 @@ class ResepController extends Controller
                 'created_by' => Auth::id(),
                 'created_at' => now(),
             ]);
+
+            if ($request->has('category_ids')) {
+                $menu->categories()->sync($request->category_ids);
+            }
 
             ActivityLog::record('CREATE', $menu, "Membuat resep baru: {$menu->name}");
 
@@ -85,7 +90,8 @@ class ResepController extends Controller
         $request->validate([
             'name' => 'required|string|max:191',
             'recipe_number' => 'nullable|string|max:191',
-            'category_id' => 'nullable|exists:categories,id',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
             'yield' => 'nullable|string|max:191',
             'cost_factor' => 'nullable|numeric|min:0',
             'profit_margin' => 'nullable|numeric|min:0',
@@ -99,7 +105,7 @@ class ResepController extends Controller
             $menu->update([
                 'name' => $request->name,
                 'recipe_number' => $request->recipe_number,
-                'category_id' => $request->category_id,
+                // 'category_id' => $request->category_id, // Deprecated
                 'yield' => $request->yield,
                 'cost_factor' => $request->cost_factor ?? 20.00,
                 'profit_margin' => $request->profit_margin ?? 30.00,
@@ -109,6 +115,8 @@ class ResepController extends Controller
                 'updated_by' => Auth::id(),
                 'updated_at' => now(),
             ]);
+
+            $menu->categories()->sync($request->category_ids ?? []);
 
             ActivityLog::record('UPDATE', $menu, "Memperbarui resep: {$menu->name}");
 
@@ -274,6 +282,12 @@ class ResepController extends Controller
     {
         try {
             $categoryId = $request->category_id;
+            
+            // Handle if category_id is passed as array (from multi-select)
+            if (is_array($categoryId)) {
+                $categoryId = !empty($categoryId) ? $categoryId[0] : null;
+            }
+
             $year = date('Y');
             $prefix = "RESEP";
 
