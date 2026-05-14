@@ -6,9 +6,9 @@
 <style>
     .resep-card { border-radius: 20px; border: none; transition: all 0.3s ease; overflow: hidden; }
     .resep-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
-    .ingredient-badge { font-size: 0.75rem; transition: all 0.2s; }
+    .ingredient-badge { font-size: 0.75rem; transition: all 0.2s; max-width: 100%; }
     .ingredient-badge:hover { background-color: #e9ecef !important; }
-    .btn-action { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+    .btn-action { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; }
     .unit-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 50px; background: #e9ecef; color: #495057; font-weight: 600; }
     .mini-input { font-size: 0.75rem !important; padding: 0.2rem 0.5rem !important; height: auto !important; border-radius: 8px !important; }
     .preview-box { font-size: 0.7rem; color: #0d6efd; font-weight: 600; margin-top: 2px; min-height: 15px; }
@@ -16,18 +16,31 @@
     .calc-row { border-top: 1px dashed #dee2e6; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; }
     .calc-label { font-size: 0.8rem; color: #6c757d; font-weight: 500; }
     .calc-value { font-size: 0.85rem; font-weight: 700; color: #212529; }
+    
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+        .container-fluid { padding-left: 1rem !important; padding-right: 1rem !important; }
+        .card-body { padding: 1.25rem !important; }
+        .resep-card h4 { font-size: 1.15rem; }
+    }
 </style>
 @endpush
 
 @section('content')
 <div class="container-fluid py-4">
     <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
+        <div class="col-12 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <h2 class="fw-bold mb-1">Daftar Resep Masakan</h2>
-                <p class="text-muted">Kelola resep dan takaran bahan baku untuk operasional katering.</p>
+                <p class="text-muted mb-0">Kelola resep dan takaran bahan baku untuk operasional katering.</p>
             </div>
-            <button class="btn btn-primary rounded-pill px-4 shadow-sm" onclick="addResep()">
+            <button class="btn btn-success rounded-pill px-4 shadow-sm w-100 w-md-auto" onclick="addResep()">
                 <i class="fa-solid fa-plus me-2"></i>Tambah Resep Baru
             </button>
         </div>
@@ -38,9 +51,9 @@
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card resep-card shadow-sm h-100">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                                 <span class="badge bg-primary rounded-pill px-2" style="font-size: 0.6rem;">{{ $menu->recipe_number ?? 'No #' }}</span>
                                 @forelse($menu->categories as $cat)
                                 <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2" style="font-size: 0.6rem;">{{ $cat->name }}</span>
@@ -58,7 +71,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1 flex-shrink-0 pt-1">
                             <button class="btn btn-outline-primary btn-action" onclick="editResep('{{ $menu->id }}', '{{ $menu->name }}', '{{ addslashes($menu->description) }}', '{{ $menu->is_active }}', '{{ $menu->reduce_stock }}', '{{ $menu->recipe_number }}', '{{ json_encode($menu->categories->pluck('id')) }}', '{{ $menu->yield }}', '{{ $menu->cost_factor }}', '{{ $menu->profit_margin }}')" title="Edit Deskripsi">
                                 <i class="fa-solid fa-edit fs-6"></i>
                             </button>
@@ -102,7 +115,7 @@
 
                     <hr class="opacity-10">
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <div class="small">
                             <i class="fa-solid fa-history me-1 text-muted"></i> Total Digunakan: <strong>{{ $menu->total_usage }}x</strong>
                         </div>
@@ -122,7 +135,7 @@
                         $sellingPrice = $totalCost2 + $profitMarginVal;
                     @endphp
 
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 mb-3 d-flex justify-content-between align-items-center">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <span class="small fw-bold text-primary">ESTIMASI JUAL:</span>
                         <span class="fw-bold text-primary">Rp {{ number_format($sellingPrice, 0, ',', '.') }}</span>
                     </div>
@@ -161,7 +174,7 @@
                             <label class="form-label fw-bold">No. Resep</label>
                             <div class="input-group shadow-sm" style="border-radius: 50px; overflow: hidden;">
                                 <input type="text" name="recipe_number" id="recipe_number_input" class="form-control border-0 px-3" placeholder="001/..." style="font-size: 0.9rem;">
-                                <button type="button" class="btn btn-secondary border-0 px-3" onclick="autoGenerateNumber()" title="Generate Otomatis">
+                                <button type="button" class="btn btn-success border-0 px-3" onclick="autoGenerateNumber()" title="Generate Otomatis">
                                     <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Auto Generate
                                 </button>
                             </div>
