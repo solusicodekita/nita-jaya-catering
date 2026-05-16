@@ -235,6 +235,7 @@ Route::middleware(['xss'])->group(function () {
             Route::post('update-items/{id}', [ResepController::class, 'updateItems'])->name('updateItems');
             Route::post('use/{id}', [ResepController::class, 'useRecipe'])->name('use');
             Route::get('generate-number', [ResepController::class, 'generateNumber'])->name('generateNumber');
+            Route::get('usage-history', [ResepController::class, 'usageHistory'])->name('usage-history');
         });
 
         Route::group(['prefix' => 'fixing-mutasi/', 'as' => 'fixing-mutasi.'], function () {
@@ -242,6 +243,8 @@ Route::middleware(['xss'])->group(function () {
             Route::post('recalculate', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'recalculate'])->name('recalculate');
             Route::post('fix-opname', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'fixOpname'])->name('fix-opname');
             Route::post('get-latest-opname', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'getLatestOpname'])->name('get-latest-opname');
+            Route::post('get-current-stock', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'getCurrentStock'])->name('get-current-stock');
+            Route::post('force-adjust', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'forceAdjust'])->name('force-adjust');
             Route::post('ledger', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'ledger'])->name('ledger');
         });
 

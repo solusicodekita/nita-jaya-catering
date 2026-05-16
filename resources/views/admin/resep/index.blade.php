@@ -40,9 +40,14 @@
                 <h2 class="fw-bold mb-1">Daftar Resep Masakan</h2>
                 <p class="text-muted mb-0">Kelola resep dan takaran bahan baku untuk operasional katering.</p>
             </div>
-            <button class="btn btn-success rounded-pill px-4 shadow-sm w-100 w-md-auto" onclick="addResep()">
-                <i class="fa-solid fa-plus me-2"></i>Tambah Resep Baru
-            </button>
+            <div class="d-flex gap-2 w-100 w-md-auto">
+                <a href="{{ route('admin.resep.usage-history') }}" class="btn btn-outline-primary rounded-pill px-4 shadow-sm w-100 w-md-auto">
+                    <i class="fa-solid fa-history me-2"></i>Riwayat Penggunaan
+                </a>
+                <button class="btn btn-success rounded-pill px-4 shadow-sm w-100 w-md-auto" onclick="addResep()">
+                    <i class="fa-solid fa-plus me-2"></i>Tambah Resep Baru
+                </button>
+            </div>
         </div>
     </div>
 
@@ -66,6 +71,15 @@
                                 <span class="badge {{ $menu->is_active ? 'bg-success' : 'bg-secondary' }} rounded-pill px-3" style="font-size: 0.7rem;">
                                     {{ $menu->is_active ? 'Aktif' : 'Non-Aktif' }}
                                 </span>
+                                @if($menu->reduce_stock)
+                                    <span class="badge bg-warning text-dark rounded-pill px-2" style="font-size: 0.6rem;" title="Otomatis memotong stok saat digunakan">
+                                        <i class="fa-solid fa-bolt me-1"></i>Auto-Stok
+                                    </span>
+                                @else
+                                    <span class="badge bg-light text-muted border rounded-pill px-2" style="font-size: 0.6rem;" title="TIDAK memotong stok otomatis">
+                                        <i class="fa-solid fa-hand me-1"></i>Manual
+                                    </span>
+                                @endif
                                 @if($menu->yield)
                                 <span class="text-muted small"><i class="fa-solid fa-utensils me-1"></i>{{ $menu->yield }}</span>
                                 @endif
@@ -155,7 +169,7 @@
 </div>
 
 <!-- Modal Form Resep -->
-<div class="modal fade" id="modalResep" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalResep" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
             <form id="formResep" method="POST">
@@ -210,13 +224,13 @@
                                 <option value="0">Non-Aktif</option>
                             </select>
                         </div>
-                        <!-- <div class="col-md-6">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">Potong Stok Otomatis</label>
                             <select name="reduce_stock" class="form-select rounded-pill px-3">
                                 <option value="1">Ya</option>
                                 <option value="0">Tidak</option>
                             </select>
-                        </div> -->
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
@@ -229,7 +243,7 @@
 </div>
 
 <!-- Modal Kelola Bahan -->
-<div class="modal fade" id="modalManageIngredients" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalManageIngredients" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
             <form id="formManageIngredients" method="POST">
@@ -515,11 +529,13 @@
             </tr>
         `;
         $('#ingredientList').append(row);
+        const $lastRow = $('#ingredientList tr').last();
         
-        const lastRow = $('#ingredientList tr').last();
-        updateUnitOptions(lastRow.find('.ingredient-select')[0], isLoad);
+        // Initial setup for unit options
+        updateUnitOptions($lastRow.find('.ingredient-select')[0], isLoad);
 
-        $('.select2-modal').select2({
+        // Initialize Select2 ONLY for the newly added row to prevent conflicts
+        $lastRow.find('.select2-modal').select2({
             dropdownParent: $('#modalManageIngredients'),
             width: '100%'
         });

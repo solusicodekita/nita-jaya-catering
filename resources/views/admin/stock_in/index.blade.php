@@ -79,7 +79,9 @@
                                                     <td>Rp {{ number_format($row->total_harga_keseluruhan, 2, ',', '.') }}
                                                     </td>
                                                     <td>
-                                                        @if ($row->stockTransactionDetails->isNotEmpty())
+                                                        @if (!empty($row->alasan_adjustment))
+                                                            {{ $row->alasan_adjustment }}
+                                                        @elseif ($row->stockTransactionDetails->isNotEmpty())
                                                             @foreach ($row->stockTransactionDetails as $item)
                                                                 {{ $item->description ?? '-' }}
                                                                 @if (!$loop->last)

@@ -47,7 +47,7 @@ class ResepController extends Controller
             'profit_margin' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'is_active' => 'required|boolean',
-            // 'reduce_stock' => 'nullable|boolean',
+            'reduce_stock' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -65,7 +65,7 @@ class ResepController extends Controller
                 'profit_margin' => $request->profit_margin ?? 30.00,
                 'description' => $request->description,
                 'is_active' => $request->is_active,
-                // 'reduce_stock' => $request->reduce_stock ?? 0,
+                'reduce_stock' => $request->reduce_stock ?? 0,
                 'created_by' => Auth::id(),
                 'created_at' => now(),
             ]);
@@ -97,7 +97,7 @@ class ResepController extends Controller
             'profit_margin' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'is_active' => 'required|boolean',
-            // 'reduce_stock' => 'required|boolean',
+            'reduce_stock' => 'required|boolean',
         ]);
 
         try {
@@ -111,7 +111,7 @@ class ResepController extends Controller
                 'profit_margin' => $request->profit_margin ?? 30.00,
                 'description' => $request->description,
                 'is_active' => $request->is_active,
-                // 'reduce_stock' => $request->reduce_stock,
+                'reduce_stock' => $request->reduce_stock,
                 'updated_by' => Auth::id(),
                 'updated_at' => now(),
             ]);
@@ -225,10 +225,23 @@ class ResepController extends Controller
             $stockTransactionId = null;
 
             if ($shouldReduce) {
+                // Calculate Total Transaction (Selling Price Estimation)
+                $totalCost1 = 0;
+                foreach ($menu->menuDetails as $detail) {
+                    $totalCost1 += ($detail->item->price ?? 0) * $detail->quantity;
+                }
+                
+                $costFactorVal = $totalCost1 * (($menu->cost_factor ?? 20) / 100);
+                $totalCost2 = $totalCost1 + $costFactorVal;
+                $profitVal = $totalCost2 * (($menu->profit_margin ?? 30) / 100);
+                $sellingPricePerPortion = $totalCost2 + $profitVal;
+                $totalTransactionValue = $sellingPricePerPortion * $request->multiplier;
+
                 $stockTransaction = StockTransaction::create([
                     'type' => 'out',
                     'date' => now(),
-                    'description' => 'Penggunaan Resep: ' . $menu->name . ' (' . $request->multiplier . ' porsi)',
+                    'alasan_adjustment' => 'Proses penggunaan resep ' . $menu->name . ' (' . $request->multiplier . ' porsi) oleh ' . Auth::user()->fullname . ' pada tanggal ' . now()->format('d-m-Y H:i'),
+                    'total_harga_keseluruhan' => $totalTransactionValue,
                     'created_by' => Auth::id(),
                     'created_at' => now(),
                 ]);
@@ -251,6 +264,9 @@ class ResepController extends Controller
                         'item_id' => $detail->item_id,
                         'warehouse_id' => $warehouseId,
                         'quantity' => $totalQtyNeeded,
+                        'harga_satuan' => $detail->item->price ?? 0,
+                        'total_harga' => ($detail->item->price ?? 0) * $totalQtyNeeded,
+                        'description' => 'Bahan untuk resep ' . $menu->name,
                         'created_at' => now(),
                     ]);
                 }
@@ -258,8 +274,12 @@ class ResepController extends Controller
 
             TransaksiMenu::create([
                 'menu_id' => $id,
+                'recipe_name' => $menu->name,
+                'recipe_number' => $menu->recipe_number,
                 'stock_transaction_id' => $stockTransactionId,
                 'qty' => $request->multiplier,
+                'total_cost' => ($totalCost1 ?? 0) * $request->multiplier,
+                'selling_price' => $totalTransactionValue ?? 0,
                 'created_by' => Auth::id(),
                 'created_at' => now(),
             ]);
@@ -324,5 +344,13 @@ class ResepController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+    public function usageHistory(Request $request)
+    {
+        $histories = TransaksiMenu::with(['menu', 'stockTransaction.stockTransactionDetails.item', 'createdBy'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
+            
+        return view('admin.resep.history', compact('histories'));
     }
 }

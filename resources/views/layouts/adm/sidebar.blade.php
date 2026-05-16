@@ -96,11 +96,19 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Penyesuaian Stok') }}</p>
-                                    </a>
-                                </li>
+                                     <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
+                                         <i class="fas fa-angle-right nav-icon"></i>
+                                         <p>{{ __('Penyesuaian Stok') }}</p>
+                                     </a>
+                                 </li>
+                                 @if (auth()->user()->hasRole('admin'))
+                                 <li class="nav-item">
+                                     <a href="{{ route('admin.fixing-mutasi.index') }}" class="nav-link {{ Request::is('admin/fixing-mutasi*') ? 'active' : '' }}">
+                                         <i class="fas fa-angle-right nav-icon text-warning"></i>
+                                         <p>{{ __('Fixing Mutasi') }} <span class="badge badge-warning">Admin</span></p>
+                                     </a>
+                                 </li>
+                                 @endif
                             </ul>
                         </li>
 

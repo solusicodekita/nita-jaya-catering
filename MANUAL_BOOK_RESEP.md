@@ -1,60 +1,64 @@
-# MANUAL BOOK: MANAJEMEN RESEP & KONVERSI STOK PRESISI
-## Nita Jaya Catering
+# MANUAL BOOK: MANAJEMEN RESEP & AUDIT STOK PRESISI
+## Nita Jaya Catering - Versi 2.0 (Optimized)
 
 ---
 
 ### 1. PENDAHULUAN
-Sistem baru ini dirancang agar admin katering tidak perlu lagi menghitung angka desimal yang rumit saat menginput resep. Sistem akan otomatis mengubah satuan eceran (seperti Gram) menjadi satuan stok gudang (seperti Ball/Pck).
+Sistem Manajemen Resep Nita Jaya Catering kini dilengkapi dengan fitur **Audit Otomatis**. Selain membantu konversi satuan (seperti Gram ke Ball), sistem kini mampu melakukan pemotongan stok otomatis, pencatatan nilai finansial (Estimasi Jual), dan pelacakan riwayat penggunaan yang sangat transparan.
+
+> [!IMPORTANT]
+> **CATATAN PENTING UNTUK AKURASI HARGA:**
+> Untuk menjaga akurasi **Estimasi Jual** dan laporan keuangan, pastikan harga bahan baku di menu **Master Bahan Baku** selalu diperbarui jika ada kenaikan atau perubahan harga dari supplier. Sistem menggunakan harga master tersebut sebagai dasar perhitungan otomatis setiap kali resep digunakan.
 
 ---
 
-### 2. MENGATUR KONVERSI (MASTER DATA)
-Sebelum menginput takaran, pastikan "Isi" dari bahan baku sudah benar. Anda bisa mengaturnya langsung saat sedang mengisi resep.
+### 2. PENGATURAN RESEP (POTONG STOK OTOMATIS)
+Setiap resep kini memiliki kendali atas inventaris gudang.
 
-**Cara Setting:**
-1. Klik tombol **Kelola Bahan** (ikon list biru) pada kartu resep.
-2. Pada baris bahan baku, lihat kolom **Set Konversi Master**.
-3. Isi **Satuan Ecer** (Misal: Gram).
-4. Isi **Isi** (Misal: 1000). Artinya 1 Satuan Utama berisi 1000 Gram.
-
-> **Tips:** Sekali Anda simpan, sistem akan mengingat konversi ini selamanya untuk resep-resep lain.
-
-**[ TEMPAT SISIPKAN GAMBAR MODAL KELOLA BAHAN ]**
+*   **Toggle Potong Stok**: Saat membuat atau mengedit resep, Anda dapat memilih apakah resep ini akan memotong stok secara otomatis atau tidak.
+*   **Keuntungan**: Meminimalisir kesalahan manual. Setiap kali resep digunakan, sistem akan menghitung mundur stok bahan baku di gudang secara real-time.
 
 ---
 
-### 3. MENGINPUT TAKARAN RESEP
-Anda bisa memilih ingin menginput dalam satuan utama atau eceran.
+### 3. PENGGUNAAN RESEP & ESTIMASI JUAL
+Sistem kini tidak hanya mencatat "apa" yang dimasak, tapi juga "berapa nilainya".
 
-**Cara Input:**
-1. Pada kolom **Satuan Input**, pilih satuan yang Anda inginkan (Contoh: Gram).
-2. Masukkan angka di kolom **Takaran**. (Contoh: 10).
-3. Perhatikan **Teks Biru** di bawahnya. Teks tersebut akan mengonfirmasi: *"Simpan sebagai: 0.01 Pck"*.
-4. Klik **Simpan Bahan**.
+**Cara Menggunakan Resep:**
+1. Klik tombol biru **Gunakan Resep** pada kartu resep.
+2. Masukkan **Jumlah Porsi** yang akan dimasak.
+3. Klik **Proses**.
 
-> **Smart Feature:** Jika Anda baru pertama kali mengisi kolom Konversi di sebelah kanan, sistem akan otomatis memindahkan Satuan Input ke Eceran agar Anda tidak lupa.
-
-**[ TEMPAT SISIPKAN GAMBAR INPUT TAKARAN ]**
-
----
-
-### 4. MEMBACA KARTU RESEP (HALAMAN UTAMA)
-Sistem akan menampilkan satuan yang paling enak dibaca di halaman utama.
-
-*   Jika jumlahnya bulat, akan muncul: **10 Pcs**.
-*   Jika jumlahnya sangat kecil, akan muncul: **10 Gram**.
-
-Sistem otomatis melakukan deteksi ini agar Anda tidak perlu melihat angka nol yang banyak di layar utama.
+**Apa yang terjadi di balik layar?**
+*   **Pemotongan Stok**: Stok bahan baku di gudang akan berkurang sesuai takaran dikali jumlah porsi.
+*   **Pencatatan Finansial**: Sistem otomatis menghitung total nilai (Modal + Profit) dan menyimpannya sebagai transaksi **Estimasi Jual** di Riwayat Stok Keluar.
+*   **Identitas Jelas**: Setiap transaksi stok otomatis akan diberi keterangan lengkap: *"Proses penggunaan resep [Nama Resep] oleh [Nama Admin] pada tanggal [Waktu]"*.
 
 ---
 
-### 5. LOG AKTIVITAS & ERROR
-Semua tindakan Anda (Tambah, Edit, Hapus, atau Gunakan Resep) tercatat di menu **Log Aktivitas**.
+### 4. RIWAYAT PENGGUNAAN & INTEGRITAS DATA 
+Kami menjamin data audit Anda tidak akan rusak (Corrupt) meskipun ada perubahan di masa depan.
 
-*   **Audit Trail:** Anda bisa melihat siapa yang merubah takaran resep.
-*   **Log Error:** Jika terjadi kesalahan teknis, sistem akan mencatatnya dengan label **ERROR** (warna merah). Anda bisa memberikan laporan ini ke tim teknis untuk pengecekan.
+*   **Sistem Snapshot**: Saat resep digunakan, sistem menyimpan salinan Nama, Nomor, dan Harga resep *saat itu juga*. 
+*   **Keamanan Audit**: Jika suatu hari resep dihapus atau diganti namanya, riwayat lama Anda di menu **Riwayat Penggunaan** tidak akan berubah atau menjadi "Error". Anda tetap bisa melihat data asli saat transaksi itu terjadi.
+*   **Detail Bahan**: Pada halaman riwayat, Anda dapat mengklik tombol **Detail Pemakaian Bahan** untuk melihat daftar bahan baku apa saja yang terpotong beserta jumlah desimalnya yang presisi.
 
 ---
 
-**Dibuat oleh: Antigravity AI Assistant**
+<!-- ### 5. PERBAIKAN STOK (FITUR SUPERADMIN)
+Jika terjadi selisih stok karena kesalahan input manusia atau bug sistem, Superadmin memiliki "Katup Pengaman".
+
+*   **Menu Fixing Mutasi**: Hanya dapat diakses oleh Role Admin/Superadmin.
+*   **Force Adjust Stock**: Anda cukup memilih Item dan Lokasi, lalu masukkan **Target Stok** yang benar. Sistem akan otomatis menghitung selisihnya dan membuat transaksi penyesuaian agar stok kembali balance.
+
+---
+
+### 6. LOG AKTIVITAS (USER FRIENDLY)
+Menu **Log Aktivitas** kini lebih mudah dibaca oleh manusia.
+
+*   **Detail Tabel**: Data teknis (JSON) kini ditampilkan dalam bentuk tabel yang rapi. Anda bisa melihat perbandingan *"Data Lama"* vs *"Data Baru"* saat terjadi perubahan resep secara mendetail.
+*   **Pagination**: Halaman log kini memiliki navigasi (halaman 1, 2, 3...) sehingga performa sistem tetap cepat meskipun data sudah mencapai puluhan ribu. -->
+
+---
+
+**Dibuat oleh: hasanarofid.site**
 **Untuk: Nita Jaya Catering**

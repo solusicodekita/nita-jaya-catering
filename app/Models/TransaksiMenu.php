@@ -25,4 +25,9 @@ class TransaksiMenu extends Model
     {
         return $this->belongsTo(StockTransaction::class);
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

@@ -11,6 +11,9 @@ use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\Auth;
+use App\Models\TransaksiMenu;
+
 class FixingMutasiController extends Controller
 {
     public function index()
@@ -172,6 +175,57 @@ class FixingMutasiController extends Controller
         return view('admin.fixing-mutasi.ledger', compact('ledger', 'item', 'warehouse', 'opname'));
     }
 
+    public function forceAdjust(Request $request)
+    {
+        $itemId = $request->item_id;
+        $warehouseId = $request->warehouse_id;
+        $targetStock = $request->target_stock;
+        $reason = $request->reason ?? 'Koreksi Stok Manual (Superadmin)';
+
+        DB::beginTransaction();
+        try {
+            $currentStock = Stock::liveStock($itemId, $warehouseId);
+            $diff = $targetStock - $currentStock;
+
+            if ($diff == 0) {
+                return redirect()->back()->with('info', 'Stok sudah sesuai, tidak ada penyesuaian yang diperlukan.');
+            }
+
+            $type = $diff > 0 ? 'in' : 'out';
+            $qty = abs($diff);
+
+            $stockTx = StockTransaction::create([
+                'type' => $type,
+                'is_adjustment' => true,
+                'is_verifikasi_adjustment' => true,
+                'alasan_adjustment' => $reason,
+                'date' => now(),
+                'created_by' => Auth::id(),
+                'updated_by' => Auth::id(),
+                'verifikasi_by' => Auth::id(),
+                'tanggal_verifikasi_adjusment' => now(),
+            ]);
+
+            $item = Item::find($itemId);
+            StockTransactionDetail::create([
+                'stock_transaction_id' => $stockTx->id,
+                'item_id' => $itemId,
+                'warehouse_id' => $warehouseId,
+                'quantity' => $qty,
+                'harga_satuan' => $item->price ?? 0,
+                'total_harga' => $qty * ($item->price ?? 0),
+                'description' => $reason,
+                'created_by' => Auth::id(),
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', "Berhasil menyesuaikan stok. Stok lama: $currentStock, Stok baru: $targetStock.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
+        }
+    }
+
     public function getLatestOpname(Request $request)
     {
         $opname = Stock::where('item_id', $request->item_id)
@@ -181,6 +235,14 @@ class FixingMutasiController extends Controller
 
         return response()->json([
             'date' => $opname ? $opname->date_opname : null
+        ]);
+    }
+
+    public function getCurrentStock(Request $request)
+    {
+        $currentStock = Stock::liveStock($request->item_id, $request->warehouse_id);
+        return response()->json([
+            'stock' => $currentStock
         ]);
     }
 }

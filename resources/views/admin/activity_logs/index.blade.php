@@ -172,7 +172,38 @@
                     </div>
                 `;
             } else {
-                content = '<div class="bg-light p-3 rounded"><pre class="mb-0" style="font-size: 0.8rem;">' + JSON.stringify(props, null, 4) + '</pre></div>';
+                // Tampilan Flat Object / JSON
+                content = `
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="30%">Key</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                for (const [key, value] of Object.entries(props)) {
+                    let displayValue = value;
+                    if (typeof value === 'object' && value !== null) {
+                        displayValue = '<pre class="mb-0" style="font-size: 0.7rem;">' + JSON.stringify(value, null, 2) + '</pre>';
+                    }
+                    
+                    content += `
+                        <tr>
+                            <td class="fw-bold text-muted small">${key}</td>
+                            <td class="small">${displayValue === null ? '<i>null</i>' : displayValue}</td>
+                        </tr>
+                    `;
+                }
+
+                content += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
             }
 
             $('#logDetailContent').html(content);
