@@ -59,8 +59,8 @@
                             </ul>
                         </li>
 
-                        <li class="nav-item {{ Request::is('admin/resep*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/in_stock*') || Request::is('admin/out_stock*') ? 'menu-is-opening menu-open' : '' }}">
-                            <a href="#" class="nav-link {{ Request::is('admin/resep*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') ? 'active' : '' }}">
+                        <li class="nav-item {{ Request::is('admin/resep*') || Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/in_stock*') || Request::is('admin/out_stock*') ? 'menu-is-opening menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ Request::is('admin/resep*') || Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-boxes-stacked"></i>
                                 <p>{{ __('Manajemen Stok') }} <i class="right fas fa-angle-left"></i></p>
                             </a>
@@ -98,16 +98,22 @@
                                 <li class="nav-item">
                                      <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
                                          <i class="fas fa-angle-right nav-icon"></i>
-                                         <p>{{ __('Penyesuaian Stok') }}</p>
+                                         <p>{{ __('Adjustment Stok') }}</p>
                                      </a>
-                                 </li>
-                                 @if (auth()->user()->hasRole('admin'))
+                                </li>
+                                <li class="nav-item">
+                                     <a href="{{ route('admin.mutasi_stok.index') }}" class="nav-link {{ Request::is('admin/mutasi_stok*') ? 'active' : '' }}">
+                                         <i class="fas fa-angle-right nav-icon"></i>
+                                         <p>{{ __('Mutasi Stok') }}</p>
+                                     </a>
+                                </li>
+                                 <!-- @if (auth()->user()->hasRole('admin'))
                                  <li class="nav-item">
                                      <a href="{{ route('admin.fixing-mutasi.index') }}" class="nav-link {{ Request::is('admin/fixing-mutasi*') ? 'active' : '' }}">
                                          <i class="fas fa-angle-right nav-icon text-warning"></i>
                                          <p>{{ __('Fixing Mutasi') }} <span class="badge badge-warning">Admin</span></p>
                                      </a>
-                                 </li>
+                                 </li> -->
                                  @endif
                             </ul>
                         </li>

@@ -214,6 +214,14 @@ Route::middleware(['xss'])->group(function () {
             Route::post('verifikasi', [StockAdjustmentController::class, 'verifikasi'])->name('verifikasi');
         });
 
+        Route::group(['prefix' => 'mutasi_stok/', 'as' => 'mutasi_stok.'], function () {
+            Route::get('index', [\App\Http\Controllers\Admin\MutasiStokController::class, 'index'])->name('index');
+            Route::get('create', [\App\Http\Controllers\Admin\MutasiStokController::class, 'create'])->name('create');
+            Route::post('store', [\App\Http\Controllers\Admin\MutasiStokController::class, 'store'])->name('store');
+            Route::get('get-items', [\App\Http\Controllers\Admin\MutasiStokController::class, 'getItemsByWarehouse'])->name('get_items');
+            Route::get('check-stock', [\App\Http\Controllers\Admin\MutasiStokController::class, 'checkStock'])->name('check_stock');
+        });
+
         Route::group(['prefix' => 'laporan_transaksi/', 'as' => 'laporan_transaksi.'], function () {
             Route::get('index', [LaporanTransaksiController::class, 'index'])->name('index');
             Route::get('create', [LaporanTransaksiController::class, 'create'])->name('create');

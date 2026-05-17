@@ -249,15 +249,16 @@ class ResepController extends Controller
 
                 foreach ($menu->menuDetails as $detail) {
                     $totalQtyNeeded = $detail->quantity * $request->multiplier;
-                    $warehouseId = 1;
+                    
+                    // Prioritaskan mencari GUDANG DAPUR (Multi-Gudang System)
+                    $dapurWarehouse = \App\Models\Warehouse::where('code', 'DP')->orWhere('name', 'GUDANG DAPUR')->first();
+                    $warehouseId = $dapurWarehouse ? $dapurWarehouse->id : 1;
+
+                    // Cari stok terakhir di gudang dapur
                     $stockEntry = Stock::where('item_id', $detail->item_id)
                         ->where('warehouse_id', $warehouseId)
                         ->latest('date_opname')
                         ->first();
-
-                    if ($stockEntry) {
-                        $warehouseId = $stockEntry->warehouse_id;
-                    }
 
                     StockTransactionDetail::create([
                         'stock_transaction_id' => $stockTransactionId,
