@@ -95,6 +95,7 @@ class ItemController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Data bahan berhasil di Simpan',
+                'item' => $bahan,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

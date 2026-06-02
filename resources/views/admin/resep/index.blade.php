@@ -342,6 +342,58 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Quick Create Item (Bahan Baku) -->
+<div class="modal fade" id="modalQuickCreateItem" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <form id="formQuickCreateItem" method="POST">
+                @csrf
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="modal-title fw-bold">Tambah Bahan Baku Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Kategori</label>
+                            <select name="category_id" class="form-select rounded-pill px-3" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->code }} - {{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Nama Bahan Baku</label>
+                            <input type="text" name="name" class="form-control rounded-pill px-3" placeholder="Ketikkan Nama Bahan Baku" autocomplete="off" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Satuan Utama (Unit)</label>
+                            <input type="text" name="unit" class="form-control rounded-pill px-3" placeholder="Contoh: Kg, Pcs, Box" autocomplete="off" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Harga Satuan (Rp)</label>
+                            <input type="text" name="price" id="quick_price_input" class="form-control rounded-pill px-3" placeholder="Ketikkan Harga" autocomplete="off" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Satuan Eceran (Opsional)</label>
+                            <input type="text" name="retail_unit" class="form-control rounded-pill px-3" placeholder="Contoh: Gr, Pcs" autocomplete="off">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Isi per Satuan Utama (Opsional)</label>
+                            <input type="number" step="0.0001" name="retail_conversion" class="form-control rounded-pill px-3" placeholder="Contoh: 1000" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 shadow">Simpan Bahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -485,9 +537,16 @@
         const row = `
             <tr class="ingredient-row">
                 <td>
-                    <select name="items[${index}][item_id]" class="form-select select2-modal rounded-pill px-3 ingredient-select" required onchange="updateUnitOptions(this)">
-                        ${options}
-                    </select>
+                    <div class="d-flex gap-2 align-items-center">
+                        <div class="flex-grow-1">
+                            <select name="items[${index}][item_id]" class="form-select select2-modal rounded-pill px-3 ingredient-select" required onchange="updateUnitOptions(this)">
+                                ${options}
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-outline-success btn-action btn-sm rounded-circle d-flex align-items-center justify-content-center" onclick="quickCreateItem(${index})" title="Tambah Bahan Baru" style="width: 32px; height: 32px; flex-shrink: 0;">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
                 </td>
                 <td>
                     <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
@@ -676,12 +735,176 @@
         }
     }
 
+    let targetRowIndex = null;
+
+    function quickCreateItem(rowIndex) {
+        targetRowIndex = rowIndex;
+        $('#formQuickCreateItem')[0].reset();
+        
+        // Prefill name from select2 search term if possible
+        let searchTerm = '';
+        const activeSelect = $(`select[name="items[${rowIndex}][item_id]"]`);
+        const select2Data = activeSelect.data('select2');
+        if (select2Data && select2Data.dropdown && select2Data.dropdown.$search) {
+            searchTerm = select2Data.dropdown.$search.val() || '';
+        }
+        $('#formQuickCreateItem input[name="name"]').val(searchTerm.toUpperCase());
+        
+        $('#modalQuickCreateItem').modal('show');
+    }
+
+    function formatRupiah(angka, prefix) {
+        let number_string = angka.replace(/[^,\d]/g, '').toString(),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            let separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        return prefix == undefined ? rupiah : (rupiah ? prefix + rupiah : '');
+    }
+
     $(document).ready(function() {
         $('.select2-categories').select2({
             dropdownParent: $('#modalResep'),
             placeholder: 'Pilih Kategori (Bisa lebih dari satu)',
             width: '100%',
             allowClear: true
+        });
+
+        // Format price in quick create form
+        const quickPriceInput = document.getElementById('quick_price_input');
+        if (quickPriceInput) {
+            quickPriceInput.addEventListener('input', function(e) {
+                let value = this.value.replace(/[^0-9]/g, '');
+                this.value = formatRupiah(value, 'Rp ');
+            });
+        }
+
+        // Force uppercase on name input
+        const quickNameInput = document.querySelector('#formQuickCreateItem input[name="name"]');
+        if (quickNameInput) {
+            quickNameInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+
+        // Handle Form Submit
+        $('#formQuickCreateItem').on('submit', function(e) {
+            e.preventDefault();
+            
+            const myForm = this;
+            const formData = new FormData(myForm);
+            
+            Swal.fire({
+                title: 'Sedang diproses',
+                html: 'Mohon ditunggu sampai selesai',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading()
+                },
+            });
+
+            $.ajax({
+                url: "{{ route('admin.items.store') }}",
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.status == 200 && response.item) {
+                        const newItem = response.item;
+                        
+                        Swal.fire({
+                            text: "Data sukses tersimpan",
+                            icon: "success",
+                            buttonsStyling: false,
+                            confirmButtonText: "Selesai",
+                            customClass: {
+                                confirmButton: "btn btn-success"
+                            }
+                        }).then(function() {
+                            // Close modal
+                            $('#modalQuickCreateItem').modal('hide');
+                            
+                            // Push to local JS array
+                            availableItems.push(newItem);
+                            
+                            // Append to all select dropdowns
+                            const newOption = new Option(`${newItem.name} (${newItem.unit})`, newItem.id, false, false);
+                            $(newOption).attr('data-unit', newItem.unit)
+                                        .attr('data-retail', newItem.retail_unit || '')
+                                        .attr('data-conv', newItem.retail_conversion || 1)
+                                        .attr('data-price', newItem.price);
+                            
+                            $('.ingredient-select').each(function() {
+                                const $select = $(this);
+                                if ($select.find(`option[value="${newItem.id}"]`).length === 0) {
+                                    $select.append($(newOption).clone());
+                                }
+                            });
+                            
+                            // Set selected item in active row and trigger update
+                            if (targetRowIndex !== null) {
+                                const targetSelect = $(`select[name="items[${targetRowIndex}][item_id]"]`);
+                                targetSelect.val(newItem.id).trigger('change');
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            text: response.message || "Gagal menyimpan data",
+                            icon: "error",
+                            confirmButtonText: "OK",
+                            customClass: {
+                                confirmButton: "btn btn-danger"
+                            }
+                        });
+                    }
+                },
+                error: function(request, status, error) {
+                    if (request.status === 422) {
+                        let errors = request.responseJSON.errors;
+                        let messages = '';
+                        Object.keys(errors).forEach(function(key) {
+                            messages += '&bull; ' + errors[key][0] + '<br>';
+                        });
+
+                        Swal.fire({
+                            title: "Error",
+                            html: messages,
+                            icon: "error",
+                            confirmButtonText: "OK",
+                            customClass: {
+                                confirmButton: "btn btn-danger"
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: "Gagal menyimpan data",
+                            icon: "error",
+                            confirmButtonText: "OK",
+                            customClass: {
+                                confirmButton: "btn btn-danger"
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        // Fix scroll lock when stacked modal is closed
+        $(document).on('hidden.bs.modal', '#modalQuickCreateItem', function () {
+            if ($('#modalManageIngredients').hasClass('show')) {
+                $('body').addClass('modal-open');
+            }
         });
     });
 </script>
