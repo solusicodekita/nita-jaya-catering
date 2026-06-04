@@ -244,7 +244,7 @@
 
 <!-- Modal Kelola Bahan -->
 <div class="modal fade" id="modalManageIngredients" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
             <form id="formManageIngredients" method="POST">
                 @csrf
@@ -505,6 +505,7 @@
         $('#resepNameDisplay').text('Resep: ' + name);
         $('#formManageIngredients').attr('action', `/admin/resep/update-items/${id}`);
         $('#ingredientList').empty();
+        rowCounter = 0;
         
         if (menu && menu.menu_details.length > 0) {
             menu.menu_details.forEach((detail, index) => {
@@ -518,8 +519,10 @@
         $('#modalManageIngredients').modal('show');
     }
 
+    let rowCounter = 0;
+
     function addIngredientRow(itemId = '', quantity = '', isLoad = false) {
-        const index = $('#ingredientList tr').length;
+        const index = rowCounter++;
         let options = '<option value="">Pilih Bahan Baku</option>';
         
         availableItems.forEach(item => {
