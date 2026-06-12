@@ -29,6 +29,10 @@
         .card-body { padding: 1.25rem !important; }
         .resep-card h4 { font-size: 1.15rem; }
     }
+
+    #ingredientList { counter-reset: rowNumber; }
+    #ingredientList .ingredient-row { counter-increment: rowNumber; }
+    #ingredientList .row-number::before { content: counter(rowNumber); }
 </style>
 @endpush
 
@@ -40,7 +44,15 @@
                 <h2 class="fw-bold mb-1">Daftar Resep Masakan</h2>
                 <p class="text-muted mb-0">Kelola resep dan takaran bahan baku untuk operasional katering.</p>
             </div>
-            <div class="d-flex gap-2 w-100 w-md-auto">
+            <div class="d-flex gap-2 w-100 w-md-auto flex-wrap justify-content-md-end">
+                <form action="{{ route('admin.resep.index') }}" method="GET" class="d-flex w-100 w-md-auto">
+                    <div class="input-group shadow-sm" style="border-radius: 50px; overflow: hidden;">
+                        <input type="text" name="search" class="form-control border-0 px-3" placeholder="Cari resep..." value="{{ request('search') }}">
+                        <button type="submit" class="btn btn-light border-0 px-3">
+                            <i class="fa-solid fa-search text-primary"></i>
+                        </button>
+                    </div>
+                </form>
                 <a href="{{ route('admin.resep.usage-history') }}" class="btn btn-outline-primary rounded-pill px-4 shadow-sm w-100 w-md-auto">
                     <i class="fa-solid fa-history me-2"></i>Riwayat Penggunaan
                 </a>
@@ -256,16 +268,17 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="max-height: 50vh; overflow-y: auto;">
                         <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+                            <thead class="table-light sticky-top" style="z-index: 1;">
                                 <tr>
-                                    <th width="25%">Nama Bahan Baku</th>
+                                    <th width="5%" class="text-center">No</th>
+                                    <th width="23%">Nama Bahan Baku</th>
                                     <th width="15%">Takaran (Input)</th>
                                     <th width="12%">Satuan Input</th>
                                     <th width="12%" class="text-end">Harga Satuan</th>
                                     <th width="12%" class="text-end">Subtotal</th>
-                                    <th width="20%">Set Konversi Master</th>
+                                    <th width="17%">Set Konversi Master</th>
                                     <th width="4%"></th>
                                 </tr>
                             </thead>
@@ -521,29 +534,40 @@
 
     let rowCounter = 0;
 
+    let cachedItemOptions = '';
+    function getCachedItemOptions() {
+        if (!cachedItemOptions) {
+            cachedItemOptions = '<option value="">Pilih Bahan Baku</option>';
+            availableItems.forEach(item => {
+                const unit = (item.unit || '').replace(/"/g, '&quot;');
+                const retailUnit = (item.retail_unit || '').replace(/"/g, '&quot;');
+                const name = (item.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                cachedItemOptions += `<option value="${item.id}" 
+                            data-unit="${unit}" 
+                            data-retail="${retailUnit}" 
+                            data-conv="${item.retail_conversion || 1}"
+                            data-price="${item.price}">
+                            ${name} (${unit})
+                        </option>`;
+            });
+        }
+        return cachedItemOptions;
+    }
+
     function addIngredientRow(itemId = '', quantity = '', isLoad = false) {
         const index = rowCounter++;
-        let options = '<option value="">Pilih Bahan Baku</option>';
-        
-        availableItems.forEach(item => {
-            options += `<option value="${item.id}" ${itemId == item.id ? 'selected' : ''} 
-                        data-unit="${item.unit}" 
-                        data-retail="${item.retail_unit || ''}" 
-                        data-conv="${item.retail_conversion || 1}"
-                        data-price="${item.price}">
-                        ${item.name} (${item.unit})
-                    </option>`;
-        });
-
         const displayQty = isLoad ? cleanDecimal(quantity) : quantity;
 
         const row = `
             <tr class="ingredient-row">
+                <td class="text-center">
+                    <span class="row-number fw-bold text-muted small"></span>
+                </td>
                 <td>
                     <div class="d-flex gap-2 align-items-center">
                         <div class="flex-grow-1">
                             <select name="items[${index}][item_id]" class="form-select select2-modal rounded-pill px-3 ingredient-select" required onchange="updateUnitOptions(this)">
-                                ${options}
+                                ${getCachedItemOptions()}
                             </select>
                         </div>
                         <button type="button" class="btn btn-outline-success btn-action btn-sm rounded-circle d-flex align-items-center justify-content-center" onclick="quickCreateItem(${index})" title="Tambah Bahan Baru" style="width: 32px; height: 32px; flex-shrink: 0;">
@@ -592,14 +616,20 @@
         `;
         $('#ingredientList').append(row);
         const $lastRow = $('#ingredientList tr').last();
+        const $select = $lastRow.find('.ingredient-select');
+        
+        if (itemId) {
+            $select.val(itemId);
+        }
         
         // Initial setup for unit options
-        updateUnitOptions($lastRow.find('.ingredient-select')[0], isLoad);
+        updateUnitOptions($select[0], isLoad);
 
         // Initialize Select2 ONLY for the newly added row to prevent conflicts
-        $lastRow.find('.select2-modal').select2({
+        $select.select2({
             dropdownParent: $('#modalManageIngredients'),
-            width: '100%'
+            width: '100%',
+            placeholder: 'Pilih Bahan Baku'
         });
     }
 

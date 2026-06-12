@@ -21,12 +21,21 @@ use App\Models\ActivityLog;
 
 class ResepController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $menus = Menu::with(['menuDetails.item', 'transaksiMenus', 'createdBy', 'updatedBy', 'categories'])
+        $query = Menu::with(['menuDetails.item', 'transaksiMenus', 'createdBy', 'updatedBy', 'categories'])
             ->withCount('transaksiMenus as total_usage')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('recipe_number', 'like', "%{$search}%");
+            });
+        }
+
+        $menus = $query->get();
 
         $items = Item::where('is_active', true)->orderBy('name', 'asc')->get();
         $categories = Category::orderBy('name', 'asc')->get();

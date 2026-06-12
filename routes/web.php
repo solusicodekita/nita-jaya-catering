@@ -12,6 +12,7 @@ use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockOutController;
 use App\Http\Controllers\Admin\ResepController;
+use App\Http\Controllers\Admin\PesananController;
 use App\Http\Controllers\StokInController;
 
 Route::get('/', function () {
@@ -244,6 +245,16 @@ Route::middleware(['xss'])->group(function () {
             Route::post('use/{id}', [ResepController::class, 'useRecipe'])->name('use');
             Route::get('generate-number', [ResepController::class, 'generateNumber'])->name('generateNumber');
             Route::get('usage-history', [ResepController::class, 'usageHistory'])->name('usage-history');
+        });
+
+        Route::prefix('pesanan')->name('pesanan.')->group(function () {
+            Route::get('index', [PesananController::class, 'index'])->name('index');
+            Route::get('create', [PesananController::class, 'create'])->name('create');
+            Route::post('store', [PesananController::class, 'store'])->name('store');
+            Route::get('show/{id}', [PesananController::class, 'show'])->name('show');
+            Route::get('edit/{id}', [PesananController::class, 'edit'])->name('edit');
+            Route::post('update/{id}', [PesananController::class, 'update'])->name('update');
+            Route::delete('destroy/{id}', [PesananController::class, 'destroy'])->name('destroy');
         });
 
         Route::group(['prefix' => 'fixing-mutasi/', 'as' => 'fixing-mutasi.'], function () {

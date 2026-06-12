@@ -1,0 +1,123 @@
+@extends('layouts.adm.base')
+@section('title', 'Detail Pesanan')
+
+@section('content')
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <a href="{{ route('admin.pesanan.index') }}" class="btn btn-outline-secondary rounded-circle me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="m-0 fw-bold text-primary">Detail Pesanan: {{ $pesanan->order_number }}</h2>
+            </div>
+            <div>
+                <a href="{{ route('admin.pesanan.edit', $pesanan->id) }}" class="btn btn-warning rounded-pill px-4 me-2">
+                    <i class="fas fa-edit me-2"></i> Edit Pesanan
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informasi Klien -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white border-0 pt-4 pb-0">
+                    <h5 class="fw-bold"><i class="fas fa-user-circle text-info me-2"></i> Info Klien</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="text-muted" width="40%">Nomor Order</td>
+                            <td class="fw-bold">: <span class="badge bg-primary">{{ $pesanan->order_number }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Nama Klien</td>
+                            <td class="fw-bold">: {{ $pesanan->customer_name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Tanggal Acara</td>
+                            <td class="fw-bold">: {{ date('d M Y', strtotime($pesanan->event_date)) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Dibuat Pada</td>
+                            <td class="fw-bold">: {{ $pesanan->created_at->format('d M Y H:i') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Dibuat Oleh</td>
+                            <td class="fw-bold">: {{ $pesanan->createdBy->fullname ?? 'Sistem' }}</td>
+                        </tr>
+                    </table>
+
+                    <hr>
+                    <div class="p-3 bg-light rounded">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Total HPP:</span>
+                            <span class="fw-bold text-danger">Rp {{ number_format($pesanan->total_cost, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Total Jual:</span>
+                            <span class="fw-bold text-success fs-5">Rp {{ number_format($pesanan->grand_total, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                            <span class="text-muted fw-bold">Estimasi Profit:</span>
+                            <span class="fw-bold text-primary">Rp {{ number_format($pesanan->grand_total - $pesanan->total_cost, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daftar Resep -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white border-0 pt-4 pb-0">
+                    <h5 class="fw-bold"><i class="fas fa-list-alt text-success me-2"></i> Daftar Resep Terpesan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%" class="text-center">No</th>
+                                    <th>Kode / Nama Resep</th>
+                                    <th class="text-center">Porsi</th>
+                                    <th class="text-end">Subtotal HPP</th>
+                                    <th class="text-end">Subtotal Jual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($pesanan->details as $index => $detail)
+                                <tr>
+                                    <td class="text-center">{{ $index + 1 }}</td>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ $detail->menu->name ?? 'Resep Terhapus' }}</div>
+                                        <div class="small text-muted">{{ $detail->menu->recipe_number ?? '-' }}</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary px-3 py-2 fs-6">{{ $detail->qty_porsi }}</span>
+                                    </td>
+                                    <td class="text-end text-danger fw-bold">Rp {{ number_format($detail->subtotal_cost, 0, ',', '.') }}</td>
+                                    <td class="text-end text-success fw-bold">Rp {{ number_format($detail->subtotal_price, 0, ',', '.') }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    @if($pesanan->stockTransaction)
+                        <div class="alert alert-info mt-3 d-flex align-items-center">
+                            <i class="fas fa-info-circle fs-3 me-3"></i>
+                            <div>
+                                <strong>Stok Berhasil Dipotong!</strong><br>
+                                Sistem telah mencatat pengurangan stok otomatis dari pesanan ini pada tanggal {{ $pesanan->stockTransaction->date }}.
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

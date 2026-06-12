@@ -365,9 +365,21 @@
             <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </a>
-            <a href="{{ route('admin.resep.index') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
-                <i class="fa-solid fa-utensils"></i> <span>Dashboard Resep</span>
-            </a>
+            <div class="nav-item">
+                <a href="#" class="nav-link {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'active' : '' }}" onclick="toggleMenu('resepiMenu', event)">
+                    <i class="fa-solid fa-utensils"></i>
+                    <span>Resepi</span>
+                    <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                </a>
+                <div id="resepiMenu" class="collapse {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'show' : '' }}">
+                    <a href="{{ route('admin.resep.index') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-list"></i> <span>Dashboard Resep</span>
+                    </a>
+                    <a href="{{ route('admin.pesanan.index') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-plus-circle"></i> <span>Buat Pesanan</span>
+                    </a>
+                </div>
+            </div>
             <div class="nav-item">
                 <a href="#" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}" onclick="toggleMenu('masterMenu', event)">
                     <i class="fa-solid fa-database"></i>
