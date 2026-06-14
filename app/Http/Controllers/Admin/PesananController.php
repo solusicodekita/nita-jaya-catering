@@ -56,9 +56,7 @@ class PesananController extends Controller
             'qty_porsi' => 'required|array',
         ]);
 
-        $setting = SettingWebsite::first();
-        // Cek apakah sistem diatur untuk memotong stok (bisa jadi diatur di pengaturan global)
-        $shouldReduceStock = $setting ? $setting->default_reduce_stock : true;
+        // Pengaturan pengurangan stok dihapus agar pesanan selalu otomatis memotong stok.
 
         DB::beginTransaction();
         try {
@@ -123,9 +121,13 @@ class PesananController extends Controller
             }
 
             // 3. Lakukan Transaksi Stok Keluar
-            if ($shouldReduceStock && count($aggregatedIngredients) > 0) {
+            if (count($aggregatedIngredients) > 0) {
+                $totalHargaKeseluruhan = 0;
+                $defaultWarehouseId = \App\Models\Warehouse::first()->id ?? 1;
+
                 $stockTransaction = StockTransaction::create([
                     'type' => 'out',
+                    'total_harga_keseluruhan' => 0, // diupdate nanti
                     'date' => now(),
                     'created_by' => Auth::id(),
                 ]);
@@ -133,25 +135,30 @@ class PesananController extends Controller
                 foreach ($aggregatedIngredients as $itemId => $data) {
                     $item = $data['item'];
                     $qtyOut = $data['total_qty'];
+                    $hargaSatuan = $item->price ?? 0;
+                    $totalHarga = $hargaSatuan * $qtyOut;
+                    $totalHargaKeseluruhan += $totalHarga;
+
+                    $warehouseId = Stock::where('item_id', $itemId)->value('warehouse_id') ?? $defaultWarehouseId;
+                    $stokSebelumnya = Stock::liveStock($itemId, $warehouseId);
 
                     StockTransactionDetail::create([
                         'stock_transaction_id' => $stockTransaction->id,
                         'item_id' => $itemId,
+                        'warehouse_id' => $warehouseId,
                         'quantity' => $qtyOut,
-                        'price' => $item->price ?? 0,
+                        'harga_satuan' => $hargaSatuan,
+                        'total_harga' => $totalHarga,
+                        'description' => "Otomatis dipotong dari pesanan: " . $pesanan->order_number,
+                        'stok_sebelumnya' => $stokSebelumnya,
+                        'created_by' => Auth::id(),
+                        'updated_by' => Auth::id(),
                     ]);
-
-                    // Potong dari tabel Stock
-                    $stock = Stock::where('item_id', $itemId)->first();
-                    if ($stock) {
-                        $stock->decrement('quantity', $qtyOut);
-                    } else {
-                        Stock::create([
-                            'item_id' => $itemId,
-                            'quantity' => -$qtyOut, // Minus jika stok belum ada recordnya
-                        ]);
-                    }
                 }
+
+                $stockTransaction->update([
+                    'total_harga_keseluruhan' => $totalHargaKeseluruhan
+                ]);
 
                 // Relasikan Transaksi Stok ke Pesanan
                 $pesanan->update([
@@ -180,7 +187,7 @@ class PesananController extends Controller
 
     public function show($id)
     {
-        $pesanan = TransaksiPesanan::with(['details.menu', 'createdBy', 'stockTransaction.details.item'])->findOrFail($id);
+        $pesanan = TransaksiPesanan::with(['details.menu', 'createdBy', 'stockTransaction.stockTransactionDetails.item'])->findOrFail($id);
         return view('admin.pesanan.show', compact('pesanan'));
     }
 
@@ -218,15 +225,9 @@ class PesananController extends Controller
         try {
             // 1. REVERT STOK LAMA JIKA ADA
             if ($pesanan->stock_transaction_id) {
-                $oldStockTx = StockTransaction::with('details')->find($pesanan->stock_transaction_id);
+                $oldStockTx = StockTransaction::find($pesanan->stock_transaction_id);
                 if ($oldStockTx) {
-                    foreach ($oldStockTx->details as $detail) {
-                        $stock = Stock::where('item_id', $detail->item_id)->first();
-                        if ($stock) {
-                            $stock->increment('quantity', $detail->quantity);
-                        }
-                    }
-                    // Hapus data transaksi stok lama
+                    // Hapus data transaksi stok lama (stok akan kembali karena stok dihitung secara live)
                     StockTransactionDetail::where('stock_transaction_id', $oldStockTx->id)->delete();
                     $oldStockTx->delete();
                 }
@@ -276,13 +277,15 @@ class PesananController extends Controller
             }
 
             // 4. Potong Stok Baru
-            $setting = SettingWebsite::first();
-            $shouldReduceStock = $setting ? $setting->default_reduce_stock : true;
             $newStockTxId = null;
 
-            if ($shouldReduceStock && count($aggregatedIngredients) > 0) {
+            if (count($aggregatedIngredients) > 0) {
+                $totalHargaKeseluruhan = 0;
+                $defaultWarehouseId = \App\Models\Warehouse::first()->id ?? 1;
+
                 $stockTransaction = StockTransaction::create([
                     'type' => 'out',
+                    'total_harga_keseluruhan' => 0,
                     'date' => now(),
                     'created_by' => Auth::id(),
                 ]);
@@ -291,21 +294,30 @@ class PesananController extends Controller
                 foreach ($aggregatedIngredients as $itemId => $data) {
                     $item = $data['item'];
                     $qtyOut = $data['total_qty'];
+                    $hargaSatuan = $item->price ?? 0;
+                    $totalHarga = $hargaSatuan * $qtyOut;
+                    $totalHargaKeseluruhan += $totalHarga;
+
+                    $warehouseId = Stock::where('item_id', $itemId)->value('warehouse_id') ?? $defaultWarehouseId;
+                    $stokSebelumnya = Stock::liveStock($itemId, $warehouseId);
 
                     StockTransactionDetail::create([
                         'stock_transaction_id' => $stockTransaction->id,
                         'item_id' => $itemId,
+                        'warehouse_id' => $warehouseId,
                         'quantity' => $qtyOut,
-                        'price' => $item->price ?? 0,
+                        'harga_satuan' => $hargaSatuan,
+                        'total_harga' => $totalHarga,
+                        'description' => "Otomatis dipotong dari pesanan: " . $pesanan->order_number,
+                        'stok_sebelumnya' => $stokSebelumnya,
+                        'created_by' => Auth::id(),
+                        'updated_by' => Auth::id(),
                     ]);
-
-                    $stock = Stock::where('item_id', $itemId)->first();
-                    if ($stock) {
-                        $stock->decrement('quantity', $qtyOut);
-                    } else {
-                        Stock::create(['item_id' => $itemId, 'quantity' => -$qtyOut]);
-                    }
                 }
+
+                $stockTransaction->update([
+                    'total_harga_keseluruhan' => $totalHargaKeseluruhan
+                ]);
             }
 
             // 5. Update Header Pesanan
@@ -338,14 +350,8 @@ class PesananController extends Controller
         try {
             // Revert Stock
             if ($pesanan->stock_transaction_id) {
-                $oldStockTx = StockTransaction::with('details')->find($pesanan->stock_transaction_id);
+                $oldStockTx = StockTransaction::find($pesanan->stock_transaction_id);
                 if ($oldStockTx) {
-                    foreach ($oldStockTx->details as $detail) {
-                        $stock = Stock::where('item_id', $detail->item_id)->first();
-                        if ($stock) {
-                            $stock->increment('quantity', $detail->quantity);
-                        }
-                    }
                     StockTransactionDetail::where('stock_transaction_id', $oldStockTx->id)->delete();
                     $oldStockTx->delete();
                 }

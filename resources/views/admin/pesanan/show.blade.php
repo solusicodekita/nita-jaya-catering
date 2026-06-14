@@ -114,6 +114,36 @@
                                 Sistem telah mencatat pengurangan stok otomatis dari pesanan ini pada tanggal {{ $pesanan->stockTransaction->date }}.
                             </div>
                         </div>
+
+                        <!-- Daftar Bahan Baku / Stok Keluar -->
+                        <div class="mt-4">
+                            <h6 class="fw-bold"><i class="fas fa-box-open text-warning me-2"></i> Rincian Bahan Baku yang Digunakan</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover table-bordered align-middle mt-2">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="5%" class="text-center">No</th>
+                                            <th>Nama Bahan</th>
+                                            <th class="text-center">Kuantitas Dipotong</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pesanan->stockTransaction->stockTransactionDetails as $idx => $stDetail)
+                                        <tr>
+                                            <td class="text-center">{{ $idx + 1 }}</td>
+                                            <td>
+                                                <div class="fw-bold">{{ $stDetail->item->name ?? 'Item Terhapus' }}</div>
+                                                <small class="text-muted">{{ $stDetail->item->item_code ?? '-' }}</small>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-danger px-2 py-1">{{ $stDetail->quantity }} {{ $stDetail->item->unit ?? '' }}</span>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     @endif
                 </div>
             </div>
