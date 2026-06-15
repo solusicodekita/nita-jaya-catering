@@ -37,7 +37,15 @@ class ResepController extends Controller
 
         $menus = $query->get();
 
-        $items = Item::where('is_active', true)->orderBy('name', 'asc')->get();
+        $dapurWarehouse = \App\Models\Warehouse::where('code', 'DP')->orWhere('name', 'GUDANG DAPUR')->first();
+        $warehouseId = $dapurWarehouse ? $dapurWarehouse->id : 1;
+
+        $items = Item::where('is_active', true)
+            ->whereHas('stocks', function ($q) use ($warehouseId) {
+                $q->where('warehouse_id', $warehouseId);
+            })
+            ->orderBy('name', 'asc')
+            ->get();
         $categories = Category::orderBy('name', 'asc')->get();
         $setting = SettingWebsite::first();
 
