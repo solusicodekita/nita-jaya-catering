@@ -238,13 +238,19 @@ Route::middleware(['xss'])->group(function () {
 
         Route::prefix('resep')->name('resep.')->group(function () {
             Route::get('/', [ResepController::class, 'index'])->name('index');
+            Route::get('create', [ResepController::class, 'create'])->name('create');
             Route::post('store', [ResepController::class, 'store'])->name('store');
+            Route::get('edit/{id}', [ResepController::class, 'edit'])->name('edit');
             Route::post('update/{id}', [ResepController::class, 'update'])->name('update');
             Route::delete('destroy/{id}', [ResepController::class, 'destroy'])->name('destroy');
+            Route::get('manage-items/{id}', [ResepController::class, 'manageItems'])->name('manageItems.show');
             Route::post('update-items/{id}', [ResepController::class, 'updateItems'])->name('updateItems');
+            Route::get('use/{id}', [ResepController::class, 'showUseRecipe'])->name('use.show');
             Route::post('use/{id}', [ResepController::class, 'useRecipe'])->name('use');
             Route::get('generate-number', [ResepController::class, 'generateNumber'])->name('generateNumber');
             Route::get('usage-history', [ResepController::class, 'usageHistory'])->name('usage-history');
+            Route::get('download-template', [ResepController::class, 'downloadTemplate'])->name('download-template');
+            Route::post('import-excel', [ResepController::class, 'importExcel'])->name('import-excel');
         });
 
         Route::prefix('pesanan')->name('pesanan.')->group(function () {

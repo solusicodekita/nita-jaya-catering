@@ -12,10 +12,8 @@
                                     <h3 class="card-title">Riwayat Stok Keluar</h3>
                                 </div>
                                 <div class="col-auto">
-                                    @if(auth()->user()->hasRole('admin'))
                                     <a href="{{ route('admin.out_stock.create') }}" class="btn btn-primary"><i
                                             class="fas fa-plus"></i> Tambah</a>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -36,7 +34,8 @@
                                             </div>
                                             <div class="col-auto">
                                                 <label class="form-label">Item</label>
-                                                <input type="text" class="form-control" name="item_name" placeholder="Cari Item" value="{{ request('item_name') ?? '' }}">
+                                                <input type="text" class="form-control" name="item_name"
+                                                    placeholder="Cari Item" value="{{ request('item_name') ?? '' }}">
                                             </div>
                                             <div class="col-auto" style="margin-top: 32px;">
                                                 <button type="submit" class="btn btn-primary">Filter</button>
@@ -72,8 +71,10 @@
                                                         <ul>
                                                             @foreach ($row->stockTransactionDetails as $item)
                                                                 <li>{{ $item->item->name }} -
-                                                                    {{ floatval($item->quantity) }} {{ $item->item->unit }} {{ !empty($item->stok_sebelumnya) ? "(" . floatval($item->stok_sebelumnya) . ' ' . $item->item->unit . ")" : '' }}
-                                                                    - {{ $item->warehouse->name }}</li>
+                                                                    {{ floatval($item->quantity) }} {{ $item->item->unit }}
+                                                                    {{ !empty($item->stok_sebelumnya) ? "(" . floatval($item->stok_sebelumnya) . ' ' . $item->item->unit . ")" : '' }}
+                                                                    - {{ $item->warehouse->name }}
+                                                                </li>
                                                             @endforeach
                                                         </ul>
                                                     </td>
@@ -93,10 +94,14 @@
                                                             -
                                                         @endif
                                                     </td>
-                                                    <td>{{ $row->createdBy ? $row->createdBy->firstname . ' ' . $row->createdBy->lastname : ' ' }}</td>
-                                                    <td>{{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->translatedFormat('d F Y H:i:s') : ' ' }}</td>
-                                                    <td>{{ $row->updatedBy ? $row->updatedBy->firstname . ' ' . $row->updatedBy->lastname : ' ' }}</td>
-                                                    <td>{{ !empty($row->updated_at) ? \Carbon\Carbon::parse($row->updated_at)->translatedFormat('d F Y H:i:s') : ' ' }}</td>
+                                                    <td>{{ $row->createdBy ? $row->createdBy->firstname . ' ' . $row->createdBy->lastname : ' ' }}
+                                                    </td>
+                                                    <td>{{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->translatedFormat('d F Y H:i:s') : ' ' }}
+                                                    </td>
+                                                    <td>{{ $row->updatedBy ? $row->updatedBy->firstname . ' ' . $row->updatedBy->lastname : ' ' }}
+                                                    </td>
+                                                    <td>{{ !empty($row->updated_at) ? \Carbon\Carbon::parse($row->updated_at)->translatedFormat('d F Y H:i:s') : ' ' }}
+                                                    </td>
                                                 </tr>
                                             @empty
                                                 <tr>
@@ -116,13 +121,13 @@
 @endsection
 @push('scripts')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             @if (count($model) > 0)
                 $('#tabelStock').DataTable({
                     responsive: true,
                     searching: false,
                 });
             @endif
-        });
+                });
     </script>
 @endpush
