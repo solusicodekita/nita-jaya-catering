@@ -234,6 +234,11 @@ class ResepController extends Controller
         ]);
 
         $menu = Menu::with('menuDetails.item')->findOrFail($id);
+        
+        if ($menu->menuDetails->isEmpty()) {
+            return redirect()->back()->with('error', "Gagal! Resep '{$menu->name}' belum memiliki bahan baku (item kosong). Harap isi bahan baku terlebih dahulu.");
+        }
+
         $setting = SettingWebsite::first();
         $shouldReduce = ($menu->reduce_stock || ($setting && $setting->default_reduce_stock));
 

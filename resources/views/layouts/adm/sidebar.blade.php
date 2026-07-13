@@ -32,6 +32,7 @@
                                 <p>{{ __('Dashboard') }}</p>
                             </a>
                         </li>
+                        @if(auth()->user()->hasRole('admin'))
                         <li class="nav-item {{ Request::is('admin/categories*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'menu-is-opening menu-open' : '' }}">
                             <a href="#" class="nav-link {{ Request::is('admin/categories*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-th"></i>
@@ -58,6 +59,7 @@
                                 </li>
                             </ul>
                         </li>
+                        @endif
 
                         <li class="nav-item {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'menu-is-opening menu-open' : '' }}">
                             <a href="#" class="nav-link {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'active' : '' }}">
@@ -80,6 +82,7 @@
                             </ul>
                         </li>
 
+                        @if(auth()->user()->hasRole('admin'))
                         <li class="nav-item {{ Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/in_stock*') || Request::is('admin/out_stock*') ? 'menu-is-opening menu-open' : '' }}">
                             <a href="#" class="nav-link {{ Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-boxes-stacked"></i>
@@ -122,14 +125,6 @@
                                          <p>{{ __('Mutasi Stok') }}</p>
                                      </a>
                                 </li>
-                                 <!-- @if (auth()->user()->hasRole('admin'))
-                                 <li class="nav-item">
-                                     <a href="{{ route('admin.fixing-mutasi.index') }}" class="nav-link {{ Request::is('admin/fixing-mutasi*') ? 'active' : '' }}">
-                                         <i class="fas fa-angle-right nav-icon text-warning"></i>
-                                         <p>{{ __('Fixing Mutasi') }} <span class="badge badge-warning">Admin</span></p>
-                                     </a>
-                                 </li> -->
-                                 @endif
                             </ul>
                         </li>
 
@@ -154,6 +149,7 @@
                                 </li>
                             </ul>
                         </li>
+                        @endif
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->

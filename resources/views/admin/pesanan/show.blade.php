@@ -1,4 +1,31 @@
 @extends('layouts.adm.base')
+
+@push('style')
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .printable-area, .printable-area * {
+            visibility: visible;
+        }
+        .printable-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        .no-print {
+            display: none !important;
+        }
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
+</style>
+@endpush
+
 @section('title', 'Detail Pesanan')
 
 @section('content')
@@ -6,12 +33,19 @@
     <div class="row mb-3">
         <div class="col-12 d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
-                <a href="{{ route('admin.pesanan.index') }}" class="btn btn-outline-secondary rounded-circle me-3">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-                <h2 class="m-0 fw-bold text-primary">Detail Pesanan: {{ $pesanan->order_number }}</h2>
+                <div class="me-3 no-print">
+                    <a href="{{ route('admin.pesanan.index') }}" class="btn btn-outline-secondary rounded-circle">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div>
+                    <h2 class="m-0 fw-bold text-primary">Detail Pesanan: {{ $pesanan->order_number }}</h2>
+                </div>
             </div>
-            <div>
+            <div class="no-print">
+                <button onclick="window.print()" class="btn btn-primary rounded-pill px-4 me-2">
+                    <i class="fas fa-print me-2"></i> Cetak Resep Dapur
+                </button>
                 <a href="{{ route('admin.pesanan.edit', $pesanan->id) }}" class="btn btn-warning rounded-pill px-4 me-2">
                     <i class="fas fa-edit me-2"></i> Edit Pesanan
                 </a>
@@ -19,7 +53,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row printable-area">
         <!-- Informasi Klien -->
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm border-0 rounded-3 h-100">

@@ -12,8 +12,10 @@
                                     <h3 class="card-title">Riwayat Stok Keluar</h3>
                                 </div>
                                 <div class="col-auto">
+                                    @if(auth()->user()->hasRole('admin'))
                                     <a href="{{ route('admin.out_stock.create') }}" class="btn btn-primary"><i
                                             class="fas fa-plus"></i> Tambah</a>
+                                    @endif
                                 </div>
                             </div>
                         </div>

@@ -82,6 +82,11 @@ class PesananController extends Controller
                 
                 $menu = Menu::with('menuDetails.item')->findOrFail($menuId);
 
+                if ($menu->menuDetails->isEmpty()) {
+                    DB::rollBack();
+                    return redirect()->back()->with('error', "Gagal! Resep '{$menu->name}' belum memiliki bahan baku (item kosong). Harap isi bahan baku di Master Resep terlebih dahulu.");
+                }
+
                 // Kalkulasi HPP dan Harga Jual (Per Porsi) berdasarkan bahan baku saat ini
                 $totalCostMenu = 0;
                 foreach ($menu->menuDetails as $detail) {
@@ -123,7 +128,8 @@ class PesananController extends Controller
             // 3. Lakukan Transaksi Stok Keluar
             if (count($aggregatedIngredients) > 0) {
                 $totalHargaKeseluruhan = 0;
-                $defaultWarehouseId = \App\Models\Warehouse::first()->id ?? 1;
+                $gudangDapur = \App\Models\Warehouse::where('name', 'LIKE', '%dapur%')->first();
+                $warehouseId = $gudangDapur ? $gudangDapur->id : (\App\Models\Warehouse::first()->id ?? 2);
 
                 $stockTransaction = StockTransaction::create([
                     'type' => 'out',
@@ -139,7 +145,6 @@ class PesananController extends Controller
                     $totalHarga = $hargaSatuan * $qtyOut;
                     $totalHargaKeseluruhan += $totalHarga;
 
-                    $warehouseId = Stock::where('item_id', $itemId)->value('warehouse_id') ?? $defaultWarehouseId;
                     $stokSebelumnya = Stock::liveStock($itemId, $warehouseId);
 
                     StockTransactionDetail::create([
@@ -245,6 +250,11 @@ class PesananController extends Controller
                 $qty = $request->qty_porsi[$index];
                 $menu = Menu::with('menuDetails.item')->findOrFail($menuId);
 
+                if ($menu->menuDetails->isEmpty()) {
+                    DB::rollBack();
+                    return redirect()->back()->with('error', "Gagal! Resep '{$menu->name}' belum memiliki bahan baku (item kosong). Harap isi bahan baku di Master Resep terlebih dahulu.");
+                }
+
                 $totalCostMenu = 0;
                 foreach ($menu->menuDetails as $detail) {
                     $totalCostMenu += ($detail->item->price ?? 0) * $detail->quantity;
@@ -281,7 +291,8 @@ class PesananController extends Controller
 
             if (count($aggregatedIngredients) > 0) {
                 $totalHargaKeseluruhan = 0;
-                $defaultWarehouseId = \App\Models\Warehouse::first()->id ?? 1;
+                $gudangDapur = \App\Models\Warehouse::where('name', 'LIKE', '%dapur%')->first();
+                $warehouseId = $gudangDapur ? $gudangDapur->id : (\App\Models\Warehouse::first()->id ?? 2);
 
                 $stockTransaction = StockTransaction::create([
                     'type' => 'out',
@@ -298,7 +309,6 @@ class PesananController extends Controller
                     $totalHarga = $hargaSatuan * $qtyOut;
                     $totalHargaKeseluruhan += $totalHarga;
 
-                    $warehouseId = Stock::where('item_id', $itemId)->value('warehouse_id') ?? $defaultWarehouseId;
                     $stokSebelumnya = Stock::liveStock($itemId, $warehouseId);
 
                     StockTransactionDetail::create([
@@ -371,5 +381,58 @@ class PesananController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Gagal membatalkan pesanan: ' . $e->getMessage());
         }
+    }
+
+    public function calculateRecipe(Request $request)
+    {
+        $menuIds = $request->input('menu_id', []);
+        $qtyPorsi = $request->input('qty_porsi', []);
+
+        $aggregatedIngredients = [];
+        $totalCostAll = 0;
+        $grandTotalAll = 0;
+
+        foreach ($menuIds as $index => $menuId) {
+            $qty = $qtyPorsi[$index] ?? 1;
+            if (empty($menuId) || empty($qty)) continue;
+
+            $menu = Menu::with('menuDetails.item')->find($menuId);
+            if (!$menu) continue;
+
+            $totalCostMenu = 0;
+            foreach ($menu->menuDetails as $detail) {
+                $item = $detail->item;
+                if (!$item) continue;
+
+                $totalCostMenu += ($item->price ?? 0) * $detail->quantity;
+
+                $itemId = $item->id;
+                $totalQtyNeeded = $detail->quantity * $qty;
+
+                if (!isset($aggregatedIngredients[$itemId])) {
+                    $aggregatedIngredients[$itemId] = [
+                        'name' => $item->name,
+                        'unit' => $item->unit ?? '',
+                        'total_qty' => 0,
+                        'price' => $item->price ?? 0,
+                    ];
+                }
+                $aggregatedIngredients[$itemId]['total_qty'] += $totalQtyNeeded;
+            }
+
+            $costFactorVal = $totalCostMenu * (($menu->cost_factor ?? 20) / 100);
+            $totalCost2 = $totalCostMenu + $costFactorVal;
+            $profitVal = $totalCost2 * (($menu->profit_margin ?? 30) / 100);
+            $sellingPricePerPortion = $totalCost2 + $profitVal;
+
+            $totalCostAll += ($totalCostMenu * $qty);
+            $grandTotalAll += ($sellingPricePerPortion * $qty);
+        }
+
+        return response()->json([
+            'ingredients' => array_values($aggregatedIngredients),
+            'total_cost' => $totalCostAll,
+            'grand_total' => $grandTotalAll
+        ]);
     }
 }

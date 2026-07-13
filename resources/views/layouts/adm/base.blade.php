@@ -365,6 +365,7 @@
             <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </a>
+            @if(auth()->user()->hasRole('admin-dapur'))
             <div class="nav-item">
                 <a href="#" class="nav-link {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'active' : '' }}" onclick="toggleMenu('resepiMenu', event)">
                     <i class="fa-solid fa-utensils"></i>
@@ -380,6 +381,7 @@
                     </a>
                 </div>
             </div>
+            @endif
             <div class="nav-item">
                 <a href="#" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}" onclick="toggleMenu('masterMenu', event)">
                     <i class="fa-solid fa-database"></i>

@@ -122,6 +122,7 @@
         }
     </style>
     <div class="row">
+    @if(!auth()->user()->hasRole('admin-dapur'))
         <div class="col-md-4 mb-4">
             <div class="dashboard-card card-user">
                 <span class="icon-bg"><i class="fa-solid fa-tags"></i></span>
@@ -416,4 +417,46 @@
             }
         </script>
     @endpush
+    @else
+    <!-- DASHBOARD KHUSUS ADMIN DAPUR -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card card-user" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);">
+                <span class="icon-bg"><i class="fa-solid fa-utensils"></i></span>
+                <div class="d-flex align-items-center" style="z-index:2;position:relative;">
+                    <div class="icon-main"><i class="fa-solid fa-utensils"></i></div>
+                    <div>
+                        <div class="card-title">Manajemen Resep</div>
+                        <div class="card-desc" style="color: #fff; font-size: 0.9rem;">Master Resep & Pesanan</div>
+                    </div>
+                </div>
+                <div class="card-desc mt-3">
+                    <a style="text-decoration: none; color: #fff; font-weight: bold;" href="{{ route('admin.resep.index') }}">
+                        Buka Dashboard Resep <i class="fa fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card card-transaction" style="background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);">
+                <span class="icon-bg"><i class="fa-solid fa-exchange-alt"></i></span>
+                <div class="d-flex align-items-center" style="z-index:2;position:relative;">
+                    <div class="icon-main"><i class="fa-solid fa-exchange-alt"></i></div>
+                    <div>
+                        <div class="card-title">Mutasi Stok</div>
+                        <div class="card-desc" style="color: #fff; font-size: 0.9rem;">Kelola Mutasi Gudang Dapur</div>
+                    </div>
+                </div>
+                <div class="card-desc mt-3">
+                    <a style="text-decoration: none; color: #fff; font-weight: bold;" href="{{ route('admin.mutasi_stok.index') }}">
+                        Buka Mutasi Stok <i class="fa fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+
+
 @endsection

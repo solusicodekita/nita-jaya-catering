@@ -251,6 +251,7 @@ Route::middleware(['xss'])->group(function () {
             Route::get('index', [PesananController::class, 'index'])->name('index');
             Route::get('create', [PesananController::class, 'create'])->name('create');
             Route::post('store', [PesananController::class, 'store'])->name('store');
+            Route::post('calculate-recipe', [PesananController::class, 'calculateRecipe'])->name('calculateRecipe');
             Route::get('show/{id}', [PesananController::class, 'show'])->name('show');
             Route::get('edit/{id}', [PesananController::class, 'edit'])->name('edit');
             Route::post('update/{id}', [PesananController::class, 'update'])->name('update');

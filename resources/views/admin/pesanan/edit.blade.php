@@ -138,6 +138,28 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Kebutuhan Bahan Baku -->
+                        <div class="mt-4 border-top pt-4">
+                            <h6 class="fw-bold text-primary"><i class="fas fa-boxes me-2"></i>Rangkuman Kebutuhan Bahan Baku (Otomatis)</h6>
+                            <p class="small text-muted mb-2">Bahan-bahan di bawah ini akan memotong stok di <strong>Gudang Dapur</strong> secara otomatis setelah perubahan pesanan disimpan.</p>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle" id="tableKebutuhanResep">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nama Bahan Baku</th>
+                                            <th class="text-center">Total Kebutuhan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="emptyResepRow">
+                                            <td colspan="2" class="text-center text-muted py-3">Memuat kebutuhan resep...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -161,14 +183,7 @@
         function calculateTotal() {
             let totalHpp = 0;
             let totalJual = 0;
-
-            $('#tablePesanan tbody tr.item-row').each(function() {
-                totalHpp += parseFloat($(this).find('.input-sub-hpp').val()) || 0;
-                totalJual += parseFloat($(this).find('.input-sub-jual').val()) || 0;
-            });
-
-            $('#displayTotalHpp').text(formatRupiah(totalHpp));
-            $('#displayTotalJual').text(formatRupiah(totalJual));
+            let formData = $('#formPesanan').serialize();
 
             if ($('#tablePesanan tbody tr.item-row').length > 0) {
                 $('#emptyRow').hide();
@@ -176,7 +191,45 @@
             } else {
                 $('#emptyRow').show();
                 $('#btnSubmitPesanan').prop('disabled', true);
+                $('#displayTotalHpp').text(formatRupiah(0));
+                $('#displayTotalJual').text(formatRupiah(0));
+                $('#tableKebutuhanResep tbody').html('<tr id="emptyResepRow"><td colspan="2" class="text-center text-muted py-3">Tambahkan menu untuk melihat kebutuhan resep.</td></tr>');
+                return;
             }
+
+            // AJAX Call for real-time recipe calculation
+            $.ajax({
+                url: '{{ route("admin.pesanan.calculateRecipe") }}',
+                type: 'POST',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    $('#displayTotalHpp').text(formatRupiah(response.total_cost));
+                    $('#displayTotalJual').text(formatRupiah(response.grand_total));
+
+                    // Update Tabel Kebutuhan Resep
+                    let tbody = $('#tableKebutuhanResep tbody');
+                    tbody.empty();
+                    
+                    if (response.ingredients && response.ingredients.length > 0) {
+                        response.ingredients.forEach(function(ing) {
+                            tbody.append(`
+                                <tr>
+                                    <td><span class="fw-bold">${ing.name}</span></td>
+                                    <td class="text-center"><span class="badge bg-danger px-2 py-1">${ing.total_qty} ${ing.unit}</span></td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        tbody.append('<tr id="emptyResepRow"><td colspan="2" class="text-center text-muted py-3">Resep tidak ditemukan untuk menu ini.</td></tr>');
+                    }
+                },
+                error: function(err) {
+                    console.error('Gagal mengkalkulasi resep', err);
+                }
+            });
         }
         
         // Initial Calculation to format existing loaded data
