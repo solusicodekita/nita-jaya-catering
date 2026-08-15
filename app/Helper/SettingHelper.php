@@ -101,13 +101,21 @@ class SettingHelper
         if (is_null($val) || $val === '') {
             return 0.0;
         }
-        if (is_numeric($val)) {
+        if (is_int($val) || is_float($val)) {
             return (float)$val;
         }
-        // Format Indonesian: "10.109.159,80" -> "10109159,80" -> "10109159.80"
-        $val = str_replace(['Rp', ' ', 'rp', 'RP'], '', $val);
-        $val = str_replace('.', '', $val);
-        $val = str_replace(',', '.', $val);
+        $val = str_replace(['Rp', ' ', 'rp', 'RP'], '', (string)$val);
+        if ($val === '') {
+            return 0.0;
+        }
+        if (strpos($val, '.') !== false && strpos($val, ',') !== false) {
+            $val = str_replace('.', '', $val);
+            $val = str_replace(',', '.', $val);
+        } elseif (strpos($val, ',') !== false) {
+            $val = str_replace(',', '.', $val);
+        } elseif (strpos($val, '.') !== false) {
+            $val = str_replace('.', '', $val);
+        }
         return (float)$val;
     }
 }

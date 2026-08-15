@@ -82,13 +82,24 @@ class StokInController extends Controller
             ]);
 
             foreach ($request->item as $value) {
+                $qtyParsed = SettingHelper::parseIdNumber($value['quantity']);
+                $hargaParsed = SettingHelper::parseIdNumber($value['harga_satuan']);
+                $totalParsed = SettingHelper::parseIdNumber($value['total_harga_item']);
+
+                if ($totalParsed > 0 && $qtyParsed > 0) {
+                    $calcHarga = $totalParsed / $qtyParsed;
+                    if ($hargaParsed <= 0 || ($calcHarga >= 1000 && $hargaParsed < 1000)) {
+                        $hargaParsed = $calcHarga;
+                    }
+                }
+
                 $modDetail = StockTransactionDetail::create([
                     'stock_transaction_id' => $stock->id,
                     'item_id' => $value['item_id'],
                     'warehouse_id' => $value['warehouse_id'],
-                    'quantity' => SettingHelper::parseIdNumber($value['quantity']),
-                    'harga_satuan' => SettingHelper::parseIdNumber($value['harga_satuan']),
-                    'total_harga' => SettingHelper::parseIdNumber($value['total_harga_item']),
+                    'quantity' => $qtyParsed,
+                    'harga_satuan' => $hargaParsed,
+                    'total_harga' => $totalParsed,
                     'description' => $value['description'],
                     'created_by' => Auth::user()->id,
                     'updated_by' => Auth::user()->id,
@@ -97,9 +108,11 @@ class StokInController extends Controller
 
                 $modItem = Item::where('id', $value['item_id'])->first();
                 $hargaAwal = $modItem->price;
-                $modItem->price = $modDetail->harga_satuan;
-                $modItem->updated_by = Auth::user()->id;
-                $modItem->save();
+                if ($modDetail->harga_satuan > 0) {
+                    $modItem->price = $modDetail->harga_satuan;
+                    $modItem->updated_by = Auth::user()->id;
+                    $modItem->save();
+                }
 
                 if ($hargaAwal != $modItem->price) {
                     HistoryHarga::create([

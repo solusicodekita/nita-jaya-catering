@@ -168,10 +168,10 @@
                 return true;
             });
 
-            $('.ribuan').on('keyup', function() {
+            $(document).on('keyup input', '.ribuan', function() {
                 var val = $(this).val();
                 $(this).val(formatRupiah(val));
-            })
+            });
         });
 
         function initializeSelect2() {
