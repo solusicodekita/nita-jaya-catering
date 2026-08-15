@@ -337,6 +337,7 @@
         
     </style>
     @stack('styles')
+    @stack('style')
 </head>
 <body>
     <!-- Mobile Header Bar -->
@@ -528,5 +529,6 @@
     }
     </script>
     @stack('scripts')
+    @stack('script')
 </body>
 </html>

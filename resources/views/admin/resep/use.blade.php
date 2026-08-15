@@ -1,7 +1,7 @@
 @extends('layouts.adm.base')
 @section('title', 'Proses Resep')
 
-@push('style')
+@push('styles')
 <style>
     .card-resep {
         border: none;
@@ -112,7 +112,7 @@
 </div>
 @endsection
 
-@push('script')
+@push('scripts')
 <script>
     function incrementValue() {
         let input = $('#multiplierInput');

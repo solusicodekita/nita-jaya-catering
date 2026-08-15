@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\Stock;
 use App\Models\StockTransaction;
 use App\Models\StockTransactionDetail;
+use App\Helper\SettingHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -45,7 +46,7 @@ class StokInController extends Controller
 
     public function create()
     {
-        $item = Item::whereHas('stocks')->get();
+        $item = Item::get();
         return view('admin.stock_in.create', compact('item'));
     }
 
@@ -74,7 +75,7 @@ class StokInController extends Controller
 
             $stock = StockTransaction::create([
                 'type' => 'in',
-                'total_harga_keseluruhan' => str_replace([',', '.'], ['.', ''], $request->total_harga_keseluruhan),
+                'total_harga_keseluruhan' => SettingHelper::parseIdNumber($request->total_harga_keseluruhan),
                 'date' => date('Y-m-d H:i:s'),
                 'created_by' => Auth::user()->id,
                 'updated_by' => Auth::user()->id,
@@ -85,9 +86,9 @@ class StokInController extends Controller
                     'stock_transaction_id' => $stock->id,
                     'item_id' => $value['item_id'],
                     'warehouse_id' => $value['warehouse_id'],
-                    'quantity' => str_replace(',', '.', $value['quantity']),
-                    'harga_satuan' => str_replace([',', '.'], ['.', ''], $value['harga_satuan']),
-                    'total_harga' => str_replace([',', '.'], ['.', ''], $value['total_harga_item']),
+                    'quantity' => SettingHelper::parseIdNumber($value['quantity']),
+                    'harga_satuan' => SettingHelper::parseIdNumber($value['harga_satuan']),
+                    'total_harga' => SettingHelper::parseIdNumber($value['total_harga_item']),
                     'description' => $value['description'],
                     'created_by' => Auth::user()->id,
                     'updated_by' => Auth::user()->id,
