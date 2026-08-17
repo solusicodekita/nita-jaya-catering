@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Jalankan otomatisasi pemotongan stok pesanan Hari-H jam 00:01 WIB setiap hari
+        $schedule->command('catering:process-today-orders')->dailyAt('00:01');
     }
 
     /**

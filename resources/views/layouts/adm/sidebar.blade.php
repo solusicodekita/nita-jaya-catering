@@ -25,130 +25,234 @@
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column nav-collapse-hide-child nav-compact nav-flat nav-legacy" data-widget="treeview" role="menu" data-accordion="false">
-                    <!-- Add icons to the links using the .nav-icon class with font-awesome or any other icon font library -->
                         <li class="nav-item">
                             <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-home"></i>
                                 <p>{{ __('Dashboard') }}</p>
                             </a>
                         </li>
-                        @if(auth()->user()->hasRole('admin'))
-                        <li class="nav-item {{ Request::is('admin/categories*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'menu-is-opening menu-open' : '' }}">
-                            <a href="#" class="nav-link {{ Request::is('admin/categories*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-th"></i>
-                                <p>{{ __('Master Data') }} <i class="right fas fa-angle-left"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.categories.index') }}" class="nav-link {{ Request::is('admin/categories*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Kategori') }}</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.items.index') }}" class="nav-link {{ Request::is('admin/items*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Bahan Baku') }}</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.warehouse.index') }}" class="nav-link {{ Request::is('admin/warehouse*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Gudang') }}</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        @endif
 
-                        <li class="nav-item {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'menu-is-opening menu-open' : '' }}">
-                            <a href="#" class="nav-link {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-utensils"></i>
-                                <p>{{ __('Resepi') }} <i class="right fas fa-angle-left"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.resep.index') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Dashboard Resep') }}</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.pesanan.create') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Buat Pesanan') }}</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                        @if(auth()->user()->hasRole('admin-kantor'))
+                            <!-- Menu Khusus Admin Kantor -->
+                            <li class="nav-item">
+                                <a href="{{ route('admin.pesanan.index') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-shopping-cart"></i>
+                                    <p>{{ __('Pesanan') }}</p>
+                                </a>
+                            </li>
 
-                        @if(auth()->user()->hasRole('admin'))
-                        <li class="nav-item {{ Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/in_stock*') || Request::is('admin/out_stock*') ? 'menu-is-opening menu-open' : '' }}">
-                            <a href="#" class="nav-link {{ Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-boxes-stacked"></i>
-                                <p>{{ __('Manajemen Stok') }} <i class="right fas fa-angle-left"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.stock.index') }}" class="nav-link {{ Request::is('admin/stock*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Stok Opname') }}</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.live_stock.index') }}" class="nav-link {{ Request::is('admin/live_stock*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Live Stock') }}</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.in_stock.index') }}" class="nav-link {{ Request::is('admin/in_stock*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Stok Masuk') }}</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.out_stock.index') }}" class="nav-link {{ Request::is('admin/out_stock*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Stok Keluar') }}</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                     <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
-                                         <i class="fas fa-angle-right nav-icon"></i>
-                                         <p>{{ __('Adjustment Stok') }}</p>
-                                     </a>
-                                </li>
-                                <li class="nav-item">
-                                     <a href="{{ route('admin.mutasi_stok.index') }}" class="nav-link {{ Request::is('admin/mutasi_stok*') ? 'active' : '' }}">
-                                         <i class="fas fa-angle-right nav-icon"></i>
-                                         <p>{{ __('Mutasi Stok') }}</p>
-                                     </a>
-                                </li>
-                            </ul>
-                        </li>
+                        @elseif(auth()->user()->hasRole('admin-dapur'))
+                            <!-- Menu Khusus Admin Dapur -->
+                            <li class="nav-item {{ Request::is('admin/resep*') ? 'menu-is-opening menu-open' : '' }}">
+                                <a href="#" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-utensils"></i>
+                                    <p>{{ __('Resep Dapur') }} <i class="right fas fa-angle-left"></i></p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.resep.index') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Dashboard Resep') }}</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.live_stock.index') }}" class="nav-link {{ Request::is('admin/live_stock*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-cubes"></i>
+                                    <p>{{ __('Live Stock') }}</p>
+                                </a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ Request::is('admin/activity-logs*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-history"></i>
-                                <p>{{ __('Log Aktivitas') }}</p>
-                            </a>
-                        </li>
+                        @elseif(auth()->user()->hasRole('admin-gudang-utama'))
+                            <!-- Menu Khusus Admin Gudang Utama -->
+                            <li class="nav-item">
+                                <a href="{{ route('admin.pesanan.index') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-shopping-cart"></i>
+                                    <p>{{ __('Daftar Pesanan') }}</p>
+                                </a>
+                            </li>
+                            <li class="nav-item {{ Request::is('admin/categories*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'menu-is-opening menu-open' : '' }}">
+                                <a href="#" class="nav-link {{ Request::is('admin/categories*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-th"></i>
+                                    <p>{{ __('Master Data') }} <i class="right fas fa-angle-left"></i></p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.items.index') }}" class="nav-link {{ Request::is('admin/items*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Bahan Baku') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.warehouse.index') }}" class="nav-link {{ Request::is('admin/warehouse*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Gudang') }}</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item {{ Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/in_stock*') || Request::is('admin/out_stock*') ? 'menu-is-opening menu-open' : '' }}">
+                                <a href="#" class="nav-link {{ Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-boxes-stacked"></i>
+                                    <p>{{ __('Manajemen Stok') }} <i class="right fas fa-angle-left"></i></p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.stock.index') }}" class="nav-link {{ Request::is('admin/stock*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Stok Opname') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.live_stock.index') }}" class="nav-link {{ Request::is('admin/live_stock*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Live Stock') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.in_stock.index') }}" class="nav-link {{ Request::is('admin/in_stock*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Stok Masuk') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.out_stock.index') }}" class="nav-link {{ Request::is('admin/out_stock*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Stok Keluar') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                         <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
+                                             <i class="fas fa-angle-right nav-icon"></i>
+                                             <p>{{ __('Adjustment Stok') }}</p>
+                                         </a>
+                                    </li>
+                                    <li class="nav-item">
+                                         <a href="{{ route('admin.mutasi_stok.index') }}" class="nav-link {{ Request::is('admin/mutasi_stok*') ? 'active' : '' }}">
+                                             <i class="fas fa-angle-right nav-icon"></i>
+                                             <p>{{ __('Mutasi Stok') }}</p>
+                                         </a>
+                                    </li>
+                                </ul>
+                            </li>
 
-                        <li class="nav-item {{ Request::is('admin/users*') || Request::is('admin/roles*')  ? 'menu-is-opening menu-open' : '' }}">
-                            <a href="#" class="nav-link {{ Request::is('admin/home*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-id-card"></i>
-                                <p>{{ __('Menu User') }} <i class="right fas fa-angle-left"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}">
-                                        <i class="fas fa-angle-right nav-icon"></i>
-                                        <p>{{ __('Menu User') }}</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                        @else
+                            <!-- Menu Superadmin / Admin Utama -->
+                            <li class="nav-item {{ Request::is('admin/categories*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'menu-is-opening menu-open' : '' }}">
+                                <a href="#" class="nav-link {{ Request::is('admin/categories*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-th"></i>
+                                    <p>{{ __('Master Data') }} <i class="right fas fa-angle-left"></i></p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.categories.index') }}" class="nav-link {{ Request::is('admin/categories*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Kategori') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.items.index') }}" class="nav-link {{ Request::is('admin/items*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Bahan Baku') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.warehouse.index') }}" class="nav-link {{ Request::is('admin/warehouse*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Gudang') }}</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'menu-is-opening menu-open' : '' }}">
+                                <a href="#" class="nav-link {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-utensils"></i>
+                                    <p>{{ __('Resepi & Pesanan') }} <i class="right fas fa-angle-left"></i></p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.resep.index') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Dashboard Resep') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.pesanan.index') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Daftar Pesanan') }}</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item {{ Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/in_stock*') || Request::is('admin/out_stock*') ? 'menu-is-opening menu-open' : '' }}">
+                                <a href="#" class="nav-link {{ Request::is('admin/mutasi_stok*') || Request::is('admin/stock*') || Request::is('admin/live_stock*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-boxes-stacked"></i>
+                                    <p>{{ __('Manajemen Stok') }} <i class="right fas fa-angle-left"></i></p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.stock.index') }}" class="nav-link {{ Request::is('admin/stock*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Stok Opname') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.live_stock.index') }}" class="nav-link {{ Request::is('admin/live_stock*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Live Stock') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.in_stock.index') }}" class="nav-link {{ Request::is('admin/in_stock*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Stok Masuk') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.out_stock.index') }}" class="nav-link {{ Request::is('admin/out_stock*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Stok Keluar') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                         <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
+                                             <i class="fas fa-angle-right nav-icon"></i>
+                                             <p>{{ __('Adjustment Stok') }}</p>
+                                         </a>
+                                    </li>
+                                    <li class="nav-item">
+                                         <a href="{{ route('admin.mutasi_stok.index') }}" class="nav-link {{ Request::is('admin/mutasi_stok*') ? 'active' : '' }}">
+                                             <i class="fas fa-angle-right nav-icon"></i>
+                                             <p>{{ __('Mutasi Stok') }}</p>
+                                         </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.activity-logs.index') }}" class="nav-link {{ Request::is('admin/activity-logs*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-history"></i>
+                                    <p>{{ __('Log Aktivitas') }}</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item {{ Request::is('admin/users*') || Request::is('admin/roles*')  ? 'menu-is-opening menu-open' : '' }}">
+                                <a href="#" class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-id-card"></i>
+                                    <p>{{ __('Menu User') }} <i class="right fas fa-angle-left"></i></p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.users.index') }}" class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}">
+                                            <i class="fas fa-angle-right nav-icon"></i>
+                                            <p>{{ __('Kelola User') }}</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
                         @endif
                     </ul>
                 </nav>

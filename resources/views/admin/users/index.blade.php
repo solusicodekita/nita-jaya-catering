@@ -32,7 +32,7 @@
                         <th>{{ trans('menu.user.fields.name') }}</th>
                         <th>Username</th>
                         <th>{{ trans('menu.user.fields.email') }}</th>
-                        {{-- <th>{{ trans('menu.user.fields.roles') }}</th> --}}
+                        <th>Role</th>
                         <th>{{ trans('menu.user.fields.created_at') }}</th>
                         <th>{{ trans('global.actions') }}</th>
                     </tr>
@@ -44,13 +44,15 @@
                         <td>{{ $user->fullname }}</td>
                         <td>{{ $user->username }}</td>
                         <td>{{ $user->email }}</td>
-                        {{-- <td>
-                            @if(!empty($user->getRoleNames()))
-                              @foreach($user->getRoleNames() as $v)
-                                 <label class="badge badge-success">{{ $v }}</label>
+                        <td>
+                            @if($user->roles && $user->roles->count() > 0)
+                              @foreach($user->roles as $role)
+                                 <span class="badge bg-success text-white fw-bold px-2 py-1">{{ $role->name }}</span>
                               @endforeach
+                            @else
+                              <span class="badge bg-secondary text-white px-2 py-1">-</span>
                             @endif
-                        </td> --}}
+                        </td>
                         <td>{{ $user->updated_at ? $user->updated_at : $user->created_at }}</td>
                         <td class="text-center">
                             <form action="{{ route('admin.users.destroy', $user->id) }}" class="row" method="POST">

@@ -262,7 +262,15 @@ Route::middleware(['xss'])->group(function () {
             Route::get('edit/{id}', [PesananController::class, 'edit'])->name('edit');
             Route::post('update/{id}', [PesananController::class, 'update'])->name('update');
             Route::delete('destroy/{id}', [PesananController::class, 'destroy'])->name('destroy');
+            Route::get('cetak/{id}', [PesananController::class, 'cetak'])->name('cetak');
+            Route::get('pdf/{id}', [PesananController::class, 'pdf'])->name('pdf');
+            Route::post('verifikasi-dapur/{id}', [PesananController::class, 'verifikasiDapur'])->name('verifikasi-dapur');
         });
+
+        Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('notifications/read/{id}', [\App\Http\Controllers\Admin\NotificationController::class, 'read'])->name('notifications.read');
+        Route::post('notifications/read-all', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+        Route::get('notifications/check', [\App\Http\Controllers\Admin\NotificationController::class, 'checkNotifications'])->name('notifications.check');
 
         Route::group(['prefix' => 'fixing-mutasi/', 'as' => 'fixing-mutasi.'], function () {
             Route::get('index', [\App\Http\Controllers\Admin\FixingMutasiController::class, 'index'])->name('index');

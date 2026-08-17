@@ -15,7 +15,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $data = User::latest('id')->get();
+        $data = User::with('roles')->latest('id')->get();
         return view('admin.users.index',compact('data'));
     }
 
@@ -34,7 +34,8 @@ class UserController extends Controller
             'lastname' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|same:confirm-password'
+            'password' => 'required|same:confirm-password',
+            'roles' => 'required'
         ]);
 
         $input = $request->only(['firstname', 'lastname', 'username', 'email', 'password']);
@@ -43,12 +44,8 @@ class UserController extends Controller
         // Create user
         $user = User::create($input);
         
-        // Assign role admin by default
-        $roleAdmin = Role::where('name', 'admin')->first();
-        if (!$roleAdmin) {
-            $roleAdmin = Role::create(['name' => 'admin']);
-        }
-        $user->assignRole($roleAdmin);
+        // Assign role chosen from request
+        $user->assignRole($request->input('roles'));
 
         return redirect()->route('admin.users.index')
                         ->with('success','User created successfully');
@@ -76,20 +73,20 @@ class UserController extends Controller
             'lastname' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($id)],
             'email' => 'required|email|unique:users,email,'.$id,
+            'roles' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $request->except(['roles', '_token', '_method', 'confirm-password']);
         if(!empty($input['password'])){
             $input['password'] = Hash::make($input['password']);
         }else{
-            $input = Arr::except($input,array('password'));
+            $input = Arr::except($input, array('password'));
         }
-        $input['role'] = 'admin';
-        $user = User::find($id);
-        $user->update($input);
-        DB::table('model_has_roles')->where('model_id',$id)->delete();
 
-        $user->assignRole($request->input('roles'));
+        $user = User::findOrFail($id);
+        $user->update($input);
+
+        $user->syncRoles($request->input('roles'));
 
         return redirect()->route('admin.users.index')
                         ->with('success','User updated successfully');

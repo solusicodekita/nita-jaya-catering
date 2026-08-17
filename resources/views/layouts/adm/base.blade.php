@@ -144,16 +144,40 @@
         }
         .sidebar .nav-link {
             color: #fff;
-            padding: 0.75rem 2rem;
+            padding: 0.75rem 1.5rem;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             border-left: 4px solid transparent;
-            transition: 0.2s;
+            transition: all 0.2s ease;
             font-size: 1.05rem;
+            width: 100%;
         }
-        .sidebar .nav-link i {
+        .sidebar .nav-link i:first-child {
             margin-right: 12px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            width: 22px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .sidebar .nav-link span {
+            flex: 1 1 auto;
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.3;
+        }
+        .sidebar .nav-link i.fa-angle-down,
+        .sidebar .nav-link i.fa-chevron-down,
+        .sidebar .nav-link i.menu-arrow {
+            margin-left: auto !important;
+            margin-right: 0 !important;
+            float: none !important;
+            font-size: 0.85rem;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+        .sidebar .nav-link i.rotated {
+            transform: rotate(180deg);
         }
         .sidebar .nav-link.active, .sidebar .nav-link:hover {
             background: rgba(255,193,7,0.13);
@@ -363,95 +387,195 @@
             </div>
         </div>
         <nav>
-            <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
-                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
-            </a>
-            @if(auth()->user()->hasRole('admin-dapur'))
-            <div class="nav-item">
-                <a href="#" class="nav-link {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'active' : '' }}" onclick="toggleMenu('resepiMenu', event)">
-                    <i class="fa-solid fa-utensils"></i>
-                    <span>Resepi</span>
-                    <i class="fa-solid fa-angle-down float-right mt-1"></i>
+            @if(auth()->user()->hasRole('admin-kantor'))
+                <!-- Sidebar Khusus Admin Kantor -->
+                <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
                 </a>
-                <div id="resepiMenu" class="collapse {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'show' : '' }}">
-                    <a href="{{ route('admin.resep.index') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-list"></i> <span>Dashboard Resep</span>
-                    </a>
-                    <a href="{{ route('admin.pesanan.index') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-plus-circle"></i> <span>Buat Pesanan</span>
-                    </a>
-                </div>
-            </div>
-            @endif
-            <div class="nav-item">
-                <a href="#" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}" onclick="toggleMenu('masterMenu', event)">
-                    <i class="fa-solid fa-database"></i>
-                    <span>Master</span>
-                    <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                <a href="{{ route('admin.pesanan.index') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-cart-shopping"></i> <span>Pesanan</span>
                 </a>
-                <div id="masterMenu" class="collapse {{ Request::is('admin/category*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'show' : '' }}">
-                    <a href="{{ route('admin.category.index') }}" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-tags"></i> <span>Kategori</span>
-                    </a>
-                    <a href="{{ route('admin.warehouse.index') }}" class="nav-link {{ Request::is('admin/warehouse*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-location-dot"></i> <span>Lokasi</span>
-                    </a>
-                    <a href="{{ route('admin.items.index') }}" class="nav-link {{ Request::is('admin/items*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-box"></i> <span>Bahan</span>
-                    </a>
-                </div>
-            </div>
-            <div class="nav-item">
-                <a href="#" class="nav-link {{ Request::is('admin/transactions*') ? 'active' : '' }}" onclick="toggleMenu('transaksiMenu', event)">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    <span>Transaksi</span>
-                    <i class="fa-solid fa-angle-down float-right mt-1"></i>
-                </a>
-                <div id="transaksiMenu" class="collapse {{ Request::is('admin/stock*') || Request::is('admin/mutasi_stok*') || Request::is('admin/in_stock*') || Request::is('admin/live_stock*') || Request::is('admin/out_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/laporan_transaksi*') ? 'show' : '' }}">
-                    <a href="{{ route('admin.stock.index') }}" class="nav-link {{ Request::is('admin/stock*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-clipboard-list"></i> <span>Stok Opname</span>
-                    </a>
-                    <a href="{{ route('admin.live_stock.index') }}" class="nav-link {{ Request::is('admin/live_stock*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-chart-line"></i> <span>Live Stock</span>
-                    </a>
-                    <a href="{{ route('admin.in_stock.index') }}" class="nav-link {{ Request::is('admin/in_stock*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i> <span>Stok Masuk</span>
-                    </a>
-                    <a href="{{ route('admin.out_stock.index') }}" class="nav-link {{ Request::is('admin/out_stock*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Stok Keluar</span>
-                    </a>
-                    <a href="{{ route('admin.mutasi_stok.index') }}" class="nav-link {{ Request::is('admin/mutasi_stok*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-exchange-alt"></i> <span>Mutasi Stok</span>
-                    </a>
-                    <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-sliders"></i> <span>Adjustment Stock</span>
-                    </a>
-                    <a href="{{ route('admin.laporan_transaksi.index') }}" class="nav-link {{ Request::is('admin/laporan_transaksi*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-file-lines"></i> <span>Laporan Transaksi</span>
-                    </a>
-                    <!-- <a href="{{ route('admin.fixing-mutasi.index') }}" class="nav-link {{ Request::is('admin/fixing-mutasi*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-screwdriver-wrench"></i> <span>Fixing Mutasi</span>
-                    </a> -->
-                </div>
-            </div>
-            <div class="nav-item">
-                <a href="#" class="nav-link {{ Request::is('admin/pengaturan') ? 'active' : '' }}" onclick="toggleMenu('pengaturanMenu', event)">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Pengaturan</span>
-                    <i class="fa-solid fa-angle-down float-right mt-1"></i>
-                </a>
-                <div id="pengaturanMenu" class="collapse {{ Request::is('admin/pengaturan') || Request::is('admin/pengaturan/index') ? 'show' : '' }}">
-                    <a href="{{ route('admin.pengaturan.index') }}" class="nav-link {{ Request::is('admin/pengaturan/index') ? 'active' : '' }}">
-                        <i class="fa-solid fa-user"></i> <span>Profil</span>
-                    </a>
-                </div>
-            </div>
-            @if (Auth::user()->username == 'superadmin')                
-                <a href="{{ route('admin.users.index') }}" class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-users"></i> <span>Users</span>
-                </a>
-            @endif
 
+                <a href="{{ route('admin.notifications.index') }}" class="nav-link {{ Request::is('admin/notifications*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-bell"></i> <span>Notifikasi</span>
+                    <span class="badge bg-danger rounded-pill float-right mt-1 unread-notif-badge" style="display: none;">0</span>
+                </a>
+            @elseif(auth()->user()->hasRole('admin-dapur'))
+                <!-- Sidebar Khusus Admin Dapur -->
+                <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+                </a>
+                <a href="{{ route('admin.pesanan.index') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-cart-shopping"></i> <span>Daftar Pesanan</span>
+                </a>
+                <div class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}" onclick="toggleMenu('resepiMenu', event)">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span>Resepi</span>
+                        <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                    </a>
+                    <div id="resepiMenu" class="collapse {{ Request::is('admin/resep*') ? 'show' : '' }}">
+                        <a href="{{ route('admin.resep.index') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-list"></i> <span>Dashboard Resep</span>
+                        </a>
+                    </div>
+                </div>
+                <a href="{{ route('admin.live_stock.index') }}" class="nav-link {{ Request::is('admin/live_stock*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-chart-line"></i> <span>Live Stock</span>
+                </a>
+                <a href="{{ route('admin.notifications.index') }}" class="nav-link {{ Request::is('admin/notifications*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-bell"></i> <span>Notifikasi</span>
+                    <span class="badge bg-danger rounded-pill float-right mt-1 unread-notif-badge" style="display: none;">0</span>
+                </a>
+
+            @elseif(auth()->user()->hasRole('admin-gudang-utama'))
+                <!-- Sidebar Khusus Admin Gudang Utama -->
+                <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+                </a>
+                <a href="{{ route('admin.pesanan.index') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-cart-shopping"></i> <span>Daftar Pesanan</span>
+                </a>
+                <div class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('admin/category*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'active' : '' }}" onclick="toggleMenu('masterMenu', event)">
+                        <i class="fa-solid fa-database"></i>
+                        <span>Master</span>
+                        <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                    </a>
+                    <div id="masterMenu" class="collapse {{ Request::is('admin/category*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'show' : '' }}">
+                        <a href="{{ route('admin.category.index') }}" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-tags"></i> <span>Kategori</span>
+                        </a>
+                        <a href="{{ route('admin.warehouse.index') }}" class="nav-link {{ Request::is('admin/warehouse*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-location-dot"></i> <span>Lokasi</span>
+                        </a>
+                        <a href="{{ route('admin.items.index') }}" class="nav-link {{ Request::is('admin/items*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-box"></i> <span>Bahan</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('admin/stock*') || Request::is('admin/mutasi_stok*') || Request::is('admin/in_stock*') || Request::is('admin/live_stock*') || Request::is('admin/out_stock*') || Request::is('admin/adjustment_stock*') ? 'active' : '' }}" onclick="toggleMenu('transaksiMenu', event)">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>Manajemen Stok</span>
+                        <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                    </a>
+                    <div id="transaksiMenu" class="collapse {{ Request::is('admin/stock*') || Request::is('admin/mutasi_stok*') || Request::is('admin/in_stock*') || Request::is('admin/live_stock*') || Request::is('admin/out_stock*') || Request::is('admin/adjustment_stock*') ? 'show' : '' }}">
+                        <a href="{{ route('admin.stock.index') }}" class="nav-link {{ Request::is('admin/stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-clipboard-list"></i> <span>Stok Opname</span>
+                        </a>
+                        <a href="{{ route('admin.live_stock.index') }}" class="nav-link {{ Request::is('admin/live_stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-chart-line"></i> <span>Live Stock</span>
+                        </a>
+                        <a href="{{ route('admin.in_stock.index') }}" class="nav-link {{ Request::is('admin/in_stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i> <span>Stok Masuk</span>
+                        </a>
+                        <a href="{{ route('admin.out_stock.index') }}" class="nav-link {{ Request::is('admin/out_stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Stok Keluar</span>
+                        </a>
+                        <a href="{{ route('admin.mutasi_stok.index') }}" class="nav-link {{ Request::is('admin/mutasi_stok*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-exchange-alt"></i> <span>Mutasi Stok</span>
+                        </a>
+                        <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-sliders"></i> <span>Adjustment Stock</span>
+                        </a>
+                    </div>
+                </div>
+                <a href="{{ route('admin.notifications.index') }}" class="nav-link {{ Request::is('admin/notifications*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-bell"></i> <span>Notifikasi</span>
+                    <span class="badge bg-danger rounded-pill float-right mt-1 unread-notif-badge" style="display: none;">0</span>
+                </a>
+
+            @else
+                <!-- Sidebar Superadmin / Admin Utama -->
+                <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+                </a>
+                <div class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'active' : '' }}" onclick="toggleMenu('resepiMenu', event)">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span>Resepi & Pesanan</span>
+                        <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                    </a>
+                    <div id="resepiMenu" class="collapse {{ Request::is('admin/resep*') || Request::is('admin/pesanan*') ? 'show' : '' }}">
+                        <a href="{{ route('admin.resep.index') }}" class="nav-link {{ Request::is('admin/resep*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-list"></i> <span>Dashboard Resep</span>
+                        </a>
+                        <a href="{{ route('admin.pesanan.index') }}" class="nav-link {{ Request::is('admin/pesanan*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-cart-shopping"></i> <span>Daftar Pesanan</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('admin/category*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'active' : '' }}" onclick="toggleMenu('masterMenu', event)">
+                        <i class="fa-solid fa-database"></i>
+                        <span>Master</span>
+                        <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                    </a>
+                    <div id="masterMenu" class="collapse {{ Request::is('admin/category*') || Request::is('admin/items*') || Request::is('admin/warehouse*') ? 'show' : '' }}">
+                        <a href="{{ route('admin.category.index') }}" class="nav-link {{ Request::is('admin/category*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-tags"></i> <span>Kategori</span>
+                        </a>
+                        <a href="{{ route('admin.warehouse.index') }}" class="nav-link {{ Request::is('admin/warehouse*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-location-dot"></i> <span>Lokasi</span>
+                        </a>
+                        <a href="{{ route('admin.items.index') }}" class="nav-link {{ Request::is('admin/items*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-box"></i> <span>Bahan</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('admin/transactions*') || Request::is('admin/stock*') || Request::is('admin/mutasi_stok*') || Request::is('admin/in_stock*') || Request::is('admin/live_stock*') || Request::is('admin/out_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/laporan_transaksi*') ? 'active' : '' }}" onclick="toggleMenu('transaksiMenu', event)">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>Transaksi</span>
+                        <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                    </a>
+                    <div id="transaksiMenu" class="collapse {{ Request::is('admin/stock*') || Request::is('admin/mutasi_stok*') || Request::is('admin/in_stock*') || Request::is('admin/live_stock*') || Request::is('admin/out_stock*') || Request::is('admin/adjustment_stock*') || Request::is('admin/laporan_transaksi*') ? 'show' : '' }}">
+                        <a href="{{ route('admin.stock.index') }}" class="nav-link {{ Request::is('admin/stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-clipboard-list"></i> <span>Stok Opname</span>
+                        </a>
+                        <a href="{{ route('admin.live_stock.index') }}" class="nav-link {{ Request::is('admin/live_stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-chart-line"></i> <span>Live Stock</span>
+                        </a>
+                        <a href="{{ route('admin.in_stock.index') }}" class="nav-link {{ Request::is('admin/in_stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i> <span>Stok Masuk</span>
+                        </a>
+                        <a href="{{ route('admin.out_stock.index') }}" class="nav-link {{ Request::is('admin/out_stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Stok Keluar</span>
+                        </a>
+                        <a href="{{ route('admin.mutasi_stok.index') }}" class="nav-link {{ Request::is('admin/mutasi_stok*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-exchange-alt"></i> <span>Mutasi Stok</span>
+                        </a>
+                        <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-sliders"></i> <span>Adjustment Stock</span>
+                        </a>
+                        <a href="{{ route('admin.laporan_transaksi.index') }}" class="nav-link {{ Request::is('admin/laporan_transaksi*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-file-lines"></i> <span>Laporan Transaksi</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('admin/pengaturan') ? 'active' : '' }}" onclick="toggleMenu('pengaturanMenu', event)">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Pengaturan</span>
+                        <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                    </a>
+                    <div id="pengaturanMenu" class="collapse {{ Request::is('admin/pengaturan') || Request::is('admin/pengaturan/index') ? 'show' : '' }}">
+                        <a href="{{ route('admin.pengaturan.index') }}" class="nav-link {{ Request::is('admin/pengaturan/index') ? 'active' : '' }}">
+                            <i class="fa-solid fa-user"></i> <span>Profil</span>
+                        </a>
+                    </div>
+                </div>
+                <a href="{{ route('admin.notifications.index') }}" class="nav-link {{ Request::is('admin/notifications*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-bell"></i> <span>Notifikasi</span>
+                    <span class="badge bg-danger rounded-pill float-right mt-1 unread-notif-badge" style="display: none;">0</span>
+                </a>
+                @if (Auth::user()->username == 'superadmin' || Auth::user()->hasRole('admin'))                
+                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-users"></i> <span>Users</span>
+                    </a>
+                @endif
+            @endif
         </nav>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
@@ -521,12 +645,106 @@
     }
     // Toggle menu dropdown (Master, Transaksi)
     function toggleMenu(menuId, event) {
-        event.preventDefault();
+        if (event) event.preventDefault();
         const menu = document.getElementById(menuId);
         if (menu) {
             menu.classList.toggle('show');
+            const link = event ? event.currentTarget : null;
+            if (link) {
+                const arrow = link.querySelector('.fa-angle-down, .fa-chevron-down, .menu-arrow');
+                if (arrow) {
+                    arrow.classList.toggle('rotated', menu.classList.contains('show'));
+                }
+            }
         }
     }
+
+    // Web Audio API Synthesized Bell Chime Notification
+    function playNotificationChime() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            
+            const playTone = (freq, startTime, duration) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.3, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            };
+
+            const now = ctx.currentTime;
+            playTone(659.25, now, 0.35); // E5
+            playTone(880.00, now + 0.18, 0.6); // A5
+        } catch(e) {
+            console.log('Audio notification chime error:', e);
+        }
+    }
+
+    // Polling Notifikasi Sistem (Shared Hosting Friendly)
+    (function() {
+        let lastNotifId = localStorage.getItem('last_notif_id') || 0;
+
+        function checkNewNotifications() {
+            $.ajax({
+                url: "{{ route('admin.notifications.check') }}",
+                type: "GET",
+                data: { last_id: lastNotifId },
+                success: function(res) {
+                    if (res.success) {
+                        // Update counter badge notifikasi di sidebar
+                        if (res.unread_count > 0) {
+                            $('.unread-notif-badge').text(res.unread_count).show();
+                        } else {
+                            $('.unread-notif-badge').hide();
+                        }
+
+                        if (res.latest_id > 0) {
+                            if (lastNotifId > 0 && res.has_new && res.latest_notif) {
+                                playNotificationChime();
+                                Swal.fire({
+                                    title: '🔔 ' + res.latest_notif.title,
+                                    html: `${res.latest_notif.message}`,
+                                    icon: 'info',
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'Buka Link',
+                                    timer: 12000,
+                                    timerProgressBar: true
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = res.latest_notif.url;
+                                    }
+                                });
+                            }
+                            lastNotifId = res.latest_id;
+                            localStorage.setItem('last_notif_id', lastNotifId);
+                        }
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            setTimeout(checkNewNotifications, 2000);
+            setInterval(checkNewNotifications, 12000);
+
+            $('.sidebar .collapse.show').each(function() {
+                const menuId = $(this).attr('id');
+                const triggerLink = $(`[onclick*="${menuId}"]`);
+                if (triggerLink.length) {
+                    triggerLink.find('.fa-angle-down, .fa-chevron-down, .menu-arrow').addClass('rotated');
+                }
+            });
+        });
+    })();
     </script>
     @stack('scripts')
     @stack('script')

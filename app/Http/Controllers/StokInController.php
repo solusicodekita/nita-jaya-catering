@@ -47,7 +47,8 @@ class StokInController extends Controller
     public function create()
     {
         $item = Item::get();
-        return view('admin.stock_in.create', compact('item'));
+        $selected_item_id = request('item_id');
+        return view('admin.stock_in.create', compact('item', 'selected_item_id'));
     }
 
     public function getHargaSatuan(Request $request)
@@ -136,20 +137,18 @@ class StokInController extends Controller
 
     public function getWarehouse(Request $request)
     {
-        $warehouse = Stock::select('warehouse_id')
-            ->where('item_id', $request->item_id)
-            ->groupBy('warehouse_id')
-            ->get();
+        $allWarehouses = \App\Models\Warehouse::orderBy('name', 'asc')->get();
 
-        $data = '';
-        if (count($warehouse) == 0) {
-            $data = '<option value="" disabled selected>-- Lokasi Item tidak ditemukan --</option>';
+        if ($allWarehouses->isEmpty()) {
+            $data = '<option value="" disabled selected>-- Belum ada master lokasi/gudang --</option>';
             return response()->json($data);
         }
 
-        foreach ($warehouse as $row) {
-            $data .= '<option value="'.$row->warehouse_id.'">'.$row->warehouse->name.'</option>';
+        $data = '<option value="" disabled selected>-- Pilih Lokasi --</option>';
+        foreach ($allWarehouses as $w) {
+            $data .= '<option value="' . $w->id . '">' . $w->name . '</option>';
         }
+
         return response()->json($data);
     }
 }

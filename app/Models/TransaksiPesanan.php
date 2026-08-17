@@ -19,7 +19,33 @@ class TransaksiPesanan extends Model
         'grand_total',
         'stock_transaction_id',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'address',
+        'city',
+        'event_place',
+        'phone',
+        'cs_name',
+        'reference',
+        'event_day',
+        'porsi_total',
+        'event_name',
+        'delivery_time',
+        'ready_time',
+        'invitation_qty',
+        'nuansa_theme',
+        'notes',
+        'free_note',
+        'status',
+        'verified_by',
+        'verified_at',
+        'dp1',
+        'dp1_note',
+        'dp2',
+        'dp2_note',
+        'dp3',
+        'dp3_note',
+        'lunas_note',
+        'kekurangan'
     ];
 
     public function details()
@@ -35,6 +61,11 @@ class TransaksiPesanan extends Model
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
     public function updatedBy()

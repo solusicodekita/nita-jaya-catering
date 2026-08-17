@@ -34,6 +34,98 @@
                             <label class="form-label fw-bold">Tanggal Acara</label>
                             <input type="date" class="form-control" name="event_date" value="{{ date('Y-m-d', strtotime($pesanan->event_date)) }}" required>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Hari</label>
+                                <input type="text" class="form-control" name="event_day" value="{{ $pesanan->event_day }}" placeholder="Contoh: Senin">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Telpon</label>
+                                <input type="text" class="form-control" name="phone" value="{{ $pesanan->phone }}" placeholder="No. Telpon">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Alamat</label>
+                            <textarea class="form-control" name="address" rows="2" placeholder="Alamat lengkap">{{ $pesanan->address }}</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Kota</label>
+                                <input type="text" class="form-control" name="city" value="{{ $pesanan->city }}" placeholder="Contoh: Surabaya">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Tempat Acara</label>
+                                <input type="text" class="form-control" name="event_place" value="{{ $pesanan->event_place }}" placeholder="Contoh: Rumah / Gedung">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">CS</label>
+                                <input type="text" class="form-control" name="cs_name" value="{{ $pesanan->cs_name }}" placeholder="Nama CS">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Referensi</label>
+                                <input type="text" class="form-control" name="reference" value="{{ $pesanan->reference }}" placeholder="Referensi Sales">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Acara</label>
+                                <input type="text" class="form-control" name="event_name" value="{{ $pesanan->event_name }}" placeholder="Contoh: Akad Nikah">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Total Porsi Text</label>
+                                <input type="text" class="form-control" name="porsi_total" value="{{ $pesanan->porsi_total }}" placeholder="Contoh: 150 Porsi">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Jam Kirim</label>
+                                <input type="text" class="form-control" name="delivery_time" value="{{ $pesanan->delivery_time }}" placeholder="Contoh: 05.00 Kirim">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Jam Ready</label>
+                                <input type="text" class="form-control" name="ready_time" value="{{ $pesanan->ready_time }}" placeholder="Contoh: 07.30 Ready">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Undangan</label>
+                                <input type="text" class="form-control" name="invitation_qty" value="{{ $pesanan->invitation_qty }}" placeholder="Contoh: PSM">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Nuansa / Theme</label>
+                                <input type="text" class="form-control" name="nuansa_theme" value="{{ $pesanan->nuansa_theme }}" placeholder="Contoh: Putih + Brokat gold">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Catatan Pesanan</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Catatan khusus">{{ $pesanan->notes }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Menu Free / Bonus</label>
+                            <input type="text" class="form-control" name="free_note" value="{{ $pesanan->free_note }}" placeholder="Contoh: Puding + fla (100 Porsi)">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">DP 1 (Rp)</label>
+                                <input type="number" class="form-control" name="dp1" value="{{ $pesanan->dp1 }}" placeholder="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Keterangan DP 1</label>
+                                <input type="text" class="form-control" name="dp1_note" value="{{ $pesanan->dp1_note }}" placeholder="Contoh: BCA 30/07/2026">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Keterangan Pelunasan</label>
+                                <input type="text" class="form-control" name="lunas_note" value="{{ $pesanan->lunas_note }}" placeholder="Contoh: Lunas / BCA 30/07/2026">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Kekurangan (Rp)</label>
+                                <input type="number" class="form-control" name="kekurangan" value="{{ $pesanan->kekurangan }}" placeholder="0">
+                            </div>
+                        </div>
 
                         <hr>
                         <div class="bg-light p-3 rounded mt-4 border border-info border-start-0 border-end-0 border-bottom-0 border-3">
@@ -47,13 +139,13 @@
                             </div>
                         </div>
 
-                        <div class="alert alert-warning mt-3">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <small>Menyimpan perubahan akan mengkalkulasi ulang dan memperbarui riwayat stok gudang Anda.</small>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <small>Menyimpan perubahan akan memperbarui data rincian pesanan. Stok TIDAK dipotong pada tahap Admin Kantor.</small>
                         </div>
 
                         <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 mt-2 fw-bold shadow" id="btnSubmitPesanan">
-                            <i class="fas fa-save me-2"></i> Update Pesanan & Sesuaikan Stok
+                            <i class="fas fa-save me-2"></i> Update Pesanan
                         </button>
                     </div>
                 </div>
@@ -139,10 +231,11 @@
                             </table>
                         </div>
 
+                        @if(auth()->user()->hasRole('admin-dapur') || auth()->user()->hasRole('admin-gudang-utama') || auth()->user()->hasRole('admin'))
                         <!-- Kebutuhan Bahan Baku -->
                         <div class="mt-4 border-top pt-4">
-                            <h6 class="fw-bold text-primary"><i class="fas fa-boxes me-2"></i>Rangkuman Kebutuhan Bahan Baku (Otomatis)</h6>
-                            <p class="small text-muted mb-2">Bahan-bahan di bawah ini akan memotong stok di <strong>Gudang Dapur</strong> secara otomatis setelah perubahan pesanan disimpan.</p>
+                            <h6 class="fw-bold text-primary"><i class="fas fa-boxes me-2"></i>Rangkuman Kebutuhan Bahan Baku</h6>
+                            <p class="small text-muted mb-2">Bahan-bahan di bawah ini adalah rincian kebutuhan stok untuk pesanan ini.</p>
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered align-middle" id="tableKebutuhanResep">
                                     <thead class="table-light">
@@ -159,6 +252,7 @@
                                 </table>
                             </div>
                         </div>
+                        @endif
 
                     </div>
                 </div>
@@ -311,6 +405,22 @@
 
         $('#formPesanan').submit(function(e) {
             e.preventDefault();
+            @if(auth()->user()->hasRole('admin-kantor'))
+            Swal.fire({
+                title: 'Konfirmasi Simpan Pesanan',
+                text: "Perubahan data pesanan akan disimpan. Lanjutkan?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0d6efd',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Simpan Pesanan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+            @else
             Swal.fire({
                 title: 'Konfirmasi Perubahan',
                 text: "Stok akan dikalkulasi ulang berdasarkan data yang baru. Lanjutkan?",
@@ -325,6 +435,7 @@
                     this.submit();
                 }
             });
+            @endif
         });
     });
 </script>

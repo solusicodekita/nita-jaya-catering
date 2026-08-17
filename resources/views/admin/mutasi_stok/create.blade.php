@@ -17,9 +17,9 @@
                                     <div class="col-md-5 mb-3">
                                         <label class="form-label fw-bold">Dari Gudang Asal <span class="text-danger">*</span></label>
                                         <select class="form-control select2" name="from_warehouse_id" id="from_warehouse_id" required>
-                                            <option value="" disabled selected>-- Pilih Gudang Asal --</option>
+                                            <option value="" disabled {{ !isset($default_from_warehouse_id) ? 'selected' : '' }}>-- Pilih Gudang Asal --</option>
                                             @foreach($warehouses as $wh)
-                                                <option value="{{ $wh->id }}">{{ $wh->name }} ({{ $wh->code }})</option>
+                                                <option value="{{ $wh->id }}" {{ (isset($default_from_warehouse_id) && $default_from_warehouse_id == $wh->id) ? 'selected' : '' }}>{{ $wh->name }} ({{ $wh->code }})</option>
                                             @endforeach
                                         </select>
                                         <small class="text-muted">Gudang asal seluruh item di bawah.</small>
@@ -27,7 +27,7 @@
                                     <div class="col-md-5 mb-3">
                                         <label class="form-label fw-bold">Ke Gudang Tujuan <span class="text-danger">*</span></label>
                                         <select class="form-control select2" name="to_warehouse_id" id="to_warehouse_id" required>
-                                            <option value="" disabled selected>-- Pilih Gudang Tujuan --</option>
+                                            <option value="" disabled>-- Pilih Gudang Tujuan --</option>
                                             @foreach($warehouses as $wh)
                                                 <option value="{{ $wh->id }}" {{ $wh->code == 'DP' ? 'selected' : '' }}>{{ $wh->name }} ({{ $wh->code }})</option>
                                             @endforeach
@@ -78,6 +78,7 @@
         let i = 0;
         let itemOptionsHtml = '<option value="" disabled selected>-- Pilih Item --</option>';
         let warehouseId = null;
+        let selectedItemIdParam = "{{ $selected_item_id ?? '' }}";
 
         // Reset Table and Reload Items when Warehouse Changes
         $('#from_warehouse_id').change(function() {
@@ -100,7 +101,10 @@
             $.ajax({
                 url: "{{ route('admin.mutasi_stok.get_items') }}",
                 type: "GET",
-                data: { warehouse_id: warehouseId },
+                data: { 
+                    warehouse_id: warehouseId,
+                    selected_item_id: selectedItemIdParam
+                },
                 success: function(res) {
                     itemOptionsHtml = res;
                     $('#add').prop('disabled', false);
@@ -108,12 +112,25 @@
                     
                     // Add first row automatically
                     addRow();
+
+                    // Auto select item if coming from shortcut link
+                    if (selectedItemIdParam) {
+                        let firstRowSelect = $('#dynamic_field tbody tr:first .item-select');
+                        if (firstRowSelect.length && firstRowSelect.find(`option[value="${selectedItemIdParam}"]`).length) {
+                            firstRowSelect.val(selectedItemIdParam).trigger('change');
+                        }
+                    }
                 },
                 error: function() {
                     Swal.fire('Error', 'Gagal memuat data item', 'error');
                 }
             });
         });
+
+        // Auto trigger warehouse change if default_from_warehouse_id is set
+        if ($('#from_warehouse_id').val()) {
+            $('#from_warehouse_id').trigger('change');
+        }
 
         $('#to_warehouse_id').change(function() {
             let to_warehouse = $(this).val();

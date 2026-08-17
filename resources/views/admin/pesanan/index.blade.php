@@ -6,9 +6,11 @@
     <div class="row mb-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h2 class="m-0 fw-bold text-primary">Daftar Transaksi Pesanan</h2>
+            @if(!auth()->user()->hasRole('admin-dapur'))
             <a href="{{ route('admin.pesanan.create') }}" class="btn btn-primary rounded-pill px-4">
                 <i class="fas fa-plus me-2"></i> Buat Pesanan Baru
             </a>
+            @endif
         </div>
     </div>
 
@@ -24,8 +26,9 @@
                             <th>Tgl Acara</th>
                             <th>Estimasi HPP</th>
                             <th>Estimasi Jual</th>
+                            <th>Status Pesanan</th>
                             <th>Dibuat Oleh</th>
-                            <th width="10%" class="text-center">Aksi</th>
+                            <th width="12%" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -37,10 +40,26 @@
                             <td>{{ $pesanan->event_date ? date('d M Y', strtotime($pesanan->event_date)) : '-' }}</td>
                             <td>Rp {{ number_format($pesanan->total_cost, 0, ',', '.') }}</td>
                             <td class="text-success fw-bold">Rp {{ number_format($pesanan->grand_total, 0, ',', '.') }}</td>
+                            <td>
+                                @if(($pesanan->status ?? 'PESANAN') == 'DICEK_DAPUR')
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Checked Dapur</span>
+                                @elseif(($pesanan->status ?? 'PESANAN') == 'DIPROSES_GUDANG')
+                                    <span class="badge bg-primary"><i class="fas fa-boxes me-1"></i> Diproses Gudang</span>
+                                @else
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i> Pesanan Baru</span>
+                                @endif
+                            </td>
                             <td>{{ $pesanan->createdBy->fullname ?? 'Sistem' }}</td>
                             <td class="text-center">
-                                <a href="{{ route('admin.pesanan.show', $pesanan->id) }}" class="btn btn-sm btn-info rounded-circle" title="Detail">
+                                <a href="{{ route('admin.pesanan.show', $pesanan->id) }}" class="btn btn-sm btn-info rounded-circle" title="Detail & Verifikasi">
                                     <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ route('admin.pesanan.cetak', $pesanan->id) }}" target="_blank" class="btn btn-sm btn-success rounded-circle" title="Cetak Bukti Pesanan">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                                @if(!auth()->user()->hasRole('admin-dapur'))
+                                <a href="{{ route('admin.pesanan.edit', $pesanan->id) }}" class="btn btn-sm btn-warning rounded-circle" title="Edit">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('admin.pesanan.destroy', $pesanan->id) }}" method="POST" class="d-inline delete-form">
                                     @csrf
@@ -49,6 +68,7 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                         @endforeach

@@ -87,9 +87,9 @@
                                             <td>
                                                 <select class="form-control item_id select2-item" name="item[1][item_id]"
                                                     onchange="getHargaSatuan(this)">
-                                                    <option value="" disabled selected>-- Pilih Item --</option>
+                                                    <option value="" disabled {{ !isset($selected_item_id) ? 'selected' : '' }}>-- Pilih Item --</option>
                                                     @foreach ($item as $row)
-                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        <option value="{{ $row->id }}" {{ (isset($selected_item_id) && $selected_item_id == $row->id) ? 'selected' : '' }}>{{ $row->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -154,6 +154,10 @@
 
         $(document).ready(function() {
             initializeSelect2();
+
+            if ($('.select2-item').val()) {
+                getHargaSatuan($('.select2-item')[0]);
+            }
 
             $(".desimal").keypress(function(e) {
                 var charCode = (e.which) ? e.which : event.keyCode;

@@ -36,17 +36,16 @@ class Stock extends Model
         
         $model = $model->latest('date_opname')->first();
         
-        if (!$model) {
-            return 0;
-        }
+        $dateOpname = $model ? $model->date_opname : '2000-01-01 00:00:00';
+        $finalStock = $model ? $model->final_stock : 0;
         
         $until_date = $until_date ?: now()->toDateTimeString();
         
         $barangMasuk = StockTransactionDetail::leftJoin('stock_transactions', 'stock_transaction_details.stock_transaction_id', '=', 'stock_transactions.id')
-            ->where('stock_transaction_details.item_id', $model->item_id)
-            ->where('stock_transaction_details.warehouse_id', $model->warehouse_id)
+            ->where('stock_transaction_details.item_id', $item_id)
+            ->where('stock_transaction_details.warehouse_id', $warehouse_id)
             ->where('stock_transactions.type', 'in')
-            ->where('stock_transactions.date', '>=', $model->date_opname)
+            ->where('stock_transactions.date', '>=', $dateOpname)
             ->where('stock_transactions.date', '<=', $until_date);
             
         $barangMasuk = $barangMasuk->where(function ($query) {
@@ -58,10 +57,10 @@ class Stock extends Model
         })->sum('stock_transaction_details.quantity');
         
         $barangKeluar = StockTransactionDetail::leftJoin('stock_transactions', 'stock_transaction_details.stock_transaction_id', '=', 'stock_transactions.id')
-            ->where('stock_transaction_details.item_id', $model->item_id)
-            ->where('stock_transaction_details.warehouse_id', $model->warehouse_id)
+            ->where('stock_transaction_details.item_id', $item_id)
+            ->where('stock_transaction_details.warehouse_id', $warehouse_id)
             ->where('stock_transactions.type', 'out')
-            ->where('stock_transactions.date', '>=', $model->date_opname)
+            ->where('stock_transactions.date', '>=', $dateOpname)
             ->where('stock_transactions.date', '<=', $until_date);
 
         $barangKeluar = $barangKeluar->where(function ($query) {
@@ -72,7 +71,7 @@ class Stock extends Model
                   });
         })->sum('stock_transaction_details.quantity');
             
-        $jumlah = $model->final_stock + $barangMasuk - $barangKeluar;
+        $jumlah = $finalStock + $barangMasuk - $barangKeluar;
         return $jumlah;
     }
 

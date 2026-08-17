@@ -45,6 +45,14 @@ class HomeController extends Controller
             } else {
                 return redirect()->route('fe.index');
             }
+        } elseif (auth()->user()->hasRole('admin-kantor')) {
+            $total_pesanan = \App\Models\TransaksiPesanan::count();
+            $total_omset = \App\Models\TransaksiPesanan::sum('grand_total');
+            $total_hpp = \App\Models\TransaksiPesanan::sum('total_cost');
+            $total_profit = $total_omset - $total_hpp;
+            $recent_pesanans = \App\Models\TransaksiPesanan::with('createdBy')->orderBy('created_at', 'desc')->take(10)->get();
+
+            return view('admin.dashboard.kantor', compact('total_pesanan', 'total_omset', 'total_hpp', 'total_profit', 'recent_pesanans'));
         } else {
             // Untuk semua user selain customer (admin, admin-dapur, supervisor, dsb)
             // Tampilkan dashboard di /home dan jangan di-redirect ke /beranda

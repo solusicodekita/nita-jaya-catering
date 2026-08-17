@@ -52,10 +52,10 @@
                 <div class="mb-2"><strong>Konfirmasi Password : </strong></div>
                 {!! Form::password('confirm-password', ['placeholder' => 'Confirm Password', 'class' => 'form-control']) !!}
             </div>
-            {{-- <div class="form-group">
-                <div class="mb-2"><strong>Role : </strong></div>
-                {!! Form::select('roles[]', $roles, $userRole, ['class' => 'form-control', 'multiple']) !!}
-            </div> --}}
+            <div class="form-group">
+                <div class="mb-2"><strong>Role Akses : </strong></div>
+                {!! Form::select('roles[]', $roles, $userRole, ['class' => 'form-control', 'required' => 'required']) !!}
+            </div>
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>

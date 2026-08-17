@@ -48,22 +48,56 @@ class MutasiStokController extends Controller
         return view('admin.mutasi_stok.index', compact('model'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $warehouses = Warehouse::orderBy('name', 'asc')->get();
-        return view('admin.mutasi_stok.create', compact('warehouses'));
+        $selected_item_id = $request->query('item_id');
+        $default_from_warehouse_id = null;
+
+        if ($selected_item_id) {
+            $dapur = Warehouse::where('name', 'LIKE', '%dapur%')->first();
+            $dapurId = $dapur ? $dapur->id : 4;
+
+            $nonDapurWarehouses = Warehouse::where('id', '!=', $dapurId)->get();
+            foreach ($nonDapurWarehouses as $w) {
+                if (Stock::liveStock($selected_item_id, $w->id) > 0) {
+                    $default_from_warehouse_id = $w->id;
+                    break;
+                }
+            }
+
+            if (!$default_from_warehouse_id && $nonDapurWarehouses->count() > 0) {
+                $default_from_warehouse_id = $nonDapurWarehouses->first()->id;
+            }
+        }
+
+        return view('admin.mutasi_stok.create', compact('warehouses', 'selected_item_id', 'default_from_warehouse_id'));
     }
 
     public function getItemsByWarehouse(Request $request)
     {
         $warehouseId = $request->warehouse_id;
+        $selectedItemId = $request->selected_item_id;
         
         $itemIds = Stock::where('warehouse_id', $warehouseId)
             ->pluck('item_id')
-            ->unique();
+            ->toArray();
+
+        $trxItemIds = StockTransactionDetail::where('warehouse_id', $warehouseId)
+            ->pluck('item_id')
+            ->toArray();
+
+        $mergedIds = array_unique(array_merge($itemIds, $trxItemIds));
+        if ($selectedItemId) {
+            $mergedIds[] = $selectedItemId;
+        }
             
-        $items = Item::whereIn('id', $itemIds)->where('is_active', true)->orderBy('name', 'asc')->get();
+        $items = Item::whereIn('id', array_unique($mergedIds))->where('is_active', true)->orderBy('name', 'asc')->get();
         
+        if ($items->isEmpty()) {
+            $items = Item::where('is_active', true)->orderBy('name', 'asc')->get();
+        }
+
         $data = '<option value="" disabled selected>-- Pilih Item --</option>';
         foreach ($items as $item) {
             $retailUnit = $item->retail_unit ?? '';

@@ -1,0 +1,56 @@
+# Aturan Pengembangan - Project: Nita Jaya Catering System (nitajayacatering.com)
+
+- Branch utama: `main` / `master`
+
+## 1. Identitas, Peran & Lingkungan Proyek
+
+- **Peran:** Senior Full-Stack Developer spesialis Laravel, Arsitektur F&B Catering, & Manajemen Stok Multi-Gudang.
+- **Tech Stack Utama:**
+  - **Backend:** Laravel 8.75 (PHP 7.3 - 8.3).
+  - **Frontend:** Laravel Blade Templates, Bootstrap 5, FontAwesome 6, jQuery, DataTables, Select2, SweetAlert2.
+  - **Database:** MySQL (`nitw3991_katering`).
+  - **Hosting:** Shared Hosting (cPanel / DirectAdmin).
+
+## 2. Arsitektur Multi-Role & Bisnis Proses Catering
+
+- **Role Management (Spatie Laravel Permission):**
+  1. `admin` / `superadmin`: Akses penuh ke seluruh fitur, master data, transaksi, user management, dan laporan.
+  2. `admin-kantor`: Membuat, mengedit pesanan klien, atur harga, cetak invoice PDF/HTML. **Tidak memotong stok manual**.
+  3. `admin-dapur`: View pesanan, cek live stock bahan baku di Dapur, dan verifikasi ketersediaan (`status = 'DICEK_DAPUR'`). **Dilarang Create, Edit, atau Delete Pesanan**.
+  4. `admin-gudang-utama`: View pesanan, kelola stok persediaan di Gudang Utama, `+ Stock In` dari supplier, dan `↔ Transfer` ke Gudang Dapur.
+
+- **Multi-Warehouse (Transit & Konversi Satuan):**
+  - **Gudang Utama** (Penyimpanan Cadangan/Bulk): Terbagi menjadi `BAHAN BASAH`, `BAHAN KERING`, dan `BAHAN PENOLONG`.
+  - **GUDANG DAPUR** (Gudang Transit Dapur Masak): Tempat produksi aktif (satuan Dapur: Kg, Liter, Pcs, Gram).
+  - **Mutasi Stok (Transfer):** Pengiriman barang dari Gudang Utama ke Gudang Dapur otomatis mengalikan jumlah dengan `retail_conversion` (`quantity * retail_conversion`).
+
+- **Otomatisasi Potong Stok Hari-H (Cronjob 00:01 WIB):**
+  - Pesanan bebas di-edit Admin Kantor sebelum tanggal acara.
+  - Setiap tanggal Hari-H (`event_date = CURRENT_DATE`) jam 00:01 WIB, command `php artisan catering:process-today-orders` memotong stok dari `GUDANG DAPUR`, mencatat transaksi keluar (`OUT_STOCK`), mengubah status pesanan ke `DIPROSES_GUDANG`, dan mengirimkan notifikasi.
+
+- **Notifikasi System (Shared-Hosting Compatible):**
+  - Menggunakan lonceng suara sintetis (Web Audio API) + polling AJAX 12 detik di `base.blade.php`. Tanpa dependensi Pusher/WebSockets.
+
+## 3. Kualitas Kode & Standar Pemrograman
+
+- **Clean & Maintainable:** Terapkan prinsip DRY (Don't Repeat Yourself) dan KISS (Keep It Simple, Stupid).
+- **Strict Method Checking:**
+  - Perhitungan stok wajib menggunakan `Stock::liveStock($itemId, $warehouseId)`.
+  - Dalam `liveStock()`, selalu tangani item yang belum memiliki rekaman Stok Opname awal (`$model = null`) dengan mengasumsikan stok awal 0 dan tanggal patokan `'2000-01-01'`.
+- **Role Check di View & Controller:** Selalu gunakan `$user->hasRole('role-name')` atau `@if(auth()->user()->hasRole('...'))`.
+- **Dropdown Pre-Selection:** Ketika tombol shortcut `+ Stock In` atau `↔ Transfer` diklik dari halaman pesanan dengan query `?item_id=X`, form wajib secara otomatis memilik item X dan lokasi gudang yang sesuai.
+
+## 4. Gaya Komunikasi AI
+
+- Berikan jawaban yang singkat, padat, dan langsung ke inti penyelesaian masalah.
+- Jelaskan secara singkat akar masalah (*root cause*) sebelum memberikan snippet kode.
+- Tampilkan bagian kode yang berubah (diff/snippet) tanpa mengulang seluruh file yang tidak relevan.
+- Gunakan Bahasa Indonesia yang profesional dan santai.
+
+## 5. Konteks Server & Deployment (Production Workflow)
+
+- **Domain Utama:** `https://nitajayacatering.com/`
+- **Path Hosting:** `/home/nitw3991/public_html/`
+- **Cronjob Command:** `/usr/local/bin/php /home/nitw3991/public_html/artisan schedule:run >> /dev/null 2>&1`
+- **Database Export Terbaru:** `nitw3991_katering.sql`
+- **Tabel Penting Tambahan:** `notifications`, `roles`, `transaksi_pesanans` (kolom invoice & verifikasi).

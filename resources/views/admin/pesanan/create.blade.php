@@ -34,6 +34,98 @@
                             <label class="form-label fw-bold">Tanggal Acara</label>
                             <input type="date" class="form-control" name="event_date" required>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Hari</label>
+                                <input type="text" class="form-control" name="event_day" placeholder="Contoh: Senin">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Telpon</label>
+                                <input type="text" class="form-control" name="phone" placeholder="No. Telpon">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Alamat</label>
+                            <textarea class="form-control" name="address" rows="2" placeholder="Alamat lengkap"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Kota</label>
+                                <input type="text" class="form-control" name="city" placeholder="Contoh: Surabaya">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Tempat Acara</label>
+                                <input type="text" class="form-control" name="event_place" placeholder="Contoh: Rumah / Gedung">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">CS</label>
+                                <input type="text" class="form-control" name="cs_name" placeholder="Nama CS">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Referensi</label>
+                                <input type="text" class="form-control" name="reference" placeholder="Referensi Sales">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Acara</label>
+                                <input type="text" class="form-control" name="event_name" placeholder="Contoh: Akad Nikah">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Total Porsi Text</label>
+                                <input type="text" class="form-control" name="porsi_total" placeholder="Contoh: 150 Porsi">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Jam Kirim</label>
+                                <input type="text" class="form-control" name="delivery_time" placeholder="Contoh: 05.00 Kirim">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Jam Ready</label>
+                                <input type="text" class="form-control" name="ready_time" placeholder="Contoh: 07.30 Ready">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Undangan</label>
+                                <input type="text" class="form-control" name="invitation_qty" placeholder="Contoh: PSM">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Nuansa / Theme</label>
+                                <input type="text" class="form-control" name="nuansa_theme" placeholder="Contoh: Putih + Brokat gold">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Catatan Pesanan</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Catatan khusus"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Menu Free / Bonus</label>
+                            <input type="text" class="form-control" name="free_note" placeholder="Contoh: Puding + fla (100 Porsi)">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">DP 1 (Rp)</label>
+                                <input type="number" class="form-control" name="dp1" placeholder="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Keterangan DP 1</label>
+                                <input type="text" class="form-control" name="dp1_note" placeholder="Contoh: BCA 30/07/2026">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Keterangan Pelunasan</label>
+                                <input type="text" class="form-control" name="lunas_note" placeholder="Contoh: Lunas / BCA 30/07/2026">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Kekurangan (Rp)</label>
+                                <input type="number" class="form-control" name="kekurangan" placeholder="0">
+                            </div>
+                        </div>
 
                         <hr>
                         <div class="bg-light p-3 rounded mt-4 border border-info border-start-0 border-end-0 border-bottom-0 border-3">
@@ -48,7 +140,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 mt-4 fw-bold shadow" id="btnSubmitPesanan" disabled>
-                            <i class="fas fa-save me-2"></i> Simpan Pesanan & Potong Stok
+                            <i class="fas fa-save me-2"></i> Simpan Pesanan
                         </button>
                     </div>
                 </div>
@@ -108,10 +200,11 @@
                             </table>
                         </div>
 
+                        @if(auth()->user()->hasRole('admin-dapur') || auth()->user()->hasRole('admin-gudang-utama') || auth()->user()->hasRole('admin'))
                         <!-- Kebutuhan Bahan Baku -->
                         <div class="mt-4 border-top pt-4">
-                            <h6 class="fw-bold text-primary"><i class="fas fa-boxes me-2"></i>Rangkuman Kebutuhan Bahan Baku (Otomatis)</h6>
-                            <p class="small text-muted mb-2">Bahan-bahan di bawah ini akan memotong stok di <strong>Gudang Dapur</strong> secara otomatis setelah pesanan disimpan.</p>
+                            <h6 class="fw-bold text-primary"><i class="fas fa-boxes me-2"></i>Rangkuman Kebutuhan Bahan Baku</h6>
+                            <p class="small text-muted mb-2">Bahan-bahan di bawah ini adalah rincian kebutuhan stok untuk pesanan ini.</p>
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered align-middle" id="tableKebutuhanResep">
                                     <thead class="table-light">
@@ -128,6 +221,7 @@
                                 </table>
                             </div>
                         </div>
+                        @endif
 
                     </div>
                 </div>
@@ -284,6 +378,22 @@
 
         $('#formPesanan').submit(function(e) {
             e.preventDefault();
+            @if(auth()->user()->hasRole('admin-kantor'))
+            Swal.fire({
+                title: 'Konfirmasi Simpan Pesanan',
+                text: "Data pesanan akan disimpan. Lanjutkan?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0d6efd',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Simpan Pesanan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+            @else
             Swal.fire({
                 title: 'Konfirmasi Pesanan',
                 text: "Stok bahan baku akan langsung dipotong berdasarkan resep-resep yang dipilih. Lanjutkan?",
@@ -298,6 +408,7 @@
                     this.submit();
                 }
             });
+            @endif
         });
     });
 </script>
