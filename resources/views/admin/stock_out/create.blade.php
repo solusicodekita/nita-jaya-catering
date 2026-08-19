@@ -86,9 +86,9 @@
                                             <td>
                                                 <select class="form-control item_id select2-item" name="item[1][item_id]"
                                                     onchange="getHargaSatuan(this)">
-                                                    <option value="" disabled selected>-- Pilih Item --</option>
+                                                    <option value="" disabled {{ !isset($selected_item_id) ? 'selected' : '' }}>-- Pilih Item --</option>
                                                     @foreach ($item as $row)
-                                                        <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                        <option value="{{ $row->id }}" {{ (isset($selected_item_id) && $selected_item_id == $row->id) ? 'selected' : '' }}>{{ $row->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -148,6 +148,10 @@
 
         $(document).ready(function() {
             initializeSelect2();
+
+            if ($('.select2-item').val()) {
+                getHargaSatuan($('.select2-item')[0]);
+            }
             $(".desimal").keypress(function(e) {
                 var charCode = (e.which) ? e.which : event.keyCode;
                 var value = $(this).val();
@@ -382,13 +386,42 @@
 
         function getWarehouse(obj) {
             var item_id = $(obj).val();
+            if (!item_id) return;
+
             $.ajax({
                 url: "{{ route('admin.out_stock.getWarehouse') }}",
                 type: "GET",
                 data: { item_id: item_id },
                 dataType: "json",
                 success: function(response) {
-                    $(obj).parents('tr').find('.warehouse_id').html(response);
+                    var $warehouseSelect = $(obj).parents('tr').find('.warehouse_id');
+
+                    try {
+                        $warehouseSelect.select2('destroy');
+                    } catch (e) {
+                        // Ignore
+                    }
+
+                    $warehouseSelect.html(response);
+
+                    var selectedVal = $warehouseSelect.val();
+                    if (!selectedVal || selectedVal === "") {
+                        var $firstValidOpt = $warehouseSelect.find('option:not([disabled])').first();
+                        if ($firstValidOpt.length > 0) {
+                            $warehouseSelect.val($firstValidOpt.val());
+                        }
+                    }
+
+                    $warehouseSelect.select2({
+                        placeholder: "-- Pilih Lokasi --",
+                        allowClear: false,
+                        width: '100%',
+                        theme: 'default',
+                        dropdownParent: $('body')
+                    });
+
+                    $warehouseSelect.trigger('change');
+                    cekLiveStok(obj);
                 }
             });
         }

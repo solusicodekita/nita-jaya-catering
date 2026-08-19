@@ -45,7 +45,8 @@ class StockOutController extends Controller
 
     public function create() {
         $item = Item::whereHas('stocks')->get();
-        return view('admin.stock_out.create', compact('item'));
+        $selected_item_id = request('item_id');
+        return view('admin.stock_out.create', compact('item', 'selected_item_id'));
     }
 
     public function getHargaSatuan(Request $request)
@@ -107,14 +108,17 @@ class StockOutController extends Controller
             ->groupBy('warehouse_id')
             ->get();
 
-        $data = '';
         if (count($warehouse) == 0) {
             $data = '<option value="" disabled selected>-- Lokasi Item tidak ditemukan --</option>';
             return response()->json($data);
         }
 
+        $data = '<option value="" disabled>-- Pilih Lokasi --</option>';
+        $isFirst = true;
         foreach ($warehouse as $row) {
-            $data .= '<option value="'.$row->warehouse_id.'">'.$row->warehouse->name.'</option>';
+            $selected = $isFirst ? 'selected' : '';
+            $data .= '<option value="'.$row->warehouse_id.'" '.$selected.'>'.$row->warehouse->name.'</option>';
+            $isFirst = false;
         }
         return response()->json($data);
     }

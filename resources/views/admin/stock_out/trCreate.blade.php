@@ -2,14 +2,14 @@
     <td>{{ $no }}</td>
     <td>
         <select class="form-control item_id select2-item" name="item[{{ $no }}][item_id]" onchange="getHargaSatuan(this)">
-            <option value="">-- Pilih Item --</option>
+            <option value="" disabled selected>-- Pilih Item --</option>
             @foreach ($item as $row)
                 <option value="{{ $row->id }}">{{ $row->name }}</option>
             @endforeach
         </select>
     </td>
     <td>
-        <select class="form-control warehouse_id select2-warehouse" name="item[{{ $no }}][warehouse_id]"></select>
+        <select class="form-control warehouse_id select2-warehouse" name="item[{{ $no }}][warehouse_id]" onchange="cekLiveStok(this)"></select>
     </td>
     <td>
         <input type="text" class="form-control harga_satuan ribuan" name="item[{{ $no }}][harga_satuan]" id="harga_satuan" onblur="totalHargaItem(this)" value="0">

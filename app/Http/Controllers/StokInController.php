@@ -144,9 +144,12 @@ class StokInController extends Controller
             return response()->json($data);
         }
 
-        $data = '<option value="" disabled selected>-- Pilih Lokasi --</option>';
+        $data = '<option value="" disabled>-- Pilih Lokasi --</option>';
+        $isFirst = true;
         foreach ($allWarehouses as $w) {
-            $data .= '<option value="' . $w->id . '">' . $w->name . '</option>';
+            $selected = $isFirst ? 'selected' : '';
+            $data .= '<option value="' . $w->id . '" ' . $selected . '>' . $w->name . '</option>';
+            $isFirst = false;
         }
 
         return response()->json($data);

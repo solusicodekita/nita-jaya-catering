@@ -2,7 +2,7 @@
     <td>{{ $no }}</td>
     <td>
         <select class="form-control item_id select2-item" name="item[{{ $no }}][item_id]" onchange="getHargaSatuan(this)">
-            <option value="">-- Pilih Item --</option>
+            <option value="" disabled selected>-- Pilih Item --</option>
             @foreach ($item as $row)
                 <option value="{{ $row->id }}">{{ $row->name }}</option>
             @endforeach

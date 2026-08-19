@@ -392,6 +392,8 @@
 
         function getWarehouse(obj) {
             var item_id = $(obj).val();
+            if (!item_id) return;
+
             $.ajax({
                 url: "{{ route('admin.in_stock.getWarehouse') }}",
                 type: "GET",
@@ -412,6 +414,14 @@
                     // Update HTML content
                     $warehouseSelect.html(response);
                     
+                    var selectedVal = $warehouseSelect.val();
+                    if (!selectedVal || selectedVal === "") {
+                        var $firstValidOpt = $warehouseSelect.find('option:not([disabled])').first();
+                        if ($firstValidOpt.length > 0) {
+                            $warehouseSelect.val($firstValidOpt.val());
+                        }
+                    }
+
                     // Re-initialize Select2 for the updated warehouse dropdown
                     $warehouseSelect.select2({
                         placeholder: "-- Pilih Lokasi --",
@@ -420,6 +430,8 @@
                         theme: 'default',
                         dropdownParent: $('body')
                     });
+
+                    $warehouseSelect.trigger('change');
                 }
             });
         }
