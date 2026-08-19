@@ -103,23 +103,74 @@ class StockOutController extends Controller
     }
     public function getWarehouse(Request $request)
     {
+        $item = Item::with('category')->find($request->item_id);
+
         $warehouse = Stock::select('warehouse_id')
             ->where('item_id', $request->item_id)
             ->groupBy('warehouse_id')
             ->get();
 
-        if (count($warehouse) == 0) {
+        if ($warehouse->isEmpty()) {
             $data = '<option value="" disabled selected>-- Lokasi Item tidak ditemukan --</option>';
             return response()->json($data);
         }
 
-        $data = '<option value="" disabled>-- Pilih Lokasi --</option>';
-        $isFirst = true;
-        foreach ($warehouse as $row) {
-            $selected = $isFirst ? 'selected' : '';
-            $data .= '<option value="'.$row->warehouse_id.'" '.$selected.'>'.$row->warehouse->name.'</option>';
-            $isFirst = false;
+        $targetWarehouseId = null;
+
+        if ($item) {
+            $categoryName = $item->category->name ?? '';
+            if ($categoryName) {
+                $matchedWh = $warehouse->first(function ($row) use ($categoryName) {
+                    $wName = $row->warehouse->name ?? '';
+                    return stripos($wName, $categoryName) !== false || stripos($categoryName, $wName) !== false;
+                });
+
+                if (!$matchedWh) {
+                    if (stripos($categoryName, 'KERING') !== false) {
+                        $matchedWh = $warehouse->first(function ($row) { return stripos($row->warehouse->name ?? '', 'KERING') !== false; });
+                    } elseif (stripos($categoryName, 'BASAH') !== false) {
+                        $matchedWh = $warehouse->first(function ($row) { return stripos($row->warehouse->name ?? '', 'BASAH') !== false; });
+                    } elseif (stripos($categoryName, 'PENOLONG') !== false) {
+                        $matchedWh = $warehouse->first(function ($row) { return stripos($row->warehouse->name ?? '', 'PENOLONG') !== false; });
+                    }
+                }
+
+                if ($matchedWh) {
+                    $targetWarehouseId = $matchedWh->warehouse_id;
+                }
+            }
+
+            if (!$targetWarehouseId && $item->code) {
+                if (strpos($item->code, 'BK') === 0) {
+                    $matchedWh = $warehouse->first(function ($row) { return stripos($row->warehouse->name ?? '', 'KERING') !== false; });
+                } elseif (strpos($item->code, 'BB') === 0) {
+                    $matchedWh = $warehouse->first(function ($row) { return stripos($row->warehouse->name ?? '', 'BASAH') !== false; });
+                } elseif (strpos($item->code, 'BP') === 0) {
+                    $matchedWh = $warehouse->first(function ($row) { return stripos($row->warehouse->name ?? '', 'PENOLONG') !== false; });
+                }
+                if (isset($matchedWh) && $matchedWh) {
+                    $targetWarehouseId = $matchedWh->warehouse_id;
+                }
+            }
+
+            if (!$targetWarehouseId) {
+                $lastDetail = StockTransactionDetail::where('item_id', $item->id)->latest()->first();
+                if ($lastDetail && $warehouse->pluck('warehouse_id')->contains($lastDetail->warehouse_id)) {
+                    $targetWarehouseId = $lastDetail->warehouse_id;
+                }
+            }
         }
+
+        if (!$targetWarehouseId && $warehouse->isNotEmpty()) {
+            $targetWarehouseId = $warehouse->first()->warehouse_id;
+        }
+
+        $data = '<option value="" disabled>-- Pilih Lokasi --</option>';
+        foreach ($warehouse as $row) {
+            $selected = ($row->warehouse_id == $targetWarehouseId) ? 'selected' : '';
+            $data .= '<option value="' . $row->warehouse_id . '" ' . $selected . '>' . $row->warehouse->name . '</option>';
+        }
+
         return response()->json($data);
     }
 

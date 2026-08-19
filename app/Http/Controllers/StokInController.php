@@ -137,6 +137,7 @@ class StokInController extends Controller
 
     public function getWarehouse(Request $request)
     {
+        $item = Item::with('category')->find($request->item_id);
         $allWarehouses = \App\Models\Warehouse::orderBy('name', 'asc')->get();
 
         if ($allWarehouses->isEmpty()) {
@@ -144,12 +145,62 @@ class StokInController extends Controller
             return response()->json($data);
         }
 
+        $targetWarehouseId = null;
+
+        if ($item) {
+            // 1. Match by item category name
+            $categoryName = $item->category->name ?? '';
+            if ($categoryName) {
+                $matchedWh = $allWarehouses->first(function ($w) use ($categoryName) {
+                    return stripos($w->name, $categoryName) !== false || stripos($categoryName, $w->name) !== false;
+                });
+
+                if (!$matchedWh) {
+                    if (stripos($categoryName, 'KERING') !== false) {
+                        $matchedWh = $allWarehouses->first(function ($w) { return stripos($w->name, 'KERING') !== false; });
+                    } elseif (stripos($categoryName, 'BASAH') !== false) {
+                        $matchedWh = $allWarehouses->first(function ($w) { return stripos($w->name, 'BASAH') !== false; });
+                    } elseif (stripos($categoryName, 'PENOLONG') !== false) {
+                        $matchedWh = $allWarehouses->first(function ($w) { return stripos($w->name, 'PENOLONG') !== false; });
+                    }
+                }
+
+                if ($matchedWh) {
+                    $targetWarehouseId = $matchedWh->id;
+                }
+            }
+
+            // 2. Match by item code prefix
+            if (!$targetWarehouseId && $item->code) {
+                if (strpos($item->code, 'BK') === 0) {
+                    $matchedWh = $allWarehouses->first(function ($w) { return stripos($w->name, 'KERING') !== false; });
+                } elseif (strpos($item->code, 'BB') === 0) {
+                    $matchedWh = $allWarehouses->first(function ($w) { return stripos($w->name, 'BASAH') !== false; });
+                } elseif (strpos($item->code, 'BP') === 0) {
+                    $matchedWh = $allWarehouses->first(function ($w) { return stripos($w->name, 'PENOLONG') !== false; });
+                }
+                if (isset($matchedWh) && $matchedWh) {
+                    $targetWarehouseId = $matchedWh->id;
+                }
+            }
+
+            // 3. Match by transaction history
+            if (!$targetWarehouseId) {
+                $lastDetail = StockTransactionDetail::where('item_id', $item->id)->latest()->first();
+                if ($lastDetail) {
+                    $targetWarehouseId = $lastDetail->warehouse_id;
+                }
+            }
+        }
+
+        if (!$targetWarehouseId && $allWarehouses->isNotEmpty()) {
+            $targetWarehouseId = $allWarehouses->first()->id;
+        }
+
         $data = '<option value="" disabled>-- Pilih Lokasi --</option>';
-        $isFirst = true;
         foreach ($allWarehouses as $w) {
-            $selected = $isFirst ? 'selected' : '';
+            $selected = ($w->id == $targetWarehouseId) ? 'selected' : '';
             $data .= '<option value="' . $w->id . '" ' . $selected . '>' . $w->name . '</option>';
-            $isFirst = false;
         }
 
         return response()->json($data);
