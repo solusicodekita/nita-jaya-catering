@@ -150,7 +150,7 @@ class MutasiStokController extends Controller
 
         foreach ($request->items as $index => $itemData) {
             $item_id = $itemData['item_id'];
-            $quantity = str_replace(',', '.', $itemData['quantity']);
+            $quantity = \App\Helper\SettingHelper::parseIdNumber($itemData['quantity']);
             $item = Item::find($item_id);
 
             // 1. UPDATE MASTER ITEM JIKA ADA INPUT KONVERSI DINAMIS

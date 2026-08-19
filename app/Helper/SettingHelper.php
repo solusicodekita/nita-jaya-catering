@@ -104,18 +104,31 @@ class SettingHelper
         if (is_int($val) || is_float($val)) {
             return (float)$val;
         }
-        $val = str_replace(['Rp', ' ', 'rp', 'RP'], '', (string)$val);
+
+        $val = trim((string)$val);
+        $val = str_replace(['Rp', 'rp', 'RP', ' '], '', $val);
         if ($val === '') {
             return 0.0;
         }
-        if (strpos($val, '.') !== false && strpos($val, ',') !== false) {
+
+        if (strpos($val, ',') !== false) {
             $val = str_replace('.', '', $val);
             $val = str_replace(',', '.', $val);
-        } elseif (strpos($val, ',') !== false) {
-            $val = str_replace(',', '.', $val);
-        } elseif (strpos($val, '.') !== false) {
-            $val = str_replace('.', '', $val);
+            return (float)$val;
         }
+
+        if (substr_count($val, '.') > 1) {
+            $val = str_replace('.', '', $val);
+            return (float)$val;
+        }
+
+        if (strpos($val, '.') !== false) {
+            $parts = explode('.', $val);
+            if (count($parts) == 2 && strlen($parts[1]) == 3 && strlen($parts[0]) >= 1 && strlen($parts[0]) <= 3) {
+                $val = str_replace('.', '', $val);
+            }
+        }
+
         return (float)$val;
     }
 }
