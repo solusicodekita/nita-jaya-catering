@@ -72,7 +72,7 @@ class Stock extends Model
         })->sum('stock_transaction_details.quantity');
             
         $jumlah = $finalStock + $barangMasuk - $barangKeluar;
-        return $jumlah;
+        return round((float)$jumlah, 4);
     }
 
     public function createdBy()
