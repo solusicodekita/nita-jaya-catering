@@ -46,7 +46,7 @@ class StokInController extends Controller
 
     public function create()
     {
-        $item = Item::get();
+        $item = Item::whereHas('stocks')->orderBy('name', 'asc')->get();
         $selected_item_id = request('item_id');
         return view('admin.stock_in.create', compact('item', 'selected_item_id'));
     }

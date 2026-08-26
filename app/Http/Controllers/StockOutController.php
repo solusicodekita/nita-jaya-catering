@@ -44,7 +44,7 @@ class StockOutController extends Controller
     }
 
     public function create() {
-        $item = Item::whereHas('stocks')->get();
+        $item = Item::whereHas('stocks')->orderBy('name', 'asc')->get();
         $selected_item_id = request('item_id');
         return view('admin.stock_out.create', compact('item', 'selected_item_id'));
     }
