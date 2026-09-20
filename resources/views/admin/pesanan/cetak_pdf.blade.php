@@ -93,10 +93,10 @@
     <!-- Info Klien & Event -->
     <table class="border-table meta-table">
         <tr>
-            <td width="15%"><b>Nama</b></td>
-            <td width="35%">: {{ $pesanan->customer_name }}</td>
-            <td width="15%"><b>Tanggal</b></td>
-            <td width="35%">: {{ $pesanan->event_date ? date('d F Y', strtotime($pesanan->event_date)) : '-' }}</td>
+            <td width="14%"><b>Nama</b></td>
+            <td width="46%">: {{ $pesanan->customer_name }}</td>
+            <td width="13%"><b>Tanggal</b></td>
+            <td width="27%">: {{ $pesanan->event_date ? date('d F Y', strtotime($pesanan->event_date)) : '-' }}</td>
         </tr>
         <tr>
             <td><b>Alamat</b></td>
@@ -148,7 +148,7 @@
             </tr>
         </thead>
         <tbody>
-            @php $romanList = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']; @endphp
+            @php $romanList = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']; @endphp
             @foreach($pesanan->details as $index => $detail)
             <tr>
                 <td class="text-center fw-bold">{{ $romanList[$index] ?? ($index + 1) }}</td>
@@ -159,21 +159,6 @@
                 <td class="text-end">{{ number_format($detail->subtotal_price / max($detail->qty_porsi, 1), 0, ',', '.') }}</td>
                 <td class="text-end fw-bold">{{ number_format($detail->subtotal_price, 0, ',', '.') }}</td>
             </tr>
-
-            <!-- Item Rincian Resep -->
-            @if(isset($detail->menu->menuDetails) && count($detail->menu->menuDetails) > 0)
-                @foreach($detail->menu->menuDetails as $subIdx => $menuDetail)
-                <tr>
-                    <td></td>
-                    <td style="padding-left: 20px;">
-                        {{ $subIdx + 1 }}. {{ $menuDetail->item->name ?? '-' }}
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                @endforeach
-            @endif
             @endforeach
 
             <!-- Free Item -->
@@ -203,6 +188,25 @@
                 </div>
             </td>
             <td width="45%" style="padding: 0; vertical-align: top;">
+                @php
+                    $totalDp = ($pesanan->dp1 ?? 0) + ($pesanan->dp2 ?? 0) + ($pesanan->dp3 ?? 0);
+                    $hasLunasNote = !empty(trim($pesanan->lunas_note ?? ''));
+                    $pelunasanAmount = max(0, $pesanan->grand_total - $totalDp);
+                    
+                    if ($hasLunasNote || strtolower(trim($pesanan->lunas_note ?? '')) == 'lunas') {
+                        $isLunas = true;
+                        $sisaKekurangan = 0;
+                    } elseif (!is_null($pesanan->kekurangan) && $pesanan->kekurangan > 0) {
+                        $isLunas = false;
+                        $sisaKekurangan = $pesanan->kekurangan;
+                    } elseif ($totalDp >= $pesanan->grand_total && $pesanan->grand_total > 0) {
+                        $isLunas = true;
+                        $sisaKekurangan = 0;
+                    } else {
+                        $isLunas = false;
+                        $sisaKekurangan = max(0, $pesanan->grand_total - $totalDp);
+                    }
+                @endphp
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr>
                         <td width="35%"><b>Total</b></td>
@@ -228,18 +232,18 @@
                         <td>Lunas</td>
                         <td>{{ $pesanan->lunas_note ?? '' }}</td>
                         <td class="text-end">
-                            @if($pesanan->kekurangan == 0 && $pesanan->grand_total > 0)
-                                ({{ number_format($pesanan->grand_total, 0, ',', '.') }})
+                            @if($hasLunasNote && $pelunasanAmount > 0)
+                                ({{ number_format($pelunasanAmount, 0, ',', '.') }})
                             @endif
                         </td>
                     </tr>
                     <tr style="border-top: 1px solid #000;">
                         <td class="text-center fw-bold"><b>Kekurangan</b></td>
                         <td colspan="2" class="text-center text-red fw-bold">
-                            @if($pesanan->kekurangan == 0 || strtolower($pesanan->lunas_note) == 'lunas')
+                            @if($isLunas)
                                 LUNAS
                             @else
-                                Rp {{ number_format($pesanan->kekurangan, 0, ',', '.') }}
+                                Rp {{ number_format($sisaKekurangan, 0, ',', '.') }}
                             @endif
                         </td>
                     </tr>
@@ -292,11 +296,18 @@
     </table>
 
     <!-- Footer -->
-    <div style="font-size: 8px; margin-top: 2px; font-weight: bold;">
-        PEMBAYARAN VIA TRANSFER:<br>
-        # NITA JAYA, CV (BCA 6100170050) # QONITA (BSI 7500000807, BRI 017201001743565, MANDIRI 1420011110094)<br>
-        # Pembayaran di luar rekening di atas di luar tanggung jawab perusahaan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PAK JALAL
-    </div>
+    <table style="width: 100%; font-size: 8px; margin-top: 4px; font-weight: bold; border-collapse: collapse;">
+        <tr>
+            <td style="vertical-align: top; width: 75%;">
+                PEMBAYARAN VIA TRANSFER:<br>
+                # NITA JAYA, CV (BCA 6100170050) # QONITA (BSI 7500000807, BRI 017201001743565, MANDIRI 1420011110094)<br>
+                # Pembayaran di luar rekening di atas di luar tanggung jawab perusahaan
+            </td>
+            <td style="vertical-align: bottom; text-align: right; width: 25%; font-size: 9.5px; font-weight: bold;">
+                PAK JALAL
+            </td>
+        </tr>
+    </table>
 
 </body>
 </html>

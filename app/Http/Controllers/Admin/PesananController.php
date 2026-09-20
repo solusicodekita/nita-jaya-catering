@@ -241,7 +241,11 @@ class PesananController extends Controller
             'createdBy',
             'verifiedBy',
             'stockTransaction.stockTransactionDetails.item'
-        ])->findOrFail($id);
+        ])->find($id);
+
+        if (!$pesanan) {
+            return redirect()->route('admin.pesanan.index')->with('error', 'Data pesanan #' . $id . ' tidak ditemukan atau telah dihapus.');
+        }
 
         // Agregasi Bahan Baku & Cek Live Stock (Gudang Utama [Total Non-Dapur] vs Gudang Dapur)
         $ingredientCheck = [];

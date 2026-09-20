@@ -32,6 +32,13 @@ class NotificationController extends Controller
         $notification = Notification::findOrFail($id);
         $notification->update(['is_read' => true]);
 
+        if ($notification->transaksi_pesanan_id) {
+            $pesananExists = \App\Models\TransaksiPesanan::where('id', $notification->transaksi_pesanan_id)->exists();
+            if (!$pesananExists) {
+                return redirect()->route('admin.pesanan.index')->with('error', 'Pesanan terkait (#' . $notification->transaksi_pesanan_id . ') sudah tidak ditemukan / telah dihapus.');
+            }
+        }
+
         return redirect($notification->url ?? route('admin.pesanan.index'));
     }
 
