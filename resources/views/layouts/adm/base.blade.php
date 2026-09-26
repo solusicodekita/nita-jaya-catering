@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>@yield('title', 'Admin') | Nita Jaya Catering</title>
     <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
@@ -733,6 +737,40 @@
         }
 
         $(document).ready(function() {
+            // Global AJAX Error Handling untuk Session Expired (401 / 419)
+            $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+                if (jqXHR.status === 401 || jqXHR.status === 419) {
+                    window.location.href = "{{ route('login') }}?session_expired=1";
+                }
+            });
+
+            // Handle Back-Forward Cache (bfcache) pada Pinned Tab / Browser Restore
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+
+            // Re-check session saat tab yang di-pin difokuskan kembali
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    checkNewNotifications();
+                }
+            });
+
+            // Setup Axios Interceptor jika digunakan
+            if (window.axios) {
+                window.axios.interceptors.response.use(
+                    function(response) { return response; },
+                    function(error) {
+                        if (error.response && (error.response.status === 401 || error.response.status === 419)) {
+                            window.location.href = "{{ route('login') }}?session_expired=1";
+                        }
+                        return Promise.reject(error);
+                    }
+                );
+            }
+
             setTimeout(checkNewNotifications, 2000);
             setInterval(checkNewNotifications, 12000);
 

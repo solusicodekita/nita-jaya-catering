@@ -66,6 +66,26 @@
                 </div>
                 <div class="login-title">Nita Jaya Catering</div>
                 <div class="login-subtitle">Silakan login untuk melanjutkan</div>
+
+                @if (session('warning') || request()->has('session_expired') || request()->has('expired'))
+                    <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        {{ session('warning') ?? 'Sesi login Anda telah berakhir karena tidak ada aktivitas. Silakan login kembali.' }}
+                    </div>
+                @endif
+
+                @if (session('status'))
+                    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 

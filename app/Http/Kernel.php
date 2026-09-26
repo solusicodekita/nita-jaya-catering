@@ -71,5 +71,6 @@ class Kernel extends HttpKernel
         'xss' => \App\Http\Middleware\XSSProtection::class,
         'alamat' => \App\Http\Middleware\Alamat::class,
         'transaksi' => \App\Http\Middleware\TransactionMiddleware::class,
+        'prevent.back.history' => \App\Http\Middleware\PreventBackHistory::class,
     ];
 }

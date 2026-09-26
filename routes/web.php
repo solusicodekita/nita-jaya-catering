@@ -35,7 +35,7 @@ Route::middleware(['xss'])->group(function () {
             Route::get('/beranda', 'index')->name('index'); 
             Route::get('/list', 'list')->name('list');
 
-            Route::middleware(['auth'])->group(function () {
+            Route::middleware(['auth', 'prevent.back.history'])->group(function () {
                 Route::get('/category/{id}', 'category')->name('category');
                 Route::get('/review', 'review')->name('review');
 
@@ -104,9 +104,9 @@ Route::middleware(['xss'])->group(function () {
         'verify'   => false,
     ]);
 
-    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->middleware(['auth', 'prevent.back.history'])->name('home');
 
-    Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth', 'prevent.back.history'])->prefix('admin')->name('admin.')->group(function () {
         // Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
         // Route::controller(App\Http\Controllers\ProfileController::class)->prefix('profile')->name('profile.')->group(function () {
