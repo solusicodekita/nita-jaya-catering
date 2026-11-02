@@ -485,6 +485,18 @@
                         </a>
                     </div>
                 </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('admin/laporan*') ? 'active' : '' }}" onclick="toggleMenu('laporanMenuGudang', event)">
+                        <i class="fa-solid fa-file-invoice"></i>
+                        <span>Laporan</span>
+                        <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                    </a>
+                    <div id="laporanMenuGudang" class="collapse {{ Request::is('admin/laporan*') ? 'show' : '' }}">
+                        <a href="{{ route('admin.laporan_opname.index') }}" class="nav-link {{ Request::is('admin/laporan_opname*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-clipboard-check"></i> <span>Laporan Opname</span>
+                        </a>
+                    </div>
+                </div>
                 <a href="{{ route('admin.notifications.index') }}" class="nav-link {{ Request::is('admin/notifications*') ? 'active' : '' }}">
                     <i class="fa-solid fa-bell"></i> <span>Notifikasi</span>
                     <span class="badge bg-danger rounded-pill float-right mt-1 unread-notif-badge" style="display: none;">0</span>
@@ -552,6 +564,21 @@
                         </a>
                         <a href="{{ route('admin.adjustment_stock.index') }}" class="nav-link {{ Request::is('admin/adjustment_stock*') ? 'active' : '' }}">
                             <i class="fa-solid fa-sliders"></i> <span>Adjustment Stock</span>
+                        </a>
+                        <a href="{{ route('admin.laporan_transaksi.index') }}" class="nav-link {{ Request::is('admin/laporan_transaksi*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-file-lines"></i> <span>Laporan Transaksi</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('admin/laporan*') ? 'active' : '' }}" onclick="toggleMenu('laporanMenu', event)">
+                        <i class="fa-solid fa-file-invoice"></i>
+                        <span>Laporan</span>
+                        <i class="fa-solid fa-angle-down float-right mt-1"></i>
+                    </a>
+                    <div id="laporanMenu" class="collapse {{ Request::is('admin/laporan*') ? 'show' : '' }}">
+                        <a href="{{ route('admin.laporan_opname.index') }}" class="nav-link {{ Request::is('admin/laporan_opname*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-clipboard-check"></i> <span>Laporan Opname</span>
                         </a>
                         <a href="{{ route('admin.laporan_transaksi.index') }}" class="nav-link {{ Request::is('admin/laporan_transaksi*') ? 'active' : '' }}">
                             <i class="fa-solid fa-file-lines"></i> <span>Laporan Transaksi</span>

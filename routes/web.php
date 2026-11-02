@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Admin\WareHousesController;
 use App\Http\Controllers\LaporanTransaksiController;
+use App\Http\Controllers\LaporanOpnameController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\StockController;
@@ -228,6 +229,12 @@ Route::middleware(['xss'])->group(function () {
             Route::get('create', [LaporanTransaksiController::class, 'create'])->name('create');
             Route::get('download/{id}', [LaporanTransaksiController::class, 'download'])->name('download');
             Route::post('preview', [LaporanTransaksiController::class, 'preview'])->name('preview');
+        });
+
+        Route::group(['prefix' => 'laporan_opname/', 'as' => 'laporan_opname.'], function () {
+            Route::get('index', [LaporanOpnameController::class, 'index'])->name('index');
+            Route::get('export-excel', [LaporanOpnameController::class, 'exportExcel'])->name('export_excel');
+            Route::post('simpan-checkpoint', [LaporanOpnameController::class, 'simpanCheckpoint'])->name('simpan_checkpoint');
         });
 
 
